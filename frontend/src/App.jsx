@@ -1,17 +1,20 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
-import Search from "./components/search"
-function App() {
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Header from "./components/header";
+import Footer from "./components/footer";
+import Home from "./pages/home";
+import Gym from "./pages/gym"
+import "./index.css";
 
+const App = () => {
   return (
-    <>
-    <div id="topBar">
-      <Search/>
-    </div>
-    </>
-  )
-}
+    <Router>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/gym" element={<Gym />} />
+      </Routes>
+    </Router>
+  );
+};
 
-export default App
+export default App;

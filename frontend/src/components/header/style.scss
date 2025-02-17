@@ -1,0 +1,107 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap");
+
+.header {
+  background: #111;
+  padding: 1.2rem 0;
+  color: #fff;
+  font-family: "Poppins", sans-serif;
+  position: relative;
+
+  .container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    font-size: 1.8rem;
+    font-weight: 600;
+    text-decoration: none;
+    color: #ff5722;
+
+    .logo-icon {
+      margin-right: 8px;
+    }
+  }
+
+  /* Navigation Links */
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+
+    a {
+      text-decoration: none;
+      color: #ddd;
+      font-size: 1rem;
+      font-weight: 500;
+      transition: color 0.3s;
+
+      &:hover {
+        color: #ff5722;
+      }
+    }
+
+    .cta-button {
+      background: #ff5722;
+      color: #fff;
+      padding: 0.6rem 1.2rem;
+      border-radius: 5px;
+      font-weight: 600;
+      transition: 0.3s;
+
+      &:hover {
+        background: #e64a19;
+      }
+    }
+  }
+
+  /* Hamburger Menu Icon */
+  .menu-icon {
+    display: none;
+    font-size: 1.8rem;
+    cursor: pointer;
+  }
+}
+
+/* Mobile Dropdown Menu */
+@media (max-width: 768px) {
+    .header{
+        .menu-icon {
+            display: block;
+          }
+    }
+
+  .nav-links {
+    position: absolute;
+    top: 70px;
+    left: 0;
+    right: 0;
+    background: #222;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    pointer-events: none;
+  }
+
+  .nav-links.open {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: all;
+  }
+
+  /* Optional: Close menu when clicking outside */
+  .nav-links a {
+    padding: 0.8rem 1.5rem;
+  }
+}

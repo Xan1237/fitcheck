@@ -1,37 +1,95 @@
-.search-bar-container {
+// SearchBar.scss
+
+.search-bar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  background-color: #1a1a1a; // Dark background for contrast
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+
+  .search-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px; // Space between search input and filter
+    width: 100%;
+    max-width: 600px;
+  }
+
+  .search-input-container {
     display: flex;
     align-items: center;
-    background: #fff;
-    border: 1px solid #ccc;
+    gap: 8px; // Space between input and button
+  }
+
+  .search-input {
+    flex: 1;
+    padding: 12px;
+    border: 2px solid #ff6b35; // Orange border
     border-radius: 8px;
-    padding: 10px;
-    width: 100%;
-    max-width: 400px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  
-    .search-icon {
-      color: #888;
-      margin-right: 10px;
+    background-color: #2a2a2a; // Dark input background
+    color: #ffffff; // White text
+    font-size: 16px;
+    outline: none;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+
+    &:focus {
+      border-color: #ff8c42; // Brighter orange on focus
+      box-shadow: 0 0 8px rgba(255, 107, 53, 0.6); // Glow effect
     }
-  
-    .search-input {
-      border: none;
-      outline: none;
-      width: 100%;
-      font-size: 16px;
-    }
-  
-    &:focus-within {
-      border-color: #007bff;
-      box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+
+    &::placeholder {
+      color: #888; // Light gray placeholder
     }
   }
 
-  .btn{
-    width: 5vw;
-    margin-left: 15px;
-    border-color: grey;
-    &:hover{
-        border-color: black;
+  .search-button {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    background-color: #ff6b35; // Orange button
+    color: #ffffff; // White text
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+
+    &:hover {
+      background-color: #ff8c42; // Brighter orange on hover
+    }
+
+    &:active {
+      background-color: #e65a2b; // Darker orange on click
+      transform: scale(0.98); // Slight press effect
     }
   }
+
+  .filter-container {
+    display: flex;
+    align-items: center;
+    gap: 8px; // Space between label and dropdown
+  }
+
+  .filter-label {
+    color: #ffffff; // White text
+    font-size: 16px;
+    font-weight: bold;
+  }
+
+  .filter-select {
+    padding: 10px;
+    border: 2px solid #ff6b35; // Orange border
+    border-radius: 8px;
+    background-color: #2a2a2a; // Dark dropdown background
+    color: #ffffff; // White text
+    font-size: 16px;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.3s ease, background-color 0.3s ease;
+
+    &:focus {
+      border-color: #ff8c42; // Brighter orange on focus
+      background-color: #333; // Slightly lighter background
+    }
+  }
+}

@@ -1,0 +1,24 @@
+// AnimatedText.scss
+
+.animated-text-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 10vh; // Full viewport height for centering
+    background-color: #1a1a1a; // Dark background for contrast
+  }
+  
+  .orange-text {
+    color: #ff6b35; // Orange text color
+    font-size: 3rem; // Large text size
+    font-weight: bold; // Bold text
+    text-align: center;
+    opacity: 0; // Start invisible
+    transform: translateY(20px); // Start slightly below
+    transition: opacity 1s ease, transform 1s ease;
+  
+    &.animate {
+      opacity: 1; // Fade in
+      transform: translateY(0); // Slide up to original position
+    }
+  }

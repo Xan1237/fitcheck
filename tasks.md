@@ -1,0 +1,1 @@
+Saul Please look at the gymData folder in the frontend and fill out the fields by adding all the gyms in nova scotia -Xander

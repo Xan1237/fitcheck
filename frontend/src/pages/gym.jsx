@@ -12,8 +12,8 @@ const gym = () => {
   console.log(gymsData)
   return (
     <div>
-      <h1>{gymsData.name}</h1>
         <Header/>
+        <img src= {gym.img} alt="" />
     </div>
   );
 };

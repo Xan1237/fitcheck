@@ -1,7 +1,7 @@
 const gymData = {
     "sackville" : {
         name : "Sack",
-        img : "img src",
+        img : "gymPics/SackvilleFitForLess.jpg",
     }
 }
 

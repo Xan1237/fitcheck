@@ -1,0 +1,18 @@
+#root{
+    background-color: orange;
+    .GymPic{
+        width: 100vw;
+        height: auto;
+        @media  (min-width: 1200px) {
+            max-width: 50vw;
+            padding-top: 15px;
+            display: block;
+            margin: auto;
+        }
+    }
+    #messageSection{
+        height: 120vh;
+        background-color: #242424;
+        display: block;
+    }
+}

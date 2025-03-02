@@ -10,6 +10,8 @@
         "cors": "^2.8.5",
         "dotenv": "^16.4.7",
         "express": "^4.21.2",
+        "firebase": "^11.4.0",
+        "firebase-admin": "^13.1.0",
         "morgan": "^1.10.0"
     }
 }

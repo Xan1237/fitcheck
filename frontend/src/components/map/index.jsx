@@ -106,7 +106,7 @@ const Map = ({ searchResults }) => {
         center={position}
         zoom={12}
         scrollWheelZoom={true}
-        style={{ height: '100%', width: '80%', margin: '0 auto' }}
+        style={{ height: '100%', width: '80%', maxWidth : "1300px", margin: '0 auto' }}
       >
         <ChangeView center={position} />
         <TileLayer

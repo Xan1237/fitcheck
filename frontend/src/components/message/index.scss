@@ -5,9 +5,11 @@
     max-width: 60vw; 
     padding: 12px 18px; 
     border-radius: 18px; 
-    margin: 10px 20px; 
     box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.1); 
     font-size: 16px;
     line-height: 1.4;
     word-wrap: break-word; 
+    @media  (max-width: 1200px) {
+        margin: 10px 20px; 
+    }
 }

@@ -1,10 +1,11 @@
 #root{
-    background-color: orange;
+    background-color: #242424; //this color needs to be changed
     .GymPic{
         width: 100vw;
         height: auto;
         @media  (min-width: 1200px) {
-            max-width: 50vw;
+            max-height: auto;
+            width: 70vw;
             padding-top: 15px;
             display: block;
             margin: auto;
@@ -12,7 +13,21 @@
     }
     #messageSection{
         height: 120vh;
+        margin-top: 5px;
         background-color: #242424;
         display: block;
+
+        @media  (min-width: 1200px) {
+           width: fit-content;
+        }
+    }
+
+    .page{
+        @media  (min-width: 1200px) {
+            display: block;
+            width: 70vw;
+            height: auto;
+            margin: auto;
+        }
     }
 }

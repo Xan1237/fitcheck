@@ -3,10 +3,14 @@ import './index.scss';
 
 
 
-const Message = ({messageContent}) => {
+const Message = ({messageContent, timeStamp}) => {
     return(
     <>
-    <h1 id="message">{messageContent}</h1>
+    <div id="message">
+    <span id="messageContent">{messageContent}</span>
+    <br />
+    <span id="timeStamp">{timeStamp}</span>
+    </div>
     </>
     )
 };

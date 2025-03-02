@@ -1,9 +1,13 @@
 import sackvilleFitForLess from "./gymPics/SackvilleFitForLess.jpg";
-
+import BedfordFitForLessImg from "./gymPics/BedfordFitForLess.jpg";
 const gymData = {
     "sackville" : {
         name : "Sack",
-        img : sackvilleFitForLess,
+        img : sackvilleFitForLess
+    },
+    "BedfordFitForLess" :{
+        name : "BedfordFitForLess",
+        img : BedfordFitForLessImg
     }
 }
 

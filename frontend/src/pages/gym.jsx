@@ -1,61 +1,109 @@
-import React, { useState } from 'react';
-import Search from '../components/search';
-import Map from '../components/map';
-import Header from '../components/header';  // Make sure to import Header
-import Footer from '../components/footer';  // Ensure Footer is also imported
-import Title from '../components/title';  // Ensure Title is imported
-import { useParams } from "react-router-dom";
+import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import gymData from "../data/gymData.js";
 import Message from "../components/message";
-import "./index.scss";
+import Header from '../components/header';
+import './index.scss';
+import { v4 as uuidv4 } from 'uuid';
+import dayjs from 'dayjs';
 
+const Gym = () => {
+  const { gym } = useParams();
+  const gymsData = gymData[gym];
+  const [newComment, setNewComment] = useState('');
+  const [messages, setMessages] = useState([]);
 
-const postComment = async () => {
-  const commentData = {
-    CommentID: "1", 
-    UserName: "This is a great post!", 
-    CommentText: "hello"
+  // Function to post a new comment
+  const postComment = async () => {
+    if (!newComment.trim()) {
+      return; // Prevent posting empty comments
+    }
+
+    const commentData = {
+      CommentID: uuidv4(),
+      UserName: 'Anonymous',
+      CommentText: newComment,
+      GymName: gymsData.name,
+      Time: dayjs().format('YYYY-MM-DD HH:mm')
+    };
+
+    try {
+      const response = await fetch('/api/comment', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(commentData),
+      });
+
+      const result = await response.json();
+      if (response.ok) {
+        setMessages([commentData, ...messages]);
+        setNewComment('');
+      } else {
+        console.error('Error:', result.message);
+      }
+    } catch (error) {
+      console.error('Error posting comment:', error);
+    }
   };
 
-  try {
-    const response = await fetch("/api/comment", {
-      method: "POST", // HTTP method
-      headers: {
-        "Content-Type": "application/json", // Indicate that we are sending JSON
-      },
-      body: JSON.stringify(commentData), // Convert the comment data to a JSON string
-    });
-
-    const result = await response.json();
-    if (response.ok) {
-      console.log("Comment added:", result);
-    } else {
-      console.log("Error:", result.message);
+  // Function to fetch comments from the API
+  const fetchComments = async () => {
+    const gymName = gymsData.name;
+    try {
+      const response = await fetch(`/api/GetComments/?GymName=${encodeURIComponent(gymName)}`, {
+        method: 'GET'
+      });
+      const result = await response.json();
+      if (response.ok) {
+        setMessages(result.data || []); // Update messages state with fetched comments
+      } else {
+        console.error('Error fetching comments:', result.message);
+      }
+    } catch (error) {
+      console.error('Error fetching comments:', error);
     }
-  } catch (error) {
-    console.error("Error making POST request:", error);
-  }
-};
+  };
 
-postComment();
+  // Fetch comments when the component mounts
+  useEffect(() => {
+    fetchComments();
+  }, [gymsData.name]); // Re-fetch comments if gymsData.name changes
 
-
-
-const gym = () => {
-  const {gym} = useParams();
-  const gymsData = gymData[gym];
-  console.log(gymsData.img)
   return (
     <div>
-        <Header/>
-        <div className='page'>
-          <img className = "GymPic" src={gymsData.img} alt="" />
-          <div id="messageSection">
-            <Message messageContent="This Gym rly sucks "/>
+      <Header />
+      <div className="page">
+        <img className="GymPic" src={gymsData.img} alt={gymsData.name} />
+        <div id="messageSection">
+          <div className="commentInputContainer">
+            <input
+              type="text"
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
+              placeholder="Type your comment here"
+              className="commentInput"
+            />
+            <button onClick={postComment} className="addCommentButton">
+              Add Comment
+            </button>
           </div>
+          {messages.length > 0 ? (
+            messages.map((msg, index) => (
+            <Message
+             key={msg.CommentID || index}
+              messageContent={msg.CommentText}
+              timeStamp={msg.Time}
+            />
+            ))
+            ) : (
+            <div>No comments yet. Be the first to add one!</div>
+              )}
         </div>
+      </div>
     </div>
   );
 };
 
-export default gym;
+export default Gym;

@@ -1,15 +1,26 @@
 #message {
     background-color: #f0f0f0; // Light gray for a clean look
-    color: #333; 
-    width: fit-content; 
-    max-width: 60vw; 
-    padding: 12px 18px; 
-    border-radius: 18px; 
-    box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.1); 
+    color: #333;
+    width: fit-content;
+    max-width: 60vw;
+    margin-top: 10px;
+    padding: 12px 18px;
+    border-radius: 18px;
+    box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.1);
     font-size: 16px;
     line-height: 1.4;
-    word-wrap: break-word; 
-    @media  (max-width: 1200px) {
-        margin: 10px 20px; 
+    word-wrap: break-word;
+    
+
+
+    #messageContent {
+        font-weight: bold; // Emphasize message content
+    }
+
+    #timeStamp {
+        font-size: 14px;
+        color: #666; // Lighter color for timestamp
+        display: block;
+        margin-top: 5px;
     }
 }

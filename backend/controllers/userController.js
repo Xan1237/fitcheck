@@ -1,22 +1,31 @@
-import{ db }  from "../config/db.js";
+import{fireStoreDb}  from "../config/db.js";
 import { Timestamp } from "firebase-admin/firestore";
 import axios from "axios";
-// Create a new user
+import { doc, setDoc} from "firebase/firestore";
+
+
+
 const createComment = async (req, res) => {
-  console.log(req.body)
-  const { CommentID, UserName, CommentText } = req.body;
+  const { CommentID, UserName, CommentText, GymName, Time } = req.body;
+  
   try {
-    await db.collection("CommentID").doc(CommentID).set({
-        UserName,
-        CommentText,
-        createdAt: Timestamp.now(),
+    if (!CommentID || !UserName || !CommentText) {
+      return res.status(400).json({ success: false, error: "Missing required fields" });
+    }
+
+    await fireStoreDb.collection(GymName + "_Comment").doc(CommentID).set({
+      UserName,
+      CommentText,
+      Time
     });
-    res.status(201).json({ success: true, message: "User created" });
+
+    return res.status(201).json({ success: true, message: "Comment created" });
+    
   } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
+    console.error("Error creating comment:", error);
+    return res.status(500).json({ success: false, error: error.message || "Unknown error occurred" });
   }
 };
-
 
 // POST /api/adress route to handle address-related requests
 const getAdress =  async (req, res) => {
@@ -53,19 +62,31 @@ const getAdress =  async (req, res) => {
 };
 
 // // Get user by ID
-// const getUserById = async (req, res) => {
-//   const { userId } = req.params;
-//   try {
-//     const userDoc = await db.collection("users").doc(userId).get();
-//     if (!userDoc.exists) {
-//       return res.status(404).json({ success: false, message: "User not found" });
-//     }
-//     res.status(200).json({ success: true, data: userDoc.data() });
-//   } catch (error) {
-//     res.status(500).json({ success: false, error: error.message });
-//   }
-// };
+const getComments = async (req, res) => {
+  const { GymName } = req.query;
+  console.log('Requested GymName:', GymName);
 
+  try {
+    if (!GymName) {
+      return res.status(400).json({ success: false, error: 'GymName is required' });
+    }
+
+    const userDoc = await fireStoreDb.collection(`${GymName}_Comment`).get();
+    if (userDoc.empty) {
+      return res.status(404).json({ success: false, error: 'No comments found' });
+    }
+
+    const comments = userDoc.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+
+    res.status(200).json({ success: true, data: comments });
+  } catch (error) {
+    console.error('Error retrieving comments:', error);
+    res.status(500).json({ success: false, error: 'Internal Server Error' });
+  }
+};
 // // Update user
 // const updateUser = async (req, res) => {
 //   const { userId } = req.params;
@@ -88,4 +109,4 @@ const getAdress =  async (req, res) => {
 //   }
 // };
 
-export { createComment, getAdress};
+export { createComment, getAdress, getComments};

@@ -21,10 +21,9 @@ const Header = () => {
         {/* Dropdown Menu */}
         <nav className={`nav-links ${menuOpen ? "open" : ""}`}>
           <Link to="/workouts" onClick={() => setMenuOpen(false)}>Workouts</Link>
-          <Link to="/nutrition" onClick={() => setMenuOpen(false)}>Nutrition</Link>
-          <Link to="/membership" onClick={() => setMenuOpen(false)}>Membership</Link>
-          <Link to="/contact" onClick={() => setMenuOpen(false)}>Contact</Link>
-          <Link to="/join" className="cta-button" onClick={() => setMenuOpen(false)}>Join Now</Link>
+          <Link to="/membership" onClick={() => setMenuOpen(false)}>Add Your Gym</Link>
+          <Link to="/contact" onClick={() => setMenuOpen(false)}>Contact Us</Link>
+          <Link to="/join" className="cta-button" onClick={() => setMenuOpen(false)}>Sign In</Link>
         </nav>
       </div>
     </header>

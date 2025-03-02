@@ -32,14 +32,14 @@ const markers = [
     name: "Fit For Less",
     position: [44.77269337771879, -63.693536924525894], // Latitude, Longitude
     description: "Fit For Less Lower Sackville",
-     link: "https://www.fit4less.ca/locations/provinces/nova-scotia/sackville/sackville-drive?utm_source=G&utm_medium=lpm&utm_campaign=fit4less"
+     link: "/gym/sackville"
   },
   {
     id: 2,
     name: "Fit For Less",
     position: [44.73686038444007, -63.65620366193974],
     description: "Fit For Less Beford",
-    link: "https://www.fit4less.ca/locations/provinces/nova-scotia/bedford/bedford-place-mall?utm_source=G&utm_medium=lpm&utm_campaign=fit4less"
+    link: "/gym/BedfordFitForLess"
   },
   {
     id: 3,

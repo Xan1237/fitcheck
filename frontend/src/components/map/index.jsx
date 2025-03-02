@@ -86,6 +86,24 @@ const Map = ({ searchResults }) => {
     }
   };
 
+  const createCustomMarkerIcon = (color = '#ff5722') => {
+    return new L.Icon({
+      iconUrl: `data:image/svg+xml;charset=UTF-8,
+        <svg xmlns="http://www.w3.org/2000/svg" width="25" height="41" viewBox="0 0 25 41">
+          <path fill="${color}" d="M12.5,0C5.597,0,0,5.597,0,12.5C0,19.403,12.5,41,12.5,41S25,19.403,25,12.5C25,5.597,19.403,0,12.5,0z
+          M12.5,18.75a6.25,6.25,0,1,1,0-12.5a6.25,6.25,0,0,1,0,12.5z"/>
+        </svg>`,
+      shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+      shadowSize: [41, 41]
+    });
+  };
+  
+  // Create your orange marker with the desired RGB value
+  const orangeIcon = createCustomMarkerIcon('rgb(255, 140, 0)'); 
+
   // Fetch coordinates when address changes
   useEffect(() => {
     if (searchResults) {
@@ -117,12 +135,13 @@ const Map = ({ searchResults }) => {
         />
       
       {markers.map((marker) => (
-  <Marker key={marker.id} position={marker.position}>
+  <Marker id="marker" key={marker.id} position={marker.position} icon={orangeIcon}>
     <Popup>
       <a 
         href= {marker.link}
         target="_blank" 
         rel="noopener noreferrer"
+
       >
         {marker.description}
       </a>

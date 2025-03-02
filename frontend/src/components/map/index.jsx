@@ -79,6 +79,8 @@ const Map = ({ searchResults }) => {
 
       const data = await response.json();
       setPosition([data.latitude, data.longitude]);
+      console.log(data)
+      console.log("f")
     } catch (error) {
       console.error('Error:', error);
     }

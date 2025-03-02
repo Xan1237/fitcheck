@@ -8,22 +8,9 @@ dotenv.config();
 
 
 const app = express();
-
-
-
+app.use(express.json());
 app.use(commentRouter);
 
-
-
-
-// POST /api/search route to handle the search query
-app.post('/api/search', (req, res) => {
-  const { q } = req.body;  // Extract search query from request body
-  console.log(`Searching for: ${q}`);
-
-  // Your mock logic (e.g., return a mock response)
-  res.json({ message: `Search results for "${q}"` });  // Only send this response
-});
 
 
 

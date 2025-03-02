@@ -1,13 +1,14 @@
 import{ db }  from "../config/db.js";
 import { Timestamp } from "firebase-admin/firestore";
-
+import axios from "axios";
 // Create a new user
 const createComment = async (req, res) => {
+  console.log(req.body)
   const { CommentID, UserName, CommentText } = req.body;
   try {
-    await db.collection("users").doc(CommentID).set({
+    await db.collection("CommentID").doc(CommentID).set({
         UserName,
-        commentContent,
+        CommentText,
         createdAt: Timestamp.now(),
     });
     res.status(201).json({ success: true, message: "User created" });
@@ -19,7 +20,6 @@ const createComment = async (req, res) => {
 
 // POST /api/adress route to handle address-related requests
 const getAdress =  async (req, res) => {
-  console.log("JJJJJ");
   const { searchResults } = req.body;
 
   try {

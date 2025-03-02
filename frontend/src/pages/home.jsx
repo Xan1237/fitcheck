@@ -7,7 +7,7 @@ import Title from '../components/title';  // Ensure Title is imported
 
 const Home = () => {
   const [searchQuery, setSearchQuery] = useState('');
-
+  const [filter, setFilter] = useState('all');
   const handleSearchSubmit = (query, filter) => {
     setSearchQuery(query);
     console.log('Search Query:', query);
@@ -21,6 +21,10 @@ const Home = () => {
       <Header />
       <Title />
       <Search
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        filter={filter}
+        setFilter={setFilter}
         onSearchSubmit={handleSearchSubmit}
       />
       <Map searchResults={searchQuery} />

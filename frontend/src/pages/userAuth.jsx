@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import './SignIn.scss';
-
+import { FaBars, FaTimes, FaDumbbell } from "react-icons/fa";
 const AuthPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -16,10 +16,49 @@ const AuthPage = () => {
         return;
       }
       console.log('Signing up with:', { email, password });
-      // Add your sign-up logic here
+      async function signup(email, password) {
+        try {
+          const response = await fetch('/auth/signup', {
+            method: "POST",
+            headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email, password }),
+        });
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+  
+        const data = await response.json();
+        console.log(data)
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    }
+    signup(email, password);
+    
     } else {
       console.log('Signing in with:', { email, password, rememberMe });
-      // Add your sign-in logic here
+      async function signin(email, password) {
+        try {
+          const response = await fetch('/auth/signin', {
+            method: "POST",
+            headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email, password }),
+        });
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        window.location.href = "/";
+        const data = await response.json();
+        console.log(data)
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    }
+    signin(email, password)
     }
   };
 
@@ -38,10 +77,11 @@ const AuthPage = () => {
         <div className="signin-left">
           <div className="logo-container">
             <div className="logo">
-              <i className="icon-dumbbell"></i>
+            <FaDumbbell style={{ fontSize: "50px", color: "black" }} />
+
             </div>
           </div>
-          <h2>{isSignUp ? 'Start your fitness journey' : 'Get back to your fitness journey'}</h2>
+          <h2>{isSignUp ? 'Join FitCheck' : 'Login To Your FitCheck Acount'}</h2>
           <p>Track, review, and discover the best gyms in your area</p>
         </div>
         <div className="signin-right">

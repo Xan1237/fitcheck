@@ -272,7 +272,7 @@ body {
     width: 100%;
     padding: 12px;
     background-color: $white;
-    color: $dark-gray;
+    color: white;
     border: 1px solid #ddd;
     border-radius: 8px;
     font-size: 16px;
@@ -282,6 +282,8 @@ body {
     justify-content: center;
     align-items: center;
     transition: background-color 0.3s;
+    background-color: $primary-orange;
+    
     
     i {
       margin-right: 10px;
@@ -289,7 +291,7 @@ body {
     }
     
     &:hover {
-      background-color: $light-gray;
+      background-color: $dark-orange;
     }
   }
   

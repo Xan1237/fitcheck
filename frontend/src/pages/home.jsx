@@ -4,7 +4,6 @@ import Map from '../components/map';
 import Header from '../components/header';  // Make sure to import Header
 import Footer from '../components/footer';  // Ensure Footer is also imported
 import Title from '../components/title';  // Ensure Title is imported
-
 const Home = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [filter, setFilter] = useState('all');
@@ -14,6 +13,9 @@ const Home = () => {
     console.log('Filter:', filter);
 
   };
+
+
+
 
 
   return (

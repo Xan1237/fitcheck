@@ -31,6 +31,17 @@ const AuthPage = () => {
   
         const data = await response.json();
         console.log(data)
+        if (data.success) {
+          // Store authentication data in localStorage
+          if (data.token) {
+            localStorage.setItem('token', data.token);
+            console.log("Token stored:", data.token);
+          } else {
+            console.error("Token is undefined in the response");
+          }
+        }
+        window.location.href = "/";
+        console.log("Token stored:", data.token);
       } catch (error) {
         console.error('Error:', error);
       }
@@ -38,27 +49,47 @@ const AuthPage = () => {
     signup(email, password);
     
     } else {
-      console.log('Signing in with:', { email, password, rememberMe });
       async function signin(email, password) {
         try {
           const response = await fetch('/auth/signin', {
             method: "POST",
             headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email, password }),
-        });
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ email, password }),
+          });
+          
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          
+          const data = await response.json();
+          console.log("Response data:", data); // Add this line for debugging
+          
+          if (data.success) {
+            // Store authentication data in localStorage
+            if (data.token) {
+              localStorage.setItem('token', data.token);
+              console.log("Token stored:", data.token);
+            } else {
+              console.error("Token is undefined in the response");
+            }
+          
+            
+            // Redirect after successfully processing the data
+            window.location.href = "/";
+          } else {
+            // Handle authentication failure
+            console.error('Authentication failed:', data.message);
+            // You might want to show an error message to the user here
+          }
+        } catch (error) {
+          console.error('Error:', error);
+          // Handle error - show message to user
         }
-        window.location.href = "/";
-        const data = await response.json();
-        console.log(data)
-      } catch (error) {
-        console.error('Error:', error);
       }
-    }
-    signin(email, password)
+      
+      signin(email, password);
     }
   };
 

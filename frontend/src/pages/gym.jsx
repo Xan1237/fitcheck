@@ -6,7 +6,7 @@ import Header from '../components/header';
 import './index.scss';
 import { v4 as uuidv4 } from 'uuid';
 import dayjs from 'dayjs';
-import star from '../data/StarImg/Star.png'
+import Star from '../data/StarImg/Star.png'
 
 const Gym = () => {
   const { gym } = useParams();

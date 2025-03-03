@@ -10,6 +10,11 @@ export default defineConfig({
         changeOrigin: true,
         secure: false,
       },
+      '/auth': {
+        target: 'http://localhost:5175',  // Redirect /auth requests to backend
+        changeOrigin: true,
+        secure: false,
+      },
     },
   },
 });

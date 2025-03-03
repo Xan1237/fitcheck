@@ -29,9 +29,9 @@ const Header = () => {
         </div>
 
         <nav className={`nav-links ${menuOpen ? "open" : ""}`}>
-          <Link to="/workouts" onClick={() => setMenuOpen(false)}>Workouts</Link>
-          <Link to="/membership" onClick={() => setMenuOpen(false)}>Add Your Gym</Link>
-          <Link to="/contact" onClick={() => setMenuOpen(false)}>Contact Us</Link>
+          <Link to="/workouts" onClick={() => setMenuOpen(false)}>Contact Us</Link>
+          <Link to="/membership" onClick={() => setMenuOpen(false)}>Don't See Your Gym</Link>
+          <Link to="/contact" onClick={() => setMenuOpen(false)}>My Profile</Link>
           
           {isLoggedIn ? (
             <button className="cta-button" onClick={() => {

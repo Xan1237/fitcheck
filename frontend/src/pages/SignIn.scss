@@ -1,0 +1,314 @@
+// SignIn.scss
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+// Color variables
+$primary-orange: #ff6b00;
+$dark-orange: #e65100;
+$light-orange: #ff9d4d;
+$primary-black: #222222;
+$dark-gray: #444444;
+$light-gray: #f5f5f5;
+$white: #ffffff;
+
+// Icon font for dumbbells and social icons
+@font-face {
+  font-family: 'gym-icons';
+  src: url('path-to-your-icons/gym-icons.woff2') format('woff2');
+}
+
+.icon-dumbbell:before {
+  content: "\e900";
+  font-family: 'gym-icons';
+}
+
+.icon-google:before {
+  content: "\e901";
+  font-family: 'gym-icons';
+}
+
+// Global styles
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: $light-gray;
+}
+
+// Main container
+.signin-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+// Sign-in card
+.signin-card {
+  display: flex;
+  max-width: 900px;
+  width: 100%;
+  min-height: 600px;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    min-height: auto;
+  }
+}
+
+// Left side with promotional content
+.signin-left {
+  background: linear-gradient(135deg, $primary-orange, $dark-orange);
+  color: $white;
+  flex: 1;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  transition: all 0.3s ease;
+
+  h2 {
+    margin-top: 30px;
+    font-size: 28px;
+    font-weight: 600;
+    margin-bottom: 15px;
+    transition: opacity 0.3s ease;
+  }
+
+  p {
+    font-size: 16px;
+    opacity: 0.9;
+    max-width: 300px;
+  }
+
+  .logo-container {
+    margin-bottom: 30px;
+  }
+
+  .logo {
+    width: 80px;
+    height: 80px;
+    background-color: $white;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    
+    i {
+      font-size: 36px;
+      color: $primary-orange;
+    }
+  }
+
+  @media (max-width: 768px) {
+    padding: 30px 20px;
+    
+    h2 {
+      font-size: 24px;
+    }
+  }
+}
+
+// Right side with form
+.signin-right {
+  flex: 1.2;
+  padding: 40px;
+  background-color: $white;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s ease;
+  
+  @media (max-width: 768px) {
+    padding: 30px 20px;
+  }
+}
+
+.signin-header {
+  margin-bottom: 30px;
+  transition: all 0.3s ease;
+  
+  h1 {
+    color: $primary-black;
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    transition: opacity 0.3s ease;
+  }
+  
+  p {
+    color: $dark-gray;
+    font-size: 16px;
+    transition: opacity 0.3s ease;
+  }
+}
+
+.signin-form {
+  .form-group {
+    margin-bottom: 20px;
+    transition: all 0.3s ease;
+    
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: $primary-black;
+    }
+    
+    input {
+      width: 100%;
+      padding: 12px 15px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 15px;
+      transition: border-color 0.3s;
+      
+      &:focus {
+        border-color: $primary-orange;
+        outline: none;
+      }
+      
+      &::placeholder {
+        color: #aaa;
+      }
+    }
+  }
+  
+  .form-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    
+    .remember-me {
+      display: flex;
+      align-items: center;
+      
+      input[type="checkbox"] {
+        margin-right: 8px;
+        accent-color: $primary-orange;
+      }
+      
+      label {
+        font-size: 14px;
+        color: $dark-gray;
+      }
+    }
+    
+    .forgot-password {
+      font-size: 14px;
+      color: $primary-orange;
+      text-decoration: none;
+      transition: opacity 0.3s;
+      
+      &:hover {
+        opacity: 0.8;
+      }
+    }
+  }
+  
+  .signin-button {
+    width: 100%;
+    padding: 12px;
+    background-color: $primary-orange;
+    color: $white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    
+    &:hover {
+      background-color: $dark-orange;
+    }
+  }
+  
+  .signin-divider {
+    position: relative;
+    text-align: center;
+    margin: 25px 0;
+    transition: all 0.3s ease;
+    
+    &:before, &:after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      width: 45%;
+      height: 1px;
+      background-color: #ddd;
+    }
+    
+    &:before {
+      left: 0;
+    }
+    
+    &:after {
+      right: 0;
+    }
+    
+    span {
+      display: inline-block;
+      padding: 0 10px;
+      background-color: $white;
+      position: relative;
+      z-index: 1;
+      color: $dark-gray;
+      font-size: 14px;
+    }
+  }
+  
+  .social-signin-button {
+    width: 100%;
+    padding: 12px;
+    background-color: $white;
+    color: $dark-gray;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background-color 0.3s;
+    
+    i {
+      margin-right: 10px;
+      font-size: 18px;
+    }
+    
+    &:hover {
+      background-color: $light-gray;
+    }
+  }
+  
+  .auth-toggle-link {
+    margin-top: 25px;
+    text-align: center;
+    font-size: 14px;
+    color: $dark-gray;
+    transition: all 0.3s ease;
+    
+    a {
+      color: $primary-orange;
+      text-decoration: none;
+      font-weight: 500;
+      transition: opacity 0.3s;
+      
+      &:hover {
+        opacity: 0.8;
+      }
+    }
+  }
+}

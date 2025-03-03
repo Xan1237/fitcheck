@@ -4,6 +4,7 @@ import Header from "./components/header";
 import Footer from "./components/footer";
 import Home from "./pages/home";
 import Gym from "./pages/gym"
+import SignIn from "./pages/userAuth";
 import "./index.css";
 
 const App = () => {
@@ -12,6 +13,7 @@ const App = () => {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="gym/:gym" element={<Gym />} />
+        <Route path="/login" element={<SignIn />} />
       </Routes>
     </Router>
   );

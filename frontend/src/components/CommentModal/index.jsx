@@ -1,6 +1,28 @@
 import React, { useState } from "react";
 import "./style.scss";
 
+const tagOptions = [
+  "Clean",
+  "Crowded",
+  "Great Equipment",
+  "Powerlifting Friendly",
+  "Bodybuilding Focused",
+  "Cardio Machines",
+  "Friendly Staff",
+  "Expensive",
+  "Affordable",
+  "Open 24/7",
+  "Good Music",
+  "Locker Rooms",
+  "Showers Available",
+  "Parking Available",
+  "No Parking",
+  "Sauna",
+  "CrossFit Friendly",
+  "Personal Trainers",
+  "Women Friendly",
+];
+
 const CommentModal = ({
   newComment,
   setNewComment,
@@ -8,14 +30,15 @@ const CommentModal = ({
   closeModal,
   rating,
   setRating,
-  chalkAllowed,
-  setChalkAllowed,
-  calibratedPlatesAllowed,
-  setCalibratedPlatesAllowed,
+  selectedTags,
+  setSelectedTags,
 }) => {
-  // Function to handle star rating
-  const handleRating = (value) => {
-    setRating(value);
+  const toggleTag = (tag) => {
+    setSelectedTags((prevTags) =>
+      prevTags.includes(tag)
+        ? prevTags.filter((t) => t !== tag)
+        : [...prevTags, tag]
+    );
   };
 
   return (
@@ -23,7 +46,7 @@ const CommentModal = ({
       <div className="commentModalContent">
         <h2>Leave a Review</h2>
 
-        {/* Star Rating Section */}
+        {/* Star Rating */}
         <div className="ratingSection">
           <span>Rate the gym:</span>
           <div className="stars">
@@ -31,7 +54,7 @@ const CommentModal = ({
               <span
                 key={value}
                 className={`star ${rating >= value ? "selected" : ""}`}
-                onClick={() => handleRating(value)}
+                onClick={() => setRating(value)}
               >
                 ★
               </span>
@@ -39,25 +62,22 @@ const CommentModal = ({
           </div>
         </div>
 
-        {/* Gym Features */}
-        <div className="featureSelection">
-          <label>
-            <input
-              type="checkbox"
-              checked={chalkAllowed}
-              onChange={() => setChalkAllowed(!chalkAllowed)}
-            />
-            Allows Lifting Chalk
-          </label>
-
-          <label>
-            <input
-              type="checkbox"
-              checked={calibratedPlatesAllowed}
-              onChange={() => setCalibratedPlatesAllowed(!calibratedPlatesAllowed)}
-            />
-            Has Calibrated Powerlifting Plates
-          </label>
+        {/* Gym Tags Selection */}
+        <div className="tagSelection">
+          <h3>Gym Tags:</h3>
+          <div className="tagsGrid">
+            {tagOptions.map((tag) => (
+              <button
+                key={tag}
+                className={`tagButton ${
+                  selectedTags.includes(tag) ? "selected" : ""
+                }`}
+                onClick={() => toggleTag(tag)}
+              >
+                {tag}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Comment Section */}

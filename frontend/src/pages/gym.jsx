@@ -16,8 +16,7 @@ const Gym = () => {
   const [messages, setMessages] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [rating, setRating] = useState(0);
-  const [chalkAllowed, setChalkAllowed] = useState(false);
-  const [calibratedPlatesAllowed, setCalibratedPlatesAllowed] = useState(false);
+  const [selectedTags, setSelectedTags] = useState([]);
 
   // Function to post a new comment
   const postComment = async () => {
@@ -32,8 +31,7 @@ const Gym = () => {
       GymName: gymsData.name,
       Time: dayjs().format("YYYY-MM-DD HH:mm"),
       Rating: rating,
-      ChalkAllowed: chalkAllowed,
-      CalibratedPlatesAllowed: calibratedPlatesAllowed,
+      Tags: selectedTags,
     };
 
     try {
@@ -50,8 +48,7 @@ const Gym = () => {
         setMessages([commentData, ...messages]);
         setNewComment("");
         setRating(0);
-        setChalkAllowed(false);
-        setCalibratedPlatesAllowed(false);
+        setSelectedTags([]);
         setShowModal(false);
       } else {
         console.error("Error:", result.message);
@@ -107,8 +104,7 @@ const Gym = () => {
                 messageContent={msg.CommentText}
                 timeStamp={msg.Time}
                 rating={msg.Rating}
-                chalkAllowed={msg.ChalkAllowed}
-                calibratedPlatesAllowed={msg.CalibratedPlatesAllowed}
+                tags={msg.Tags}
               />
             ))
           ) : (
@@ -125,10 +121,8 @@ const Gym = () => {
           closeModal={() => setShowModal(false)}
           rating={rating}
           setRating={setRating}
-          chalkAllowed={chalkAllowed}
-          setChalkAllowed={setChalkAllowed}
-          calibratedPlatesAllowed={calibratedPlatesAllowed}
-          setCalibratedPlatesAllowed={setCalibratedPlatesAllowed}
+          selectedTags={selectedTags}
+          setSelectedTags={setSelectedTags}
         />
       )}
     </div>

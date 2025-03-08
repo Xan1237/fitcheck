@@ -20,6 +20,27 @@
   z-index: 1000;
 }
 
+.tagsGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tagButton {
+  background: #eee;
+  color: black;
+  border: 1px solid #ddd;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.tagButton.selected {
+  background: #007bff;
+  color: white;
+}
+
+
 // Modal Content
 .commentModalContent {
   background: black;

@@ -1,24 +1,28 @@
-import React from 'react';
-import './index.scss';
+import React from "react";
+import "./index.scss";
 
-const Message = ({ messageContent, timeStamp, rating, chalkAllowed, calibratedPlatesAllowed }) => {
-    return (
-        <div className="message">
-            <div className="messageHeader">
-                <span className="stars">
-                    {"★".repeat(rating)}{"☆".repeat(5 - rating)}
-                </span>
-                <span className="timeStamp">{timeStamp}</span>
-            </div>
+const Message = ({ messageContent, timeStamp, rating, tags }) => {
+  return (
+    <div className="message">
+      <div className="messageHeader">
+        <span className="stars">
+          {"★".repeat(rating)}
+          {"☆".repeat(5 - rating)}
+        </span>
+        <span className="timeStamp">{timeStamp}</span>
+      </div>
 
-            <p className="messageContent">{messageContent}</p>
+      <p className="messageContent">{messageContent}</p>
 
-            <div className="gymFeatures">
-                <span>{chalkAllowed ? "✅ Allows Lifting Chalk" : "❌ No Lifting Chalk"}</span>
-                <span>{calibratedPlatesAllowed ? "✅ Has Calibrated Plates" : "❌ No Calibrated Plates"}</span>
-            </div>
-        </div>
-    );
+      <div className="gymFeatures">
+        {tags && tags.length > 0 ? (
+          tags.map((tag, index) => <span key={index}>{tag}</span>)
+        ) : (
+          <span>No additional features listed.</span>
+        )}
+      </div>
+    </div>
+  );
 };
 
 export default Message;

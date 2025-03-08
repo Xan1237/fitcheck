@@ -1,0 +1,579 @@
+// Variables
+$primary-orange: #ff7a00;
+$secondary-orange: #ff9a33;
+$light-orange: #ffebdb;
+$dark-black: #1a1a1a;
+$gray-dark: #333333;
+$gray-medium: #666666;
+$gray-light: #cccccc;
+$gray-bg: #f4f4f4;
+$white: #ffffff;
+$error-red: #e53935;
+$success-green: #43a047;
+
+// Mixins
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+@mixin flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+@mixin hover-effect {
+  transition: all 0.3s ease;
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+  }
+}
+
+@mixin button-base {
+  border: none;
+  border-radius: 6px;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+// Base styling
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', 'Roboto', sans-serif;
+  color: $dark-black;
+  background-color: $gray-bg;
+  line-height: 1.5;
+}
+
+// Profile Setup Container
+.profile-setup-container {
+  max-width: 1200px;
+  margin: 2rem auto;
+  background-color: $white;
+  border-radius: 12px;
+  box-shadow: 0 5px 30px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.profile-setup-header {
+  background: linear-gradient(135deg, $primary-orange, darken($primary-orange, 15%));
+  color: $white;
+  padding: 2rem 3rem;
+  text-align: center;
+  
+  h1 {
+    font-size: 2.25rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+  
+  p {
+    font-size: 1.1rem;
+    opacity: 0.9;
+  }
+}
+
+.profile-setup-content {
+  display: flex;
+  min-height: 650px;
+  
+  @media (max-width: 900px) {
+    flex-direction: column;
+  }
+}
+
+// Sidebar
+.profile-sidebar {
+  @include flex-column;
+  width: 280px;
+  background-color: $dark-black;
+  color: $white;
+  padding: 2rem 0;
+  
+  @media (max-width: 900px) {
+    width: 100%;
+    padding: 1.5rem;
+  }
+}
+
+.avatar-container {
+  @include flex-column;
+  align-items: center;
+  padding: 1rem;
+  margin-bottom: 2rem;
+}
+
+.avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 4px solid $primary-orange;
+  margin-bottom: 1rem;
+  @include flex-center;
+  background-color: $gray-medium;
+  
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .avatar-placeholder {
+    @include flex-center;
+    width: 100%;
+    height: 100%;
+    background-color: $gray-medium;
+    color: $white;
+  }
+}
+
+.avatar-upload {
+  @include flex-center;
+  background-color: $primary-orange;
+  color: $white;
+  padding: 0.5rem 1rem;
+  border-radius: 50px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 10px rgba($primary-orange, 0.4);
+  
+  &:hover {
+    background-color: darken($primary-orange, 10%);
+    transform: translateY(-2px);
+  }
+  
+  svg {
+    margin-right: 0.5rem;
+  }
+}
+
+.profile-navigation {
+  @include flex-column;
+  margin-bottom: 2rem;
+  
+  .nav-item {
+    display: flex;
+    align-items: center;
+    padding: 1rem 2rem;
+    color: $white;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: left;
+    
+    svg {
+      margin-right: 1rem;
+      color: $primary-orange;
+    }
+    
+    &:hover {
+      background-color: rgba($white, 0.1);
+    }
+    
+    &.active {
+      background-color: rgba($primary-orange, 0.2);
+      border-left: 4px solid $primary-orange;
+      
+      svg {
+        color: $white;
+      }
+    }
+  }
+}
+
+.progress-container {
+  margin: 1rem 2rem;
+  
+  @media (max-width: 900px) {
+    margin: 1rem 0;
+  }
+  
+  .progress-label {
+    display: block;
+    font-size: 0.9rem;
+    opacity: 0.7;
+    margin-bottom: 0.5rem;
+  }
+  
+  .progress-bar {
+    width: 100%;
+    height: 8px;
+    background-color: rgba($white, 0.1);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+    
+    .progress-fill {
+      height: 100%;
+      background-color: $primary-orange;
+      border-radius: 4px;
+      transition: width 0.5s ease;
+    }
+  }
+  
+  .progress-percentage {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: $primary-orange;
+  }
+}
+
+// Form Container
+.profile-form-container {
+  flex: 1;
+  padding: 2rem;
+  overflow-y: auto;
+  
+  @media (max-width: 900px) {
+    padding: 1.5rem;
+  }
+}
+
+.tab-header {
+  margin-bottom: 2rem;
+  
+  h2 {
+    font-size: 1.8rem;
+    margin-bottom: 0.5rem;
+    color: $dark-black;
+  }
+  
+  p {
+    color: $gray-medium;
+  }
+}
+
+.tab-content {
+  margin-bottom: 2rem;
+}
+
+.form-row {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .form-group {
+    flex: 1;
+  }
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+  
+  label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: $gray-dark;
+  }
+  
+  input[type="text"],
+  input[type="email"],
+  input[type="date"],
+  input[type="number"],
+  select,
+  textarea {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    border: 1px solid $gray-light;
+    border-radius: 6px;
+    font-size: 1rem;
+    transition: border-color 0.2s ease;
+    
+    &:focus {
+      outline: none;
+      border-color: $primary-orange;
+      box-shadow: 0 0 0 2px rgba($primary-orange, 0.2);
+    }
+    
+    &::placeholder {
+      color: $gray-light;
+    }
+  }
+  
+  textarea {
+    resize: vertical;
+    min-height: 120px;
+  }
+  
+  .input-with-unit {
+    position: relative;
+    
+    input {
+      padding-right: 3rem;
+    }
+    
+    .unit {
+      position: absolute;
+      right: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: $gray-medium;
+    }
+  }
+}
+
+.checkbox-group {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+  }
+  
+  .checkbox-item {
+    display: flex;
+    align-items: center;
+    
+    input[type="checkbox"] {
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border: 2px solid $gray-light;
+      border-radius: 4px;
+      margin-right: 0.75rem;
+      position: relative;
+      cursor: pointer;
+      
+      &:checked {
+        background-color: $primary-orange;
+        border-color: $primary-orange;
+        
+        &::after {
+          content: '';
+          position: absolute;
+          top: 2px;
+          left: 6px;
+          width: 5px;
+          height: 10px;
+          border: solid $white;
+          border-width: 0 2px 2px 0;
+          transform: rotate(45deg);
+        }
+      }
+      
+      &:focus {
+        outline: none;
+        box-shadow: 0 0 0 2px rgba($primary-orange, 0.2);
+      }
+    }
+    
+    label {
+      margin-bottom: 0;
+      cursor: pointer;
+    }
+  }
+}
+
+.notification-prefs {
+  .notification-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid $gray-light;
+    
+    &:last-child {
+      border-bottom: none;
+    }
+    
+    input[type="checkbox"] {
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border: 2px solid $gray-light;
+      border-radius: 4px;
+      margin-right: 0.75rem;
+      position: relative;
+      cursor: pointer;
+      
+      &:checked {
+        background-color: $primary-orange;
+        border-color: $primary-orange;
+        
+        &::after {
+          content: '';
+          position: absolute;
+          top: 2px;
+          left: 6px;
+          width: 5px;
+          height: 10px;
+          border: solid $white;
+          border-width: 0 2px 2px 0;
+          transform: rotate(45deg);
+        }
+      }
+      
+      &:focus {
+        outline: none;
+        box-shadow: 0 0 0 2px rgba($primary-orange, 0.2);
+      }
+    }
+    
+    label {
+      margin-bottom: 0;
+      font-weight: normal;
+    }
+  }
+}
+
+// PR Calculator styling
+.pr-calculator {
+  background-color: $light-orange;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-top: 2rem;
+  border: 1px solid rgba($primary-orange, 0.2);
+  
+  h3 {
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+    color: $primary-orange;
+  }
+  
+  p {
+    color: $gray-medium;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+  }
+  
+  .pr-calc-button {
+    @include button-base;
+    background-color: $primary-orange;
+    color: $white;
+    padding: 0.5rem 1rem;
+    align-self: flex-end;
+    
+    &:hover {
+      background-color: darken($primary-orange, 10%);
+    }
+  }
+  
+  .estimated-pr {
+    margin-top: 1rem;
+    font-weight: 600;
+    
+    .pr-result {
+      color: $primary-orange;
+      font-size: 1.2rem;
+    }
+  }
+}
+
+// Form Actions
+.form-actions {
+  @include flex-between;
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid $gray-light;
+  
+  .btn-secondary {
+    @include button-base;
+    background-color: $gray-bg;
+    color: $gray-dark;
+    
+    &:hover:not(:disabled) {
+      background-color: darken($gray-bg, 5%);
+    }
+  }
+  
+  .btn-primary, .btn-submit {
+    @include button-base;
+    background-color: $primary-orange;
+    color: $white;
+    
+    &:hover:not(:disabled) {
+      background-color: darken($primary-orange, 10%);
+    }
+    
+    svg {
+      margin-right: 0.5rem;
+    }
+  }
+  
+  .btn-submit {
+    box-shadow: 0 4px 14px rgba($primary-orange, 0.4);
+    
+    &:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba($primary-orange, 0.5);
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .profile-setup-header {
+    padding: 1.5rem;
+    
+    h1 {
+      font-size: 1.8rem;
+    }
+    
+    p {
+      font-size: 1rem;
+    }
+  }
+  
+  .form-actions {
+    flex-direction: column;
+    gap: 1rem;
+    
+    button {
+      width: 100%;
+    }
+  }
+}
+
+// Animation effect for tabs
+.tab-content {
+  animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

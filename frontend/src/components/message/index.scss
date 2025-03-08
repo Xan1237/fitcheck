@@ -1,26 +1,63 @@
-#message {
-    background-color: #f0f0f0; // Light gray for a clean look
-    color: #333;
-    width: fit-content;
-    max-width: 60vw;
-    margin-top: 10px;
-    padding: 12px 18px;
-    border-radius: 18px;
-    box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.1);
-    font-size: 16px;
-    line-height: 1.4;
-    word-wrap: break-word;
-    
+.message {
+  background: #f9f9f9;
+  padding: 15px;
+  margin: 10px 0;
+  border-radius: 8px;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-family: "Poppins", sans-serif;
+  width: 100%;
+  max-width: 600px;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
 
+// Header Section (Stars + Timestamp)
+.messageHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  color: #666;
+}
 
-    #messageContent {
-        font-weight: bold; // Emphasize message content
-    }
+// Star Rating Display
+.stars {
+  font-size: 18px;
+  color: #ffcc00; // Yellow stars
+}
 
-    #timeStamp {
-        font-size: 14px;
-        color: #666; // Lighter color for timestamp
-        display: block;
-        margin-top: 5px;
-    }
+// Timestamp
+.timeStamp {
+  font-size: 12px;
+  color: gray;
+}
+
+// Comment Content
+.messageContent {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: pre-wrap; /* Keeps newlines but wraps long words */
+  max-width: 100%; /* Ensures content does not exceed container width */
+  display: block;
+  font-size: 16px;
+  color: #333;
+  line-height: 1.5;
+}
+
+// Gym Features (Lifting Chalk & Calibrated Plates)
+.gymFeatures {
+  display: flex;
+  gap: 15px;
+  font-size: 14px;
+  color: #444;
+  font-weight: 500;
+
+  span {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
 }

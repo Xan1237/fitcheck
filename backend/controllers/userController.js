@@ -87,26 +87,22 @@ const getComments = async (req, res) => {
     res.status(500).json({ success: false, error: 'Internal Server Error' });
   }
 };
-// // Update user
-// const updateUser = async (req, res) => {
-//   const { userId } = req.params;
-//   try {
-//     await db.collection("users").doc(userId).update(req.body);
-//     res.status(200).json({ success: true, message: "User updated" });
-//   } catch (error) {
-//     res.status(500).json({ success: false, error: error.message });
-//   }
-// };
 
-// // Delete user
-// const deleteUser = async (req, res) => {
-//   const { userId } = req.params;
-//   try {
-//     await db.collection("users").doc(userId).delete();
-//     res.status(200).json({ success: true, message: "User deleted" });
-//   } catch (error) {
-//     res.status(500).json({ success: false, error: error.message });
-//   }
-// };
+const profile =  async (req, res) => {
+  const { sendingdata} = req.body;
 
-export { createComment, getAdress, getComments};
+  try {
+    
+    console.log(sendingdata.email, sendingdata.username, sendingdata.firstName, sendingdata.gender);
+    
+    res.status(200).json({success: true});
+
+
+  } catch (error) {
+    console.error('Error geocoding address:', error);
+    res.status(500).json({ success: false, error: 'Internal Server Error' });
+  }
+};
+
+
+export { createComment, getAdress, getComments, profile};

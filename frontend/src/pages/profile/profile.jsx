@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ChevronDown, Save, Camera, Dumbbell, Award, Clipboard, User, MapPin, Calendar, Activity } from 'lucide-react';
 import './profile.scss';
+import axios from 'axios';
 
 const Profile = () => {
   const [activeTab, setActiveTab] = useState('personal');
@@ -240,17 +241,19 @@ const Profile = () => {
   };
   
   // Preferences tab data collection
-  const preferencesInformation = () => {
-    const favoriteEquipment = document.getElementById('favoriteEquipment')?.value || '';
-    const workoutStyle = document.getElementById('workoutStyle')?.value || '';
-    
-    // For checkboxes, get the checked status
-    const newReviews = document.getElementById('newReviews')?.checked || false;
-    const prReminders = document.getElementById('prReminders')?.checked || false;
-    const gymAlerts = document.getElementById('gymAlerts')?.checked || false;
-    const communityMessages = document.getElementById('communityMessages')?.checked || false;
-    
-    setData(prevState => ({
+  // Alternative fix for the preferencesInformation function:
+const preferencesInformation = (callback) => {
+  const favoriteEquipment = document.getElementById('favoriteEquipment')?.value || '';
+  const workoutStyle = document.getElementById('workoutStyle')?.value || '';
+  
+  // For checkboxes, get the checked status
+  const newReviews = document.getElementById('newReviews')?.checked || false;
+  const prReminders = document.getElementById('prReminders')?.checked || false;
+  const gymAlerts = document.getElementById('gymAlerts')?.checked || false;
+  const communityMessages = document.getElementById('communityMessages')?.checked || false;
+  
+  setData(prevState => {
+    const newState = {
       ...prevState,
       favoriteEquipment,
       workoutStyle,
@@ -260,28 +263,79 @@ const Profile = () => {
         gymAlerts,
         communityMessages
       }
-    }));
-  };
-  
-  // Function to save all form data
-  const saveAllFormData = () => {
-    // Save data from the current tab before submitting
-    if (activeTab === 'personal') {
-      personalInformation();
-    } else if (activeTab === 'gymStats') {
-      gymStatsInformation();
-    } else if (activeTab === 'personalRecords') {
-      personalRecordsInformation();
-    } else if (activeTab === 'preferences') {
-      preferencesInformation();
-    }
+    };
     
-    // Set the submittedData state to display the complete profile data
+    // If callback is provided, call it with the new state
+    if (callback) callback(newState);
+    
+    return newState;
+  });
+};
+
+// Then update saveAllFormData:
+const saveAllFormData = () => {
+  // Save data from the current tab before submitting
+  if (activeTab === 'personal') {
+    personalInformation();
     setSubmittedData({...data});
+  } else if (activeTab === 'gymStats') {
+    gymStatsInformation();
+    setSubmittedData({...data});
+  } else if (activeTab === 'personalRecords') {
+    personalRecordsInformation();
+    setSubmittedData({...data});
+  } else if (activeTab === 'preferences') {
+    // Use the callback version to ensure we have the latest data
+    preferencesInformation((updatedData) => {
+      setSubmittedData({...updatedData});
+      console.log("All form data saved:", updatedData);
+    });
+  }
+  let sendingdata = {
+    // Personal info
+    "firstName": data.firstName || '',
+    "lastName": data.lastName || '',
+    "username": data.username || '',
+    "email": data.email || '',
+    "birthdate": data.birthdate || '',
+    "gender": data.gender || '',
+    "location": data.location || '',
+    "bio": data.bio || '',
     
-    // Here you would typically send the data to your backend
-    console.log("All form data saved:", data);
+    // Gym stats
+    "gymExperience": data.gymExperience || '',
+    "trainingFrequency": data.trainingFrequency,
+    "fitnessGoals": data.fitnessGoals,
+    "preferredGymType": data.preferredGymType,
+    
+    // Personal records
+    "benchPR": data.benchPR,
+    "squatPR": data.squatPR,
+    "deadliftPR": data.deadliftPR,
+   " overheadPressPR": data.overheadPressPR,
+    "pullUpMax": data.pullUpMax,
+    "mile": data.mile,
+    
+    // Preferences
+   "favoriteEquipment": data.favoriteEquipment,
+   "workoutStyle": data.workoutStyle,
+   "notificationPreferences": {
+   "newReviews": data.newReviews,
+    "prReminders": data.prReminders,
+    "gymAlerts": data.gymAlerts,
+    "communityMessages": data.communityMessages
+    }
   };
+  axios.post("/api/profile", {sendingdata}, {
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json;charset=UTF-8",
+    },
+  })
+  .then(({data}) => {
+    console.log(data);
+  });
+};
   
   // Tab content components
   const PersonalInfoTab = () => (
@@ -426,6 +480,13 @@ const Profile = () => {
               id="benchPR"
               name="benchPR"
               placeholder="0"
+              onKeyDown={(e) => {
+                // Prevent form submission when Enter is pressed in this field
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  calculateOneRepMax(); // Call PR calculator instead if we're on this tab
+                }
+              }}
             />
             <span className="unit">lbs</span>
           </div>
@@ -438,6 +499,9 @@ const Profile = () => {
               id="squatPR"
               name="squatPR"
               placeholder="0"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') e.preventDefault();
+              }}
             />
             <span className="unit">lbs</span>
           </div>
@@ -453,6 +517,9 @@ const Profile = () => {
               id="deadliftPR"
               name="deadliftPR"
               placeholder="0"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') e.preventDefault();
+              }}
             />
             <span className="unit">lbs</span>
           </div>
@@ -465,6 +532,9 @@ const Profile = () => {
               id="overheadPressPR"
               name="overheadPressPR"
               placeholder="0"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') e.preventDefault();
+              }}
             />
             <span className="unit">lbs</span>
           </div>
@@ -480,6 +550,9 @@ const Profile = () => {
               id="pullUpMax"
               name="pullUpMax"
               placeholder="0"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') e.preventDefault();
+              }}
             />
             <span className="unit">reps</span>
           </div>
@@ -492,6 +565,9 @@ const Profile = () => {
               id="mile"
               name="mile"
               placeholder="00:00"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') e.preventDefault();
+              }}
             />
             <span className="unit">min:sec</span>
           </div>
@@ -511,6 +587,12 @@ const Profile = () => {
                 placeholder="0" 
                 value={calcWeight}
                 onChange={(e) => setCalcWeight(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    calculateOneRepMax();
+                  }
+                }}
               />
               <span className="unit">lbs</span>
             </div>
@@ -523,6 +605,12 @@ const Profile = () => {
               placeholder="0" 
               value={calcReps}
               onChange={(e) => setCalcReps(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  calculateOneRepMax();
+                }
+              }}
             />
           </div>
           <button 
@@ -550,6 +638,9 @@ const Profile = () => {
           id="favoriteEquipment"
           name="favoriteEquipment"
           placeholder="e.g., Barbell, Dumbbells, Kettlebells (comma separated)"
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') e.preventDefault();
+          }}
         />
       </div>
       
@@ -560,6 +651,9 @@ const Profile = () => {
           id="workoutStyle"
           name="workoutStyle"
           placeholder="e.g., Strength Training, Bodybuilding, HIIT (comma separated)"
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') e.preventDefault();
+          }}
         />
       </div>
       
@@ -658,12 +752,15 @@ const Profile = () => {
     }
   };
   
-  // Handle form submission
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    
-    // Save all data and submit
-    saveAllFormData();
+  // Prevent form submission on enter for all fields
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      // Only process the submission if we're on the preferences tab and clicked the save button
+      if (activeTab === 'preferences' && e.target.classList.contains('btn-submit')) {
+        saveAllFormData();
+      }
+    }
   };
   
   return (
@@ -739,7 +836,8 @@ const Profile = () => {
         </div>
         
         <div className="profile-form-container">
-          <form onSubmit={handleSubmit}>
+          {/* Changed onSubmit to onKeyDown to prevent default form submission */}
+          <form onKeyDown={handleKeyDown}>
             <div className="tab-header">
               <h2>
                 {activeTab === 'personal' && 'Personal Information'}
@@ -776,7 +874,15 @@ const Profile = () => {
                   Next
                 </button>
               ) : (
-                <button type="submit" className="btn-submit">
+                <button 
+                  type="button" 
+                  className="btn-submit"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    saveAllFormData();
+                    setProgress(100)
+                  }}
+                >
                   <Save size={16} />
                   Save Profile
                 </button>
@@ -785,14 +891,6 @@ const Profile = () => {
           </form>
         </div>
       </div>
-      
-      {/* Display submitted data (optional, for debugging) */}
-      {submittedData && (
-        <div className="submitted-data">
-          <h3>Submitted Data:</h3>
-          <pre>{JSON.stringify(submittedData, null, 2)}</pre>
-        </div>
-      )}
     </div>
   );
 };

@@ -7,24 +7,43 @@ import admin from "firebase-admin";
 
 
 const createComment = async (req, res) => {
-  const { CommentID, UserName, CommentText, GymName, Time } = req.body;
-  
+  const { CommentID, UserName, CommentText, GymName, Time, Rating, Tags } =
+    req.body;
+
+  console.log("Received Comment Data:", req.body); // ✅ Debugging log
+
   try {
-    if (!CommentID || !UserName || !CommentText) {
-      return res.status(400).json({ success: false, error: "Missing required fields" });
+    if (!CommentID || !UserName || !CommentText || !GymName) {
+      return res
+        .status(400)
+        .json({ success: false, error: "Missing required fields" });
     }
 
-    await fireStoreDb.collection(GymName + "_Comment").doc(CommentID).set({
-      UserName,
-      CommentText,
-      Time
-    });
+    // Ensure Tags is always an array
+    const processedTags = Array.isArray(Tags) ? Tags : [];
 
-    return res.status(201).json({ success: true, message: "Comment created" });
-    
+    await fireStoreDb
+      .collection(GymName + "__Comment")
+      .doc(CommentID)
+      .set({
+        UserName,
+        CommentText,
+        Time,
+        Rating: Rating || 0, // Default to 0 if not provided
+        Tags: processedTags,
+      });
+
+    console.log("Saved Comment Successfully"); // ✅ Debugging log
+
+    return res
+      .status(201)
+      .json({ success: true, message: "Review added successfully" });
   } catch (error) {
     console.error("Error creating comment:", error);
-    return res.status(500).json({ success: false, error: error.message || "Unknown error occurred" });
+    return res.status(500).json({
+      success: false,
+      error: error.message || "Unknown error occurred",
+    });
   }
 };
 
@@ -65,27 +84,35 @@ const getAdress =  async (req, res) => {
 // // Get user by ID
 const getComments = async (req, res) => {
   const { GymName } = req.query;
-  console.log('Requested GymName:', GymName);
+  console.log("Requested GymName:", GymName);
 
   try {
     if (!GymName) {
-      return res.status(400).json({ success: false, error: 'GymName is required' });
+      return res
+        .status(400)
+        .json({ success: false, error: "GymName is required" });
     }
 
-    const userDoc = await fireStoreDb.collection(`${GymName}_Comment`).get();
+    const userDoc = await fireStoreDb.collection(`${GymName}__Comment`).get();
     if (userDoc.empty) {
-      return res.status(404).json({ success: false, error: 'No comments found' });
+      return res
+        .status(404)
+        .json({ success: false, error: "No comments found" });
     }
 
-    const comments = userDoc.docs.map(doc => ({
+    const comments = userDoc.docs.map((doc) => ({
       id: doc.id,
-      ...doc.data()
+      ...doc.data(),
+      Rating: doc.data().Rating || 0,
+      Tags: doc.data().Tags || [], // Ensure Tags is included in response
     }));
+
+    console.log("Fetched Comments with Tags:", comments); // Debugging
 
     res.status(200).json({ success: true, data: comments });
   } catch (error) {
-    console.error('Error retrieving comments:', error);
-    res.status(500).json({ success: false, error: 'Internal Server Error' });
+    console.error("Error retrieving comments:", error);
+    res.status(500).json({ success: false, error: "Internal Server Error" });
   }
 };
 

@@ -31,8 +31,10 @@ const Gym = () => {
       GymName: gymsData.name,
       Time: dayjs().format("YYYY-MM-DD HH:mm"),
       Rating: rating,
-      Tags: selectedTags,
+      Tags: selectedTags || [],
     };
+
+    console.log("Sending Comment Data:", commentData); // ✅ Debugging log
 
     try {
       const response = await fetch("/api/comment", {
@@ -44,6 +46,8 @@ const Gym = () => {
       });
 
       const result = await response.json();
+      console.log("Server Response:", result); // ✅ Debugging log
+
       if (response.ok) {
         setMessages([commentData, ...messages]);
         setNewComment("");
@@ -64,13 +68,18 @@ const Gym = () => {
     try {
       const response = await fetch(
         `/api/GetComments/?GymName=${encodeURIComponent(gymName)}`,
-        {
-          method: "GET",
-        }
+        { method: "GET" }
       );
+
       const result = await response.json();
+      console.log("Fetched Comments:", result.data); // ✅ Debugging log
+
       if (response.ok) {
-        setMessages(result.data || []); // Update messages state with fetched comments
+        const formattedMessages = result.data.map((comment) => ({
+          ...comment,
+          Tags: comment.Tags || [], // Ensure Tags is always an array
+        }));
+        setMessages(formattedMessages);
       } else {
         console.error("Error fetching comments:", result.message);
       }

@@ -4,7 +4,10 @@ import axios from "axios";
 import { doc, setDoc } from "firebase/firestore";
 
 const createComment = async (req, res) => {
-  const { CommentID, UserName, CommentText, GymName, Time, Rating, Tags } = req.body;
+  const { CommentID, UserName, CommentText, GymName, Time, Rating, Tags } =
+    req.body;
+
+  console.log("Received Comment Data:", req.body); // ✅ Debugging log
 
   try {
     if (!CommentID || !UserName || !CommentText || !GymName) {
@@ -13,18 +16,25 @@ const createComment = async (req, res) => {
         .json({ success: false, error: "Missing required fields" });
     }
 
+    // Ensure Tags is always an array
+    const processedTags = Array.isArray(Tags) ? Tags : [];
+
     await fireStoreDb
-      .collection(GymName + "_Comment")
+      .collection(GymName + "__Comment")
       .doc(CommentID)
       .set({
         UserName,
         CommentText,
         Time,
-        Rating: Rating || 0,
-        Tags: Tags || [],
+        Rating: Rating || 0, // Default to 0 if not provided
+        Tags: processedTags,
       });
 
-    return res.status(201).json({ success: true, message: "Review added successfully" });
+    console.log("Saved Comment Successfully"); // ✅ Debugging log
+
+    return res
+      .status(201)
+      .json({ success: true, message: "Review added successfully" });
   } catch (error) {
     console.error("Error creating comment:", error);
     return res.status(500).json({
@@ -83,7 +93,7 @@ const getComments = async (req, res) => {
         .json({ success: false, error: "GymName is required" });
     }
 
-    const userDoc = await fireStoreDb.collection(`${GymName}_Comment`).get();
+    const userDoc = await fireStoreDb.collection(`${GymName}__Comment`).get();
     if (userDoc.empty) {
       return res
         .status(404)
@@ -94,8 +104,10 @@ const getComments = async (req, res) => {
       id: doc.id,
       ...doc.data(),
       Rating: doc.data().Rating || 0,
-      Tags: doc.data().Tags || [],
+      Tags: doc.data().Tags || [], // Ensure Tags is included in response
     }));
+
+    console.log("Fetched Comments with Tags:", comments); // Debugging
 
     res.status(200).json({ success: true, data: comments });
   } catch (error) {

@@ -21,13 +21,15 @@ const signUpUser = async (req, res) => {
     
     // Get the user's ID token
     const token = await user.getIdToken();
-    console.log(`Generated token successfully`);
     
-    return res.status(200).json({ 
-      success: true, 
-      email: user.email,
-      uid: user.uid,
-      token: token
+    return user.getIdToken()
+    .then(token => {
+      res.status(201).json({ 
+        success: true, 
+        uid: user.uid, 
+        email: user.email,
+        token: token 
+      });
     });
   } catch (error) {
     console.error(`Signup error: ${error.code} - ${error.message}`);

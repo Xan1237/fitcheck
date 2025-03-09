@@ -9,7 +9,6 @@ const signInUser = (req, res) => {
     .then((userCredential) => {
       // Signed in
       const user = userCredential.user;
-      
       // Get the user's ID token
       return user.getIdToken()
         .then(token => {

@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { ChevronDown, Save, Camera, Dumbbell, Award, Clipboard, User, MapPin, Calendar, Activity } from 'lucide-react';
 import './profile.scss';
 import axios from 'axios';
+import { getAuth } from "firebase/auth";
 
 const Profile = () => {
   const [activeTab, setActiveTab] = useState('personal');
@@ -286,11 +287,12 @@ const saveAllFormData = () => {
     setSubmittedData({...data});
   } else if (activeTab === 'preferences') {
     // Use the callback version to ensure we have the latest data
-    preferencesInformation((updatedData) => {
-      setSubmittedData({...updatedData});
-      console.log("All form data saved:", updatedData);
-    });
+      preferencesInformation()
+      setSubmittedData({...data});
+      console.log("All form datfewfwefwefwefa saved:", data);
   }
+
+
   let sendingdata = {
     // Personal info
     "firstName": data.firstName || '',
@@ -312,7 +314,7 @@ const saveAllFormData = () => {
     "benchPR": data.benchPR,
     "squatPR": data.squatPR,
     "deadliftPR": data.deadliftPR,
-   " overheadPressPR": data.overheadPressPR,
+   "overheadPressPR": data.overheadPressPR,
     "pullUpMax": data.pullUpMax,
     "mile": data.mile,
     
@@ -326,17 +328,24 @@ const saveAllFormData = () => {
     "communityMessages": data.communityMessages
     }
   };
-  axios.post("/api/profile", {sendingdata}, {
-    headers: {
-      Accept: "application/json",
-      "Content-Type": "application/json;charset=UTF-8",
-    },
+  const token = localStorage.getItem('token')
+  axios.post("/api/profile", 
+    { sendingdata }, 
+    {
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json;charset=UTF-8",
+        "Authorization": `Bearer ${token}` // Add the token here
+      },
+    }
+  )
+  .then(response => {
+    console.log("Profile updated successfully:", response.data);
   })
-  .then(({data}) => {
-    console.log(data);
+  .catch(error => {
+    console.error("Error updating profile:", error);
   });
-};
-  
+}
   // Tab content components
   const PersonalInfoTab = () => (
     <div className="tab-content">
@@ -631,67 +640,7 @@ const saveAllFormData = () => {
   
   const PreferencesTab = () => (
     <div className="tab-content">
-      <div className="form-group">
-        <label htmlFor="favoriteEquipment">Favorite Equipment</label>
-        <input
-          type="text"
-          id="favoriteEquipment"
-          name="favoriteEquipment"
-          placeholder="e.g., Barbell, Dumbbells, Kettlebells (comma separated)"
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') e.preventDefault();
-          }}
-        />
-      </div>
-      
-      <div className="form-group">
-        <label htmlFor="workoutStyle">Workout Style</label>
-        <input
-          type="text"
-          id="workoutStyle"
-          name="workoutStyle"
-          placeholder="e.g., Strength Training, Bodybuilding, HIIT (comma separated)"
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') e.preventDefault();
-          }}
-        />
-      </div>
-      
-      <div className="form-group notification-prefs">
-        <label>Notification Preferences</label>
-        <div className="notification-item">
-          <input
-            type="checkbox"
-            id="newReviews"
-            name="notification.newReviews"
-          />
-          <label htmlFor="newReviews">New gym reviews in your area</label>
-        </div>
-        <div className="notification-item">
-          <input
-            type="checkbox"
-            id="prReminders"
-            name="notification.prReminders"
-          />
-          <label htmlFor="prReminders">PR tracking and reminders</label>
-        </div>
-        <div className="notification-item">
-          <input
-            type="checkbox"
-            id="gymAlerts"
-            name="notification.gymAlerts"
-          />
-          <label htmlFor="gymAlerts">Gym alerts and promotions</label>
-        </div>
-        <div className="notification-item">
-          <input
-            type="checkbox"
-            id="communityMessages"
-            name="notification.communityMessages"
-          />
-          <label htmlFor="communityMessages">Community messages</label>
-        </div>
-      </div>
+     
     </div>
   );
   
@@ -820,7 +769,7 @@ const saveAllFormData = () => {
                   {tab === 'personal' && 'Personal Info'}
                   {tab === 'gymStats' && 'Gym Stats'}
                   {tab === 'personalRecords' && 'Personal Records'}
-                  {tab === 'preferences' && 'Preferences'}
+                  {tab === 'preferences' && 'Final Submititon'}
                 </span>
               </button>
             ))}
@@ -843,13 +792,13 @@ const saveAllFormData = () => {
                 {activeTab === 'personal' && 'Personal Information'}
                 {activeTab === 'gymStats' && 'Gym Experience & Stats'}
                 {activeTab === 'personalRecords' && 'Personal Records'}
-                {activeTab === 'preferences' && 'Preferences & Settings'}
+                {activeTab === 'preferences' && 'Final Submition'}
               </h2>
               <p>
                 {activeTab === 'personal' && 'Tell us about yourself'}
                 {activeTab === 'gymStats' && 'Share your fitness background'}
                 {activeTab === 'personalRecords' && 'Track your lifting achievements'}
-                {activeTab === 'preferences' && 'Customize your experience'}
+                {activeTab === 'preferences' && 'Update Your Profile'}
               </p>
             </div>
             

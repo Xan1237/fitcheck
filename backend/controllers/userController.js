@@ -2,6 +2,7 @@ import{fireStoreDb}  from "../config/db.js";
 import { Timestamp } from "firebase-admin/firestore";
 import axios from "axios";
 import { doc, setDoc} from "firebase/firestore";
+import admin from "firebase-admin";
 
 
 
@@ -88,21 +89,84 @@ const getComments = async (req, res) => {
   }
 };
 
-const profile =  async (req, res) => {
-  const { sendingdata} = req.body;
-
+const profile = async (req, res) => {
   try {
-    
-    console.log(sendingdata.email, sendingdata.username, sendingdata.firstName, sendingdata.gender);
-    
-    res.status(200).json({success: true});
+    // Extract user data from request
+    const { sendingdata } = req.body;
+    if (!sendingdata) {
+      return res.status(400).json({ success: false, error: 'Profile data is required' });
+    }
 
+    // Validate essential fields
+    if (!sendingdata.email) {
+      return res.status(400).json({ success: false, error: 'Email is required' });
+    }
 
+    // Authentication - Get token from header
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      console.error('Missing or invalid authorization header');
+      return res.status(401).json({ success: false, error: 'Authorization header is required' });
+    }
+
+    const token = authHeader.split("Bearer ")[1];
+    
+    // Verify Firebase token - with detailed logging
+    let decodedToken;
+    try {
+      console.log("Attempting to verify token...");
+      decodedToken = await admin.auth().verifyIdToken(token);
+      console.log("Token verified successfully for user:", decodedToken.uid);
+    } catch (verifyError) {
+      console.error('Token verification failed:', verifyError);
+      return res.status(401).json({ success: false, error: 'Invalid or expired authentication token' });
+    }
+
+    // Create a sanitized profile object 
+    try{
+      console.log(sendingdata.overheadPressPR)
+    }
+    catch{
+      console.log("failed")
+    }
+    const profileData = {
+      benchPR: sendingdata.benchPR || null,
+      bio: sendingdata.bio || '',
+      birthdate: sendingdata.birthdate || null,
+      deadliftPR: sendingdata.deadliftPR || null,
+      email: sendingdata.email,
+      firstName: sendingdata.firstName || '',
+      fitnessGoals: sendingdata.fitnessGoals || [],
+      gender: sendingdata.gender || '',
+      gymExperience: sendingdata.gymExperience || '',
+      lastName: sendingdata.lastName || '',
+      location: sendingdata.location || '',
+      mile: sendingdata.mile || null,
+      overheadPressPR: sendingdata.overheadPressPR ,
+      preferredGymType: sendingdata.preferredGymType ,
+      pullUpMax: sendingdata.pullUpMax ,
+      squatPR: sendingdata.squatPR ,
+      trainingFrequency: sendingdata.trainingFrequency ,
+      username: sendingdata.username ,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp()
+    };
+
+    // Update profile in Firestore - with better error handling
+    try {
+      await fireStoreDb.collection("users").doc(decodedToken.uid).set(profileData, { merge: true });
+      console.log("Profile updated successfully for user:", decodedToken.uid);
+    } catch (dbError) {
+      console.error('Database operation failed:', dbError);
+      return res.status(500).json({ success: false, error: 'Failed to update profile' });
+    }
+
+    return res.status(200).json({ success: true, message: 'Profile updated successfully' });
   } catch (error) {
-    console.error('Error geocoding address:', error);
-    res.status(500).json({ success: false, error: 'Internal Server Error' });
+    console.error('Unexpected error in updateUserProfile:', error);
+    return res.status(500).json({ success: false, error: 'Internal Server Error' });
   }
 };
+
 
 
 export { createComment, getAdress, getComments, profile};

@@ -1,0 +1,50 @@
+.home-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #1a1a1a;
+}
+
+.map-sidebar-container {
+  display: flex;
+  flex: 1;
+  height: 65vh;
+  padding: 0 2rem 2rem 2rem;
+  max-width: 1300px;
+  margin: 0 auto;
+  width: 100%;
+  
+  .sidebar-wrapper {
+    width: 30%;
+    min-width: 300px;
+    margin-right: 20px;
+    // No height specification - let it follow the container
+  }
+  
+  .map-wrapper {
+    flex: 1;
+    // No height specification - let flex handle it
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: 20px;
+  }
+}
+
+// Media queries for responsive design
+@media (max-width: 768px) {
+  .map-sidebar-container {
+    flex-direction: column;
+    height: auto;
+    padding: 0 1rem 1rem 1rem;
+    
+    .sidebar-wrapper {
+      width: 100%;
+      margin-right: 0;
+      margin-bottom: 20px;
+    }
+    
+    .map-wrapper {
+      height: 50vh;
+    }
+  }
+}

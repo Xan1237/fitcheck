@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { FaSearch } from 'react-icons/fa';
 import './style.scss';
 
 const Search = ({ onSearchSubmit }) => {
@@ -24,27 +25,32 @@ const Search = ({ onSearchSubmit }) => {
     <div className="search-bar">
       <form onSubmit={handleSubmit} className="search-form">
         <div className="search-input-container">
-          <input
-            type="text"
-            placeholder="Search..."
-            value={localSearchQuery}
-            onChange={handleSearchChange}
-            className="search-input"
-          />
-          <button type="submit" className="search-button">
-            Search
-          </button>
+          <div className="search-field">
+            <input
+              type="text"
+              placeholder="Enter a location..."
+              value={localSearchQuery}
+              onChange={handleSearchChange}
+              className="search-input"
+            />
+            <FaSearch className="search-icon" />
+          </div>
           <select
             id="filter"
             value={localFilter}
             onChange={handleFilterChange}
             className="filter-select"
           >
-            <option value="all">Fit For Less</option>
+            <option value="all">All Gyms</option>
+            <option value="Fit For Less">Fit For Less</option>
             <option value="Goodlife">Goodlife</option>
             <option value="Planet Fitness">Planet Fitness</option>
             <option value="FitnessFX">FitnessFX</option>
+            <option value="Test Gym">Test Gym</option>
           </select>
+          <button type="submit" className="search-button">
+            Find Gyms
+          </button>
         </div>
       </form>
     </div>

@@ -1,0 +1,231 @@
+// UserProfile.scss
+
+// Variables
+$black: #000000;
+$dark-gray: #111111;
+$medium-gray: #222222;
+$light-gray: #444444;
+$orange: #ff6600;
+$orange-light: #ff8833;
+$white: #ffffff;
+$text-gray: #bbbbbb;
+
+.user-profile {
+  max-width: 1000px;
+  margin: 0 auto;
+  background-color: $black;
+  color: $white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  font-family: 'Roboto', Arial, sans-serif;
+min-height: 100vh;
+  // Cover Photo
+  .cover-photo {
+    height: 160px;
+    width: 100%;
+    position: relative;
+    
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
+  // Profile Info Section
+  .profile-info {
+    position: relative;
+    padding: 16px 24px 32px;
+
+    // Profile Picture
+    .profile-picture {
+      position: absolute;
+      top: -48px;
+      left: 24px;
+      border: 4px solid $orange;
+      border-radius: 50%;
+      overflow: hidden;
+      
+      img {
+        width: 96px;
+        height: 96px;
+        border-radius: 50%;
+      }
+    }
+
+    // User Info
+    .user-info {
+      margin-top: 64px;
+      
+      h1 {
+        font-size: 24px;
+        font-weight: 700;
+        margin: 0 0 4px 0;
+      }
+      
+      .username {
+        color: $orange;
+        margin: 0 0 8px 0;
+        font-weight: 500;
+      }
+      
+      .bio {
+        color: $text-gray;
+        margin: 8px 0;
+        line-height: 1.5;
+      }
+    }
+
+    // Quick Stats
+    .quick-stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-top: 24px;
+      padding-top: 24px;
+      border-top: 1px solid $light-gray;
+      
+      .stat-item {
+        text-align: center;
+        
+        .stat-value {
+          font-size: 24px;
+          font-weight: 700;
+          color: $orange;
+          margin: 0 0 4px 0;
+        }
+        
+        .stat-label {
+          font-size: 12px;
+          color: $text-gray;
+          margin: 0;
+        }
+      }
+    }
+  }
+
+  // Tabs Section
+  .profile-tabs {
+    border-top: 1px solid $light-gray;
+    
+    .tabs-header {
+      display: flex;
+      
+      button {
+        flex: 1;
+        background: none;
+        border: none;
+        padding: 12px;
+        color: $text-gray;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        
+        &:hover {
+          color: $orange-light;
+        }
+        
+        &.active {
+          color: $orange;
+          border-bottom: 2px solid $orange;
+        }
+      }
+    }
+    
+    .tab-content {
+      padding: 24px;
+      
+      h2 {
+        font-size: 20px;
+        font-weight: 600;
+        margin: 0 0 16px 0;
+      }
+      
+      .gym-stats {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        
+        .stat-card {
+          background-color: $medium-gray;
+          border-radius: 8px;
+          padding: 16px;
+          
+          .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            
+            .exercise-name {
+              font-size: 16px;
+              font-weight: 500;
+            }
+            
+            .exercise-weight {
+              color: $orange;
+              font-weight: 700;
+            }
+          }
+          
+          .stat-details {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+            
+            .detail-label {
+              color: $text-gray;
+            }
+            
+            .detail-value {
+              color: $white;
+            }
+          }
+        }
+      }
+      
+      .progress-tab, .nutrition-tab {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 200px;
+        color: $text-gray;
+      }
+    }
+  }
+}
+
+// Media Queries for Responsiveness
+@media (max-width: 600px) {
+  .user-profile {
+    border-radius: 0;
+    
+    .profile-info {
+      .quick-stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  }
+}
+
+@media (max-width: 400px) {
+  .user-profile {
+    .profile-info {
+      .profile-picture {
+        img {
+          width: 80px;
+          height: 80px;
+        }
+      }
+      
+      .user-info {
+        margin-top: 48px;
+        
+        h1 {
+          font-size: 20px;
+        }
+      }
+    }
+  }
+}

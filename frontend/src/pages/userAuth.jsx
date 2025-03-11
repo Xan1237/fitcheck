@@ -40,7 +40,7 @@ const AuthPage = () => {
             console.error("Token is undefined in the response");
           }
         }
-        window.location.href = "/";
+        window.location.href = "/profile";
         console.log("Token stored:", data.token);
       } catch (error) {
         console.error('Error:', error);

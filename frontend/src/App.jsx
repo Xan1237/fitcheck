@@ -6,6 +6,7 @@ import Home from "./pages/home/home";
 import Gym from "./pages/gym"
 import SignIn from "./pages/userAuth";
 import Profile from "./pages/profile/profile";
+import PublicProfile from "./pages/publicProfile/PublicProfile"
 import "./index.css";
 
 const App = () => {
@@ -16,6 +17,7 @@ const App = () => {
         <Route path="gym/:gym" element={<Gym />} />
         <Route path="/login" element={<SignIn />} />
         <Route path="/profile" element={<Profile/>} />
+        <Route path="/profile/:name" element={<PublicProfile/>}/>
       </Routes>
     </Router>
   );

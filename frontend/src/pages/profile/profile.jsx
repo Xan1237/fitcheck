@@ -345,6 +345,7 @@ const saveAllFormData = () => {
   .catch(error => {
     console.error("Error updating profile:", error);
   });
+  window.location.href = "/"
 }
   // Tab content components
   const PersonalInfoTab = () => (

@@ -47,6 +47,7 @@ const Search = ({ onSearchSubmit }) => {
             <option value="Planet Fitness">Planet Fitness</option>
             <option value="FitnessFX">FitnessFX</option>
             <option value="Test Gym">Test Gym</option>
+            <option value="Anytime Fitness">Anytime Fitness</option>
           </select>
           <button type="submit" className="search-button">
             Find Gyms

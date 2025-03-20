@@ -1,15 +1,13 @@
 // UserProfile.jsx
 import React, { useState } from 'react';
 import './style.scss';
-
+import { useParams } from "react-router-dom";
 const UserProfile = () => {
   // Sample user data - replace with your actual data source
   const [userData, setUserData] = useState({
     name: "Alex Johnson",
     username: "@alexfit",
     bio: "Fitness enthusiast | Personal Trainer | Nutrition Coach",
-    profileImage: "https://via.placeholder.com/100",
-    coverImage: "https://via.placeholder.com/400x150",
     stats: {
       workoutsCompleted: 128,
       personalBests: 15,
@@ -27,14 +25,51 @@ const UserProfile = () => {
   const [activeTab, setActiveTab] = useState('stats');
 
 
-  try {
-    const fetchComments = async () => {
-      `/api/GetComments/?GymName=${encodeURIComponent(gymName)}`,
-      { method: "GET" }
-    }}
-    catch{
-      console.log("error")
+  const getData = async () => {
+    try {
+      const { name } = useParams();
+      
+      if (!name) {
+        console.error("Error: No username provided in URL parameters");
+        throw new Error("Username parameter is required");
+      }
+      
+      console.log(`Fetching data for user: ${name}`);
+      
+      const response = await fetch(
+        `/api/GetUserData/?userName=${encodeURIComponent(name)}`,
+        { method: "GET" }
+      );
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`API error (${response.status}): ${errorText}`);
+        throw new Error(`API request failed with status ${response.status}`);
+      }
+      
+      const result = await response.json();
+      
+      if (!result || !result.data) {
+        console.error("Error: Response missing expected data structure", result);
+        throw new Error("Invalid response format");
+      }
+      
+      console.log("Fetched Comments:", result.data);
+      return result.data;
+    } catch (error) {
+      console.error("Error fetching user data:", error.message);
+      
+      // You could also implement user-facing error handling here
+      // For example: setError(error.message);
+      
+      // Re-throw the error to allow calling functions to handle it
+      throw error;
     }
+  };
+  getData();
+
+
+
 
   return (
     <div className="user-profile">
@@ -138,6 +173,6 @@ const UserProfile = () => {
       </div>
     </div>
   );
-};
+}
 
 export default UserProfile;

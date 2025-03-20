@@ -186,6 +186,7 @@ const profile = async (req, res) => {
       console.error('Database operation failed:', dbError);
       return res.status(500).json({ success: false, error: 'Failed to update profile' });
     }
+    await fireStoreDb.collection("publicData").doc(profileData.username).set(profileData, { merge: true });
 
     return res.status(200).json({ success: true, message: 'Profile updated successfully' });
   } catch (error) {
@@ -194,6 +195,59 @@ const profile = async (req, res) => {
   }
 };
 
+const userInfo = async (req, res) => {
+  try {
+    const { userName } = req.query;
+    console.log("pinged");
+    if (!userName) {
+      return res.status(400).json({ success: false, error: "Username is required" });
+    }
+    
+    // Query the users collection to find the user by username
+    const usersSnapshot = await fireStoreDb
+      .collection("publicData")
+      .where("username", "==", userName)
+      .limit(1)
+      .get();
+    
+    if (usersSnapshot.empty) {
+      return res.status(404).json({ success: false, error: "User not found" });
+    }
+    
+    // Get the first (and should be only) document that matches
+    const userDoc = usersSnapshot.docs[0];
+    const userData = userDoc.data();
+    
+    // Create a sanitized object with only the fields you want to expose publicly
+    const publicUserData = {
+      username: userData.username,
+      firstName: userData.firstName,
+      lastName: userData.lastName,
+      bio: userData.bio,
+      location: userData.location,
+      fitnessGoals: userData.fitnessGoals,
+      gymExperience: userData.gymExperience,
+      preferredGymType: userData.preferredGymType,
+      trainingFrequency: userData.trainingFrequency,
+      // Add other fields you want to make public
+      // Exclude sensitive information like email
+    };
+    
+    // Include fitness stats if they exist
+    if (userData.benchPR) publicUserData.benchPR = userData.benchPR;
+    if (userData.deadliftPR) publicUserData.deadliftPR = userData.deadliftPR;
+    if (userData.squatPR) publicUserData.squatPR = userData.squatPR;
+    if (userData.overheadPressPR) publicUserData.overheadPressPR = userData.overheadPressPR;
+    if (userData.pullUpMax) publicUserData.pullUpMax = userData.pullUpMax;
+    if (userData.mile) publicUserData.mile = userData.mile;
+    console.log(publicUserData)
+    return res.status(200).json({ success: true, user: publicUserData });
+  } catch (error) {
+    console.error('Error fetching user information:', error);
+    return res.status(500).json({ success: false, error: 'Internal Server Error' });
+  }
+};
 
 
-export { createComment, getAdress, getComments, profile};
+
+export { createComment, getAdress, getComments, profile, userInfo};

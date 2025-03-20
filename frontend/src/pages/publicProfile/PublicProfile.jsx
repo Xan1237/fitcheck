@@ -48,13 +48,7 @@ const UserProfile = () => {
       }
       
       const result = await response.json();
-      
-      if (!result || !result.data) {
-        console.error("Error: Response missing expected data structure", result);
-        throw new Error("Invalid response format");
-      }
-      
-      console.log("Fetched Comments:", result.data);
+      console.log(result.user)
       return result.data;
     } catch (error) {
       console.error("Error fetching user data:", error.message);

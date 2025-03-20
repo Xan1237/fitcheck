@@ -195,27 +195,24 @@ const profile = async (req, res) => {
   }
 };
 
-const userInfo = async (req, res) => {
+
+
+ const  userInfo = async (req, res) => {
   try {
     const { userName } = req.query;
     console.log("pinged");
+    
     if (!userName) {
       return res.status(400).json({ success: false, error: "Username is required" });
     }
     
-    // Query the users collection to find the user by username
-    const usersSnapshot = await fireStoreDb
-      .collection("publicData")
-      .where("username", "==", userName)
-      .limit(1)
-      .get();
+    // Get the user document directly by username as document ID
+    const userDoc = await fireStoreDb.collection("publicData").doc(userName).get();
     
-    if (usersSnapshot.empty) {
+    if (!userDoc.exists) {
       return res.status(404).json({ success: false, error: "User not found" });
     }
     
-    // Get the first (and should be only) document that matches
-    const userDoc = usersSnapshot.docs[0];
     const userData = userDoc.data();
     
     // Create a sanitized object with only the fields you want to expose publicly
@@ -229,8 +226,6 @@ const userInfo = async (req, res) => {
       gymExperience: userData.gymExperience,
       preferredGymType: userData.preferredGymType,
       trainingFrequency: userData.trainingFrequency,
-      // Add other fields you want to make public
-      // Exclude sensitive information like email
     };
     
     // Include fitness stats if they exist
@@ -240,7 +235,7 @@ const userInfo = async (req, res) => {
     if (userData.overheadPressPR) publicUserData.overheadPressPR = userData.overheadPressPR;
     if (userData.pullUpMax) publicUserData.pullUpMax = userData.pullUpMax;
     if (userData.mile) publicUserData.mile = userData.mile;
-    console.log(publicUserData)
+    
     return res.status(200).json({ success: true, user: publicUserData });
   } catch (error) {
     console.error('Error fetching user information:', error);

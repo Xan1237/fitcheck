@@ -23,6 +23,7 @@
     font-weight: 600;
     text-decoration: none;
     color: #ff5722;
+    z-index: 10;
 
     .logo-icon {
       margin-right: 8px;
@@ -66,6 +67,7 @@
     display: none;
     font-size: 1.8rem;
     cursor: pointer;
+    z-index: 10;
   }
 }
 
@@ -78,20 +80,25 @@
     }
 
   .nav-links {
-    position: absolute;
-    top: 70px;
-    left: 0;
-    right: 0;
-    background: #222;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1rem;
-    padding: 1rem;
-    opacity: 0;
-    transform: translateY(-20px);
-    transition: opacity 0.3s ease, transform 0.3s ease;
-    pointer-events: none;
+    position: fixed; /* Change to fixed position */
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.95); /* Darkened background */
+      display: flex;
+      flex-direction: column;
+      justify-content: center; /* Center items vertically */
+      align-items: center;
+      gap: 2rem;
+      padding: 2rem;
+      opacity: 0;
+      transform: translateY(-100%); /* Move off-screen initially */
+      transition: transform 0.3s ease, opacity 0.3s ease;
+      pointer-events: none;
+      z-index: 5; /* Place below the menu icon and logo */
+      height: 100vh; /* Full viewport height */
+      overflow-y: auto;
   }
 
   .nav-links.open {
@@ -100,8 +107,36 @@
     pointer-events: all;
   }
 
-  /* Optional: Close menu when clicking outside */
   .nav-links a {
+    color: #fff;
+    font-size: 1.2rem;
     padding: 0.8rem 1.5rem;
+    text-align: center;
+    width: 100%;
+    max-width: 300px;
+    border-radius: 8px;
+    
+    &:hover {
+      background-color: rgba(255, 87, 34, 0.2);
+    }
+  }
+
+  .nav-links .cta-button {
+    margin-top: 1rem;
+    width: 100%;
+    max-width: 300px;
+  }
+}
+
+@media (max-width: 768px) {
+  .search-bar {
+    z-index: 1; /* Ensure search bar is below the menu */
+  }
+  
+  /* Prevent search bar from showing in mobile menu */
+  .nav-links .search-bar,
+  .nav-links .search-input-container,
+  .nav-links .search-field {
+    display: none !important;
   }
 }

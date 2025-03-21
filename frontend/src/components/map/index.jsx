@@ -28,6 +28,19 @@ const ChangeView = ({ center, zoom }) => {
   return null;
 };
 
+// New component to handle popup closing when activeGym changes
+const MapController = ({ markers, activeGym }) => {
+  const map = useMap();
+  
+  useEffect(() => {
+    if (activeGym && markers) {
+      // Close all popups when a new gym is selected from sidebar
+      map.closePopup();
+    }
+  }, [activeGym, markers, map]);
+  
+  return null;
+};
 
 const Map = ({ searchResults, markers, activeGym, setActiveGym }) => {
   const [position, setPosition] = useState([44.648766, -63.575237]); // Default center
@@ -106,6 +119,7 @@ const Map = ({ searchResults, markers, activeGym, setActiveGym }) => {
         style={{ height: "100%", width: "100%" }}
       >
         <ChangeView center={position} zoom={zoom} />
+        <MapController markers={markers} activeGym={activeGym} />
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

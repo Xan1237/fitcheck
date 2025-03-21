@@ -19,7 +19,7 @@ const Gym = () => {
   const [selectedTags, setSelectedTags] = useState([]);
   
   // Temporary values for display purposes
-  const [averageRating, setAverageRating] = useState(4.2);
+  const [averageRating, setAverageRating] = useState(0);
   const [totalReviews, setTotalReviews] = useState(0);
   
   // Example gym hours (you can replace these with actual data later)

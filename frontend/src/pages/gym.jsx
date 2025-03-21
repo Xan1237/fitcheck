@@ -7,7 +7,14 @@ import CommentModal from "../components/CommentModal";
 import "./index.scss";
 import { v4 as uuidv4 } from "uuid";
 import dayjs from "dayjs";
-import { FaExternalLinkAlt, FaStar, FaRegClock, FaMapMarkerAlt, FaPhone } from "react-icons/fa";
+import {
+  FaExternalLinkAlt,
+  FaStar,
+  FaRegClock,
+  FaMapMarkerAlt,
+  FaPhone,
+  FaDirections
+} from "react-icons/fa";
 
 const Gym = () => {
   const { gym } = useParams();
@@ -17,11 +24,11 @@ const Gym = () => {
   const [showModal, setShowModal] = useState(false);
   const [rating, setRating] = useState(0);
   const [selectedTags, setSelectedTags] = useState([]);
-  
+
   // Temporary values for display purposes
   const [averageRating, setAverageRating] = useState(0);
   const [totalReviews, setTotalReviews] = useState(0);
-  
+
   // Example gym hours (you can replace these with actual data later)
   const gymHours = {
     Monday: "6:00 AM - 10:00 PM",
@@ -30,7 +37,7 @@ const Gym = () => {
     Thursday: "6:00 AM - 10:00 PM",
     Friday: "6:00 AM - 9:00 PM",
     Saturday: "8:00 AM - 8:00 PM",
-    Sunday: "8:00 AM - 6:00 PM"
+    Sunday: "8:00 AM - 6:00 PM",
   };
 
   // Function to post a new comment
@@ -105,7 +112,7 @@ const Gym = () => {
   // Calculate average rating from messages
   const calculateAverageRating = (msgs) => {
     if (msgs.length === 0) return;
-    
+
     const sum = msgs.reduce((total, msg) => total + (msg.Rating || 0), 0);
     setAverageRating((sum / msgs.length).toFixed(1));
   };
@@ -151,37 +158,62 @@ const Gym = () => {
         <div className="gym-content">
           <div className="gym-main-info">
             <div className="gym-image-container">
-              <img className="gym-image" src={gymsData.img} alt={gymsData.name} />
+              <img
+                className="gym-image"
+                src={gymsData.img}
+                alt={gymsData.name}
+              />
             </div>
-            
+
             <div className="gym-details">
               <div className="gym-contact-info">
-                {gymsData.address && (
+                {gymsData.location && (
                   <div className="info-item">
                     <FaMapMarkerAlt className="info-icon" />
-                    <span className="info-text">{gymsData.address}</span>
+                    <span className="info-text">{gymsData.location}</span>
                   </div>
                 )}
-                
+
                 {gymsData.phone && (
                   <div className="info-item">
                     <FaPhone className="info-icon" />
                     <span className="info-text">{gymsData.phone}</span>
                   </div>
                 )}
-                
+
                 {gymsData.website && (
                   <div className="info-item">
                     <FaExternalLinkAlt className="info-icon" />
-                    <a href={gymsData.website} target="_blank" rel="noopener noreferrer" className="info-link">
+                    <a
+                      href={gymsData.website}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="info-link"
+                    >
                       Visit Website
+                    </a>
+                  </div>
+                )}
+                
+                {gymsData.location && (
+                  <div className="info-item">
+                    <FaDirections className="info-icon" />
+                    <a
+                      href={`https://maps.google.com/maps?q=${encodeURIComponent(gymsData.location)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="info-link"
+                    >
+                      Get Directions
                     </a>
                   </div>
                 )}
               </div>
 
               <div className="gym-hours-container">
-                <h3><FaRegClock className="hours-icon" /> Hours of Operation</h3>
+                <h3>
+                  <FaRegClock className="hours-icon" /> Hours of Operation
+                </h3>
                 <div className="gym-hours">
                   {Object.entries(gymHours).map(([day, hours]) => (
                     <div key={day} className="hours-row">
@@ -193,7 +225,26 @@ const Gym = () => {
               </div>
             </div>
           </div>
-          
+
+          {gymsData.location && (
+            <div className="gym-map-container">
+              <h2 className="map-title"><FaMapMarkerAlt className="map-icon" /> Location</h2>
+              <div className="gym-map">
+                <iframe
+                  title={`Map of ${gymsData.name}`}
+                  src={`https://maps.google.com/maps?q=${encodeURIComponent(gymsData.location)}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
+                  frameBorder="0"
+                  scrolling="no"
+                  marginHeight="0"
+                  marginWidth="0"
+                  className="google-map"
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                />
+              </div>
+            </div>
+          )}
+
           <div className="reviews-section">
             <div className="reviews-header">
               <h2>Reviews</h2>
@@ -204,7 +255,7 @@ const Gym = () => {
                 Write a Review
               </button>
             </div>
-            
+
             <div className="reviews-list">
               {messages.length > 0 ? (
                 messages.map((msg, index) => (
@@ -217,7 +268,9 @@ const Gym = () => {
                   />
                 ))
               ) : (
-                <div className="no-reviews">No reviews yet. Be the first to add one!</div>
+                <div className="no-reviews">
+                  No reviews yet. Be the first to add one!
+                </div>
               )}
             </div>
           </div>

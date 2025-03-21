@@ -7,6 +7,7 @@ import CommentModal from "../components/CommentModal";
 import "./index.scss";
 import { v4 as uuidv4 } from "uuid";
 import dayjs from "dayjs";
+import { FaExternalLinkAlt } from "react-icons/fa";
 import Star from "../data/StarImg/Star.png";
 
 const Gym = () => {
@@ -98,6 +99,12 @@ const Gym = () => {
       <Header />
       <div className="page">
         <img className="GymPic" src={gymsData.img} alt={gymsData.name} />
+        {gymsData.website && (
+          <a href={gymsData.website} target="_blank" rel="noopener noreferrer">
+            Website <FaExternalLinkAlt />
+          </a>
+        )}
+
         <div id="messageSection">
           <button
             onClick={() => setShowModal(true)}
@@ -117,7 +124,7 @@ const Gym = () => {
               />
             ))
           ) : (
-            <div>No comments yet. Be the first to add one!</div>
+            <div id="noReviews">No comments yet. Be the first to add one!</div>
           )}
         </div>
       </div>

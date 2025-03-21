@@ -1,11 +1,11 @@
 #root{
     background-color: #242424; //this color needs to be changed
     .GymPic{
-        width: 100vw;
+        width: 50vw;
         height: auto;
-        @media  (min-width: 1200px) {
+        @media  (min-width: 770px) {
             max-height: auto;
-            width: 70vw;
+            width: 50vw;
             padding-top: 15px;
             display: block;
             margin: auto;
@@ -33,7 +33,11 @@
 }
 
 
-
+ #noReviews {
+    color: white;
+    font-size: 15px;
+    margin-top: 10px;
+  }
   
   #messageSection {
     width: 100%;

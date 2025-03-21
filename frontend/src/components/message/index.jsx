@@ -1,7 +1,7 @@
 import React from "react";
 import "./index.scss";
 
-const Message = ({ messageContent, timeStamp, rating, tags }) => {
+const Message = ({ messageContent, timeStamp, rating, tags, username }) => {
   return (
     <div className="message">
       <div className="messageHeader">
@@ -9,7 +9,9 @@ const Message = ({ messageContent, timeStamp, rating, tags }) => {
           {"★".repeat(rating)}
           {"☆".repeat(5 - rating)}
         </span>
-        <span className="timeStamp">{timeStamp}</span>
+        <span className="timeStamp">{timeStamp}
+        <p>{username}</p>
+        </span>
       </div>
 
       <p className="messageContent">{messageContent}</p>

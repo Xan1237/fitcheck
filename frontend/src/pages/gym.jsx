@@ -55,12 +55,13 @@ const Gym = () => {
       Rating: rating,
       Tags: selectedTags || [],
     };
-
+    const token = localStorage.getItem("token");
     try {
       const response = await fetch("/api/comment", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
         },
         body: JSON.stringify(commentData),
       });
@@ -262,6 +263,7 @@ const Gym = () => {
                   <Message
                     key={msg.CommentID || index}
                     messageContent={msg.CommentText}
+                    username={msg.UserNamedata}
                     timeStamp={msg.Time}
                     rating={msg.Rating}
                     tags={msg.Tags}

@@ -11,11 +11,23 @@ const markerShadow =
 // Separate component to handle map position updates
 const ChangeView = ({ center, zoom }) => {
   const map = useMap();
+
   useEffect(() => {
-    map.setView(center, zoom, { animate: true });
-  }, [center, map, zoom]);
+    // Project LatLng to screen coordinates at given zoom
+    const targetPoint = map.project(center, zoom);
+    const mapSize = map.getSize();
+
+    // Shift up by 1/5 of the map height
+    targetPoint.y -= mapSize.y / 5;
+
+    // Convert back to LatLng and set view there
+    const shiftedLatLng = map.unproject(targetPoint, zoom);
+    map.setView(shiftedLatLng, zoom, { animate: false });
+  }, [center, zoom, map]);
+
   return null;
 };
+
 
 const Map = ({ searchResults, markers, activeGym, setActiveGym }) => {
   const [position, setPosition] = useState([44.648766, -63.575237]); // Default center
@@ -114,7 +126,7 @@ const Map = ({ searchResults, markers, activeGym, setActiveGym }) => {
               <Popup>
                 <div className="map-popup">
                   <h3>{marker.name}</h3>
-                  <p>{marker.description}</p>
+                  <p>{marker.location}</p>
                   <a href={marker.link} className="popup-link">
                     View Details
                   </a>

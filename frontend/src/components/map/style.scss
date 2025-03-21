@@ -15,6 +15,9 @@
     background-color: #222;
     color: #fff;
     box-shadow: 0 3px 14px rgba(0, 0, 0, 0.4);
+    max-width: 200px; /* Reduce the width */
+    padding: 0.5rem;   /* Reduce the internal padding */
+    font-size: 0.85rem; /* Optional: slightly smaller text */
   }
   
   .leaflet-popup-tip {
@@ -24,24 +27,26 @@
   .map-popup {
     h3 {
       color: #ff6b35;
-      margin: 0 0 0.5rem 0;
+      margin: 0 0 0.4rem 0;
+      font-size: 1rem; /* Smaller heading */
     }
-    
+  
     p {
-      margin: 0 0 0.5rem 0;
+      margin: 0 0 0.4rem 0;
+      font-size: 0.85rem;
     }
-    
+  
     .popup-link {
       display: inline-block;
       background-color: #ff6b35;
       color: #fff;
-      padding: 0.3rem 0.6rem;
+      padding: 0.2rem 0.5rem;
       border-radius: 4px;
       text-decoration: none;
-      margin-top: 0.5rem;
-      font-size: 0.9rem;
+      margin-top: 0.4rem;
+      font-size: 0.8rem;
       transition: background-color 0.2s ease;
-      
+  
       &:hover {
         background-color: #ff8c42;
       }

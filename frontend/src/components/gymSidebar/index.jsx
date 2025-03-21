@@ -23,7 +23,7 @@ const GymSidebar = ({ gyms, activeGym, setActiveGym, filter }) => {
               </div>
               <div className="gym-info">
                 <h3>{gym.name}</h3>
-                <p>{gym.description}</p>
+                <p>{gym.location}</p>
                 <div className="gym-actions">
                   <Link to={gym.link} className="gym-link">
                     <FaInfoCircle /> Details

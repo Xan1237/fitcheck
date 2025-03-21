@@ -45,7 +45,7 @@ const Search = ({ onSearchSubmit }) => {
             <option value="Fit For Less">Fit For Less</option>
             <option value="Goodlife">Goodlife</option>
             <option value="Planet Fitness">Planet Fitness</option>
-            <option value="FitnessFX">FitnessFX</option>
+            <option value="Fitness FX">FitnessFX</option>
             <option value="Test Gym">Test Gym</option>
             <option value="Anytime Fitness">Anytime Fitness</option>
           </select>

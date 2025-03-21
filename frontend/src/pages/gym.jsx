@@ -25,6 +25,11 @@ const Gym = () => {
   const [rating, setRating] = useState(0);
   const [selectedTags, setSelectedTags] = useState([]);
 
+  useEffect(() => {
+    fetchComments()
+  }, [newComment]);
+
+
   // Temporary values for display purposes
   const [averageRating, setAverageRating] = useState(0);
   const [totalReviews, setTotalReviews] = useState(0);
@@ -40,6 +45,8 @@ const Gym = () => {
     Sunday: "8:00 AM - 6:00 PM",
   };
 
+
+
   // Function to post a new comment
   const postComment = async () => {
     if (!newComment.trim()) {
@@ -51,6 +58,7 @@ const Gym = () => {
       UserName: "Anonymous",
       CommentText: newComment,
       GymName: gymsData.name,
+      GymId: gymsData.id,
       Time: dayjs().format("YYYY-MM-DD HH:mm"),
       Rating: rating,
       Tags: selectedTags || [],
@@ -85,7 +93,7 @@ const Gym = () => {
 
   // Function to fetch comments from the API
   const fetchComments = async () => {
-    const gymName = gymsData.name;
+    const gymName = gymsData.id;
     try {
       const response = await fetch(
         `/api/GetComments/?GymName=${encodeURIComponent(gymName)}`,
@@ -121,7 +129,7 @@ const Gym = () => {
   // Fetch comments when the component mounts
   useEffect(() => {
     fetchComments();
-  }, [gymsData.name]); // Re-fetch comments if gymsData.name changes
+  }, [gymsData.id]); // Re-fetch comments if gymsData.name changes
 
   // Render stars for average rating
   const renderStars = (rating) => {

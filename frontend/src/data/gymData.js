@@ -10,6 +10,7 @@ import IMG_9 from "./gymPics/9.jpg";
 
 const gymData = {
   1: {
+    id: 1,
     name: "Fit For Less",
     img: IMG_1,
     position: [44.77269337771879, -63.693536924525894],
@@ -17,6 +18,7 @@ const gymData = {
     link: "/gym/1",
   },
   2: {
+    id: 2,
     name: "Fit For Less",
     img: IMG_2,
     position: [44.73686038444007, -63.65620366193974],
@@ -24,6 +26,7 @@ const gymData = {
     link: "/gym/2",
   },
   3: {
+    id: 3,
     name: "Fit For Less",
     img: IMG_3,
     position: [44.66158683551251, -63.65525032597009],
@@ -33,6 +36,7 @@ const gymData = {
       "https://www.fit4less.ca/locations/provinces/nova-scotia/halifax/halifax-clayton-park",
   },
   4: {
+    id: 4,
     name: "Fitness FX",
     img: IMG_4,
     position: [44.660803, -63.6374113],
@@ -41,6 +45,7 @@ const gymData = {
     website: "https://www.fitnessfx.ca/",
   },
   5: {
+    id: 5,
     name: "ACA fitness centre",
     img: IMG_5,
     position: [44.84267095290403, -65.28049822539818],
@@ -49,6 +54,7 @@ const gymData = {
     website: "https://www.facebook.com/profile.php?id=100063785580773",
   },
   6: {
+    id: 6,
     name: "Anytime Fitness",
     img: IMG_6,
     position: [44.6405595, -63.5793907],
@@ -58,6 +64,7 @@ const gymData = {
       "https://www.anytimefitness.ca/gyms/4575/halifax-ns-b3j-2k9/#about-club",
   },
   7: {
+    id: 7,
     name: "Dalplex",
     img: IMG_7,
     position: [44.6340937, -63.591322],
@@ -66,6 +73,7 @@ const gymData = {
     website: "https://athletics.dal.ca/facilities/Dalplex.html",
   },
   8: {
+    id: 8,
     name: "GoodLife Fitness",
     img: IMG_8,
     position: [44.643402, -63.5788533],
@@ -75,6 +83,7 @@ const gymData = {
       "https://www.goodlifefitness.com/clubs/club.306.html?utm_source=G&utm_medium=LPM&utm_campaign=GoodlifeFitness",
   },
   9: {
+    id: 9,
     name: "O2 Wellness",
     img: IMG_9,
     position: [44.7342125, -63.6541907],

@@ -29,7 +29,7 @@ const createComment = async (req, res) => {
       return res.status(401).json({ success: false, error: 'Invalid or expired authentication token' });
     }
 
-  const { CommentID, CommentText, GymName, Time, Rating, Tags } =
+  const { CommentID, CommentText, GymName, Time, Rating, Tags, GymId } =
     req.body;
 
   let userDoc;
@@ -51,12 +51,13 @@ const createComment = async (req, res) => {
     // Ensure Tags is always an array
     const processedTags = Array.isArray(Tags) ? Tags : [];
     await fireStoreDb
-      .collection(GymName + "__Comment")
+      .collection(GymId + "__Comment")
       .doc(CommentID)
       .set({
         UserNamedata, 
         CommentText,
         Time,
+        GymId,
         Rating: Rating || 0, // Default to 0 if not provided
         Tags: processedTags,
       });

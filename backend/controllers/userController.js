@@ -226,6 +226,7 @@ const profile = async (req, res) => {
       squatPR: userData.squatPR,
       overheadPressPR: userData.overheadPressPR,
       mile: userData.mile,
+      deadliftPR: userData.deadliftPR,
       bio: userData.bio,
       location: userData.location,
       fitnessGoals: userData.fitnessGoals,

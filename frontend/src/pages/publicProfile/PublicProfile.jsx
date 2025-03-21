@@ -23,9 +23,9 @@ const UserProfile = () => {
       following: 267
     },
     gymStats: [
-      { exercise: "Bench Press", weight: "225 lbs", reps: 8 },
-      { exercise: "Squat", weight: "315 lbs", reps: 6 },
-      { exercise: "Deadlift", weight: "405 lbs", reps: 5 },
+      { exercise: "Bench Press", weight: "225 lbs", reps: "Max" },
+      { exercise: "Squat", weight: "315 lbs", reps: "Max" },
+      { exercise: "Deadlift", weight: "405 lbs", reps: "Max" },
       { exercise: "Pull-ups", weight: "Bodyweight", reps: 15 }
     ]
   });
@@ -70,6 +70,7 @@ const UserProfile = () => {
         gymStats: [
           { ...userData.gymStats[0], weight: result.user.benchPR+" lbs" },
           { ...userData.gymStats[1], weight: result.user.squatPR+" lbs"},
+          { ...userData.gymStats[2], weight: result.user.deadliftPR+" lbs"}
         ]
       });
      
@@ -145,13 +146,13 @@ const UserProfile = () => {
             className={activeTab === 'progress' ? 'active' : ''}
             onClick={() => setActiveTab('progress')}
           >
-            Progress
+            Gym Frequented
           </button>
           <button 
             className={activeTab === 'nutrition' ? 'active' : ''}
             onClick={() => setActiveTab('nutrition')}
           >
-            Nutrition
+            Posts
           </button>
         </div>
         

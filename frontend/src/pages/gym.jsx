@@ -7,8 +7,7 @@ import CommentModal from "../components/CommentModal";
 import "./index.scss";
 import { v4 as uuidv4 } from "uuid";
 import dayjs from "dayjs";
-import { FaExternalLinkAlt } from "react-icons/fa";
-import Star from "../data/StarImg/Star.png";
+import { FaExternalLinkAlt, FaStar, FaRegClock, FaMapMarkerAlt, FaPhone } from "react-icons/fa";
 
 const Gym = () => {
   const { gym } = useParams();
@@ -18,6 +17,21 @@ const Gym = () => {
   const [showModal, setShowModal] = useState(false);
   const [rating, setRating] = useState(0);
   const [selectedTags, setSelectedTags] = useState([]);
+  
+  // Temporary values for display purposes
+  const [averageRating, setAverageRating] = useState(4.2);
+  const [totalReviews, setTotalReviews] = useState(0);
+  
+  // Example gym hours (you can replace these with actual data later)
+  const gymHours = {
+    Monday: "6:00 AM - 10:00 PM",
+    Tuesday: "6:00 AM - 10:00 PM",
+    Wednesday: "6:00 AM - 10:00 PM",
+    Thursday: "6:00 AM - 10:00 PM",
+    Friday: "6:00 AM - 9:00 PM",
+    Saturday: "8:00 AM - 8:00 PM",
+    Sunday: "8:00 AM - 6:00 PM"
+  };
 
   // Function to post a new comment
   const postComment = async () => {
@@ -35,8 +49,6 @@ const Gym = () => {
       Tags: selectedTags || [],
     };
 
-    console.log("Sending Comment Data:", commentData); // ✅ Debugging log
-
     try {
       const response = await fetch("/api/comment", {
         method: "POST",
@@ -47,7 +59,6 @@ const Gym = () => {
       });
 
       const result = await response.json();
-      console.log("Server Response:", result); // ✅ Debugging log
 
       if (response.ok) {
         setMessages([commentData, ...messages]);
@@ -55,6 +66,7 @@ const Gym = () => {
         setRating(0);
         setSelectedTags([]);
         setShowModal(false);
+        calculateAverageRating([commentData, ...messages]);
       } else {
         console.error("Error:", result.message);
       }
@@ -73,7 +85,6 @@ const Gym = () => {
       );
 
       const result = await response.json();
-      console.log("Fetched Comments:", result.data); // ✅ Debugging log
 
       if (response.ok) {
         const formattedMessages = result.data.map((comment) => ({
@@ -81,6 +92,8 @@ const Gym = () => {
           Tags: comment.Tags || [], // Ensure Tags is always an array
         }));
         setMessages(formattedMessages);
+        setTotalReviews(formattedMessages.length);
+        calculateAverageRating(formattedMessages);
       } else {
         console.error("Error fetching comments:", result.message);
       }
@@ -89,43 +102,125 @@ const Gym = () => {
     }
   };
 
+  // Calculate average rating from messages
+  const calculateAverageRating = (msgs) => {
+    if (msgs.length === 0) return;
+    
+    const sum = msgs.reduce((total, msg) => total + (msg.Rating || 0), 0);
+    setAverageRating((sum / msgs.length).toFixed(1));
+  };
+
   // Fetch comments when the component mounts
   useEffect(() => {
     fetchComments();
   }, [gymsData.name]); // Re-fetch comments if gymsData.name changes
 
+  // Render stars for average rating
+  const renderStars = (rating) => {
+    const stars = [];
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 >= 0.5;
+
+    for (let i = 0; i < 5; i++) {
+      if (i < fullStars) {
+        stars.push(<FaStar key={i} className="star-filled" />);
+      } else if (i === fullStars && hasHalfStar) {
+        stars.push(<FaStar key={i} className="star-half" />);
+      } else {
+        stars.push(<FaStar key={i} className="star-empty" />);
+      }
+    }
+    return stars;
+  };
+
   return (
     <div>
       <Header />
-      <div className="page">
-        <img className="GymPic" src={gymsData.img} alt={gymsData.name} />
-        {gymsData.website && (
-          <a href={gymsData.website} target="_blank" rel="noopener noreferrer">
-            Website <FaExternalLinkAlt />
-          </a>
-        )}
+      <div className="gym-page">
+        <div className="gym-header">
+          <h1 className="gym-name">{gymsData.name}</h1>
+          <div className="gym-rating-container">
+            <div className="gym-stars">{renderStars(averageRating)}</div>
+            <div className="gym-rating-text">
+              <span className="rating-number">{averageRating}</span>
+              <span className="total-reviews">({totalReviews} reviews)</span>
+            </div>
+          </div>
+        </div>
 
-        <div id="messageSection">
-          <button
-            onClick={() => setShowModal(true)}
-            className="addCommentButton"
-          >
-            Add Comment
-          </button>
+        <div className="gym-content">
+          <div className="gym-main-info">
+            <div className="gym-image-container">
+              <img className="gym-image" src={gymsData.img} alt={gymsData.name} />
+            </div>
+            
+            <div className="gym-details">
+              <div className="gym-contact-info">
+                {gymsData.address && (
+                  <div className="info-item">
+                    <FaMapMarkerAlt className="info-icon" />
+                    <span className="info-text">{gymsData.address}</span>
+                  </div>
+                )}
+                
+                {gymsData.phone && (
+                  <div className="info-item">
+                    <FaPhone className="info-icon" />
+                    <span className="info-text">{gymsData.phone}</span>
+                  </div>
+                )}
+                
+                {gymsData.website && (
+                  <div className="info-item">
+                    <FaExternalLinkAlt className="info-icon" />
+                    <a href={gymsData.website} target="_blank" rel="noopener noreferrer" className="info-link">
+                      Visit Website
+                    </a>
+                  </div>
+                )}
+              </div>
 
-          {messages.length > 0 ? (
-            messages.map((msg, index) => (
-              <Message
-                key={msg.CommentID || index}
-                messageContent={msg.CommentText}
-                timeStamp={msg.Time}
-                rating={msg.Rating}
-                tags={msg.Tags}
-              />
-            ))
-          ) : (
-            <div id="noReviews">No comments yet. Be the first to add one!</div>
-          )}
+              <div className="gym-hours-container">
+                <h3><FaRegClock className="hours-icon" /> Hours of Operation</h3>
+                <div className="gym-hours">
+                  {Object.entries(gymHours).map(([day, hours]) => (
+                    <div key={day} className="hours-row">
+                      <span className="day">{day}:</span>
+                      <span className="hours">{hours}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="reviews-section">
+            <div className="reviews-header">
+              <h2>Reviews</h2>
+              <button
+                onClick={() => setShowModal(true)}
+                className="add-review-button"
+              >
+                Write a Review
+              </button>
+            </div>
+            
+            <div className="reviews-list">
+              {messages.length > 0 ? (
+                messages.map((msg, index) => (
+                  <Message
+                    key={msg.CommentID || index}
+                    messageContent={msg.CommentText}
+                    timeStamp={msg.Time}
+                    rating={msg.Rating}
+                    tags={msg.Tags}
+                  />
+                ))
+              ) : (
+                <div className="no-reviews">No reviews yet. Be the first to add one!</div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
 

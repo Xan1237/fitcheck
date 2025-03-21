@@ -3,6 +3,7 @@
 
 * {
   font-family: "Poppins", sans-serif;
+  box-sizing: border-box !important;
 }
 
 // Modal Background
@@ -13,46 +14,54 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.8);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
+  padding: 10px;
 }
 
+// Modal Content
+.commentModalContent {
+  background: #121212;
+  width: 100% !important; 
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+// Tags Grid
 .tagsGrid {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   gap: 8px;
+  margin-bottom: 10px;
 }
 
 .tagButton {
-  background: #eee;
-  color: black;
-  border: 1px solid #ddd;
-  padding: 5px 10px;
-  border-radius: 5px;
+  background: #333;
+  color: white;
+  border: 1px solid #444;
+  padding: 8px 12px;
+  border-radius: 20px;
   cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
 }
 
 .tagButton.selected {
   background: #007bff;
   color: white;
-}
-
-
-// Modal Content
-.commentModalContent {
-  background: black;
-  width: 50%;
-  max-width: 600px;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
+  border-color: #0056b3;
 }
 
 // Star Rating Section
@@ -60,16 +69,16 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 15px;
 
   .stars {
     display: flex;
-    gap: 5px;
-    font-size: 24px;
+    gap: 10px;
+    font-size: 32px;
     cursor: pointer;
     
     .star {
-      color: #ccc;
+      color: #444;
       transition: 0.3s;
     }
 
@@ -79,77 +88,64 @@
   }
 }
 
-// Feature Selection Checkboxes
-.featureSelection {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 10px;
-
-  label {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 16px;
-    cursor: pointer;
-
-    input {
-      transform: scale(1.2);
-    }
-  }
-}
-
-// Textarea for input
+// IMPORTANT: Textarea with !important to override any potential conflicting styles
 .commentTextArea {
-  width: 100%;
-  height: 100px;
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  font-size: 16px;
-  resize: none;
-  outline: none;
-  
-  &:focus {
-    border-color: #007BFF;
-    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-  }
+  width: 100% !important;
+  height: 200px !important; 
+  min-height: 200px !important;
+  max-height: none !important;
+  padding: 15px !important;
+  border-radius: 8px !important;
+  border: 1px solid #444 !important;
+  background: #222 !important;
+  color: white !important;
+  font-size: 18px !important;
+  line-height: 1.5 !important;
+  resize: none !important;
+  outline: none !important;
+  margin: 15px 0 !important;
+  box-sizing: border-box !important;
+  display: block !important;
 }
 
 // Button Container
 .commentModalButtons {
   display: flex;
-  justify-content: space-around;
+  flex-direction: column;
   gap: 10px;
+  width: 100%;
 }
 
 // Submit and Close buttons
 .submitCommentButton,
 .closeCommentButton {
-  padding: 12px 24px;
-  border: none;
-  border-radius: 6px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: 0.3s;
+  width: 100% !important;
+  padding: 15px !important;
+  border: none !important;
+  border-radius: 8px !important;
+  font-size: 18px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: 0.2s !important;
+  margin: 5px 0 !important;
 }
 
 .submitCommentButton {
-  background: #007BFF;
-  color: white;
-  
-  &:hover {
-    background: #0056b3;
-  }
+  background: #007BFF !important;
+  color: white !important;
 }
 
 .closeCommentButton {
-  background: #ff4d4d;
-  color: white;
+  background: #ff4d4d !important;
+  color: white !important;
+}
+
+// Tag selection section
+.tagSelection {
+  width: 100%;
   
-  &:hover {
-    background: #cc0000;
+  h3 {
+    margin-bottom: 10px;
+    font-size: 18px;
   }
 }

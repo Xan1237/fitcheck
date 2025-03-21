@@ -1,9 +1,17 @@
 // UserProfile.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './style.scss';
 import { useParams } from "react-router-dom";
+
+/**
+ * UserProfile Component
+ * Displays a user's profile information, stats, and various data tabs
+ */
 const UserProfile = () => {
-  // Sample user data - replace with your actual data source
+  // Extract the name parameter from the URL
+  const { name } = useParams();
+  
+  // State management for user data with default values
   const [userData, setUserData] = useState({
     name: "Alex Johnson",
     username: "@alexfit",
@@ -22,13 +30,16 @@ const UserProfile = () => {
     ]
   });
 
+  // Track which content tab is currently active
   const [activeTab, setActiveTab] = useState('stats');
 
-
+  /**
+   * Fetches user data from the API
+   * @returns {Promise} The data returned from the API
+   */
   const getData = async () => {
     try {
-      const { name } = useParams();
-      
+      // Validate URL parameter
       if (!name) {
         console.error("Error: No username provided in URL parameters");
         throw new Error("Username parameter is required");
@@ -36,23 +47,35 @@ const UserProfile = () => {
       
       console.log(`Fetching data for user: ${name}`);
       
+      // Make API request to get user data
       const response = await fetch(
         `/api/GetUserData/?userName=${encodeURIComponent(name)}`,
         { method: "GET" }
       );
       
+      // Handle non-200 responses
       if (!response.ok) {
         const errorText = await response.text();
         console.error(`API error (${response.status}): ${errorText}`);
         throw new Error(`API request failed with status ${response.status}`);
       }
       
+      // Process response data
       const result = await response.json();
-      console.log(result.user)
+      setUserData({
+        ...userData,
+        name: result.user.firstName + " "+ result.user.lastName,
+        username: result.user.username,
+        bio: result.user.bio,
+        gymStats: [
+          { ...userData.gymStats[0], weight: result.user.benchPR+" lbs" },
+          { ...userData.gymStats[1], weight: result.user.squatPR+" lbs"},
+        ]
+      });
+     
       return result.data;
     } catch (error) {
       console.error("Error fetching user data:", error.message);
-      
       // You could also implement user-facing error handling here
       // For example: setError(error.message);
       
@@ -60,33 +83,34 @@ const UserProfile = () => {
       throw error;
     }
   };
-  getData();
-
-
-
+  
+  // Fetch user data when component mounts or name parameter changes
+  useEffect(() => {
+    getData();
+  }, [name]); // Re-run when name changes
 
   return (
     <div className="user-profile">
-      {/* Cover Photo */}
+      {/* Profile Header Section */}
       <div className="cover-photo">
         <img src={userData.coverImage} alt="Cover" />
       </div>
       
-      {/* Profile Info */}
+      {/* User Information Section */}
       <div className="profile-info">
         {/* Profile Picture */}
         <div className="profile-picture">
-          <img src={userData.profileImage} alt={userData.name} />
+          <img src={userData.profileImage} alt={"profilepic"} />
         </div>
         
-        {/* User Info */}
+        {/* Basic User Information */}
         <div className="user-info">
           <h1>{userData.name}</h1>
-          <p className="username">{userData.username}</p>
+          <p className="username">{"@"+userData.username}</p>
           <p className="bio">{userData.bio}</p>
         </div>
 
-        {/* Quick Stats */}
+        {/* User Statistics Summary */}
         <div className="quick-stats">
           <div className="stat-item">
             <p className="stat-value">{userData.stats.workoutsCompleted}</p>
@@ -107,8 +131,9 @@ const UserProfile = () => {
         </div>
       </div>
       
-      {/* Tabs */}
+      {/* Content Tabs Section */}
       <div className="profile-tabs">
+        {/* Tab Navigation */}
         <div className="tabs-header">
           <button 
             className={activeTab === 'stats' ? 'active' : ''}
@@ -132,6 +157,7 @@ const UserProfile = () => {
         
         {/* Tab Content */}
         <div className="tab-content">
+          {/* Gym Stats Tab */}
           {activeTab === 'stats' && (
             <div className="stats-tab">
               <h2>Personal Records</h2>
@@ -152,12 +178,14 @@ const UserProfile = () => {
             </div>
           )}
           
+          {/* Progress Tab - Currently a placeholder */}
           {activeTab === 'progress' && (
             <div className="progress-tab">
               <p>Progress charts will appear here</p>
             </div>
           )}
           
+          {/* Nutrition Tab - Currently a placeholder */}
           {activeTab === 'nutrition' && (
             <div className="nutrition-tab">
               <p>Nutrition data will appear here</p>

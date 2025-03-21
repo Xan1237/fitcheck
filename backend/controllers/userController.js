@@ -217,9 +217,15 @@ const profile = async (req, res) => {
     
     // Create a sanitized object with only the fields you want to expose publicly
     const publicUserData = {
+      benchPR: userData.benchPR,
       username: userData.username,
       firstName: userData.firstName,
       lastName: userData.lastName,
+      gender: userData.gender,
+      pullUpMax: userData.pullUpMax,
+      squatPR: userData.squatPR,
+      overheadPressPR: userData.overheadPressPR,
+      mile: userData.mile,
       bio: userData.bio,
       location: userData.location,
       fitnessGoals: userData.fitnessGoals,

@@ -46,20 +46,20 @@ const Home = () => {
         onSearchSubmit={handleSearchSubmit}
       />
       <div className="map-sidebar-container">
-        <div className="sidebar-wrapper">
-          <GymSidebar
-            gyms={gyms}
-            activeGym={activeGym}
-            setActiveGym={setActiveGym}
-            filter={filter}
-          />
-        </div>
         <div className="map-wrapper">
           <Map
             searchResults={searchQuery}
             markers={gyms}
             activeGym={activeGym}
             setActiveGym={setActiveGym}
+          />
+        </div>
+        <div className="sidebar-wrapper">
+          <GymSidebar
+            gyms={gyms}
+            activeGym={activeGym}
+            setActiveGym={setActiveGym}
+            filter={filter}
           />
         </div>
       </div>

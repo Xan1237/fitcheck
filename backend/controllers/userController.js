@@ -3,17 +3,46 @@ import { Timestamp } from "firebase-admin/firestore";
 import axios from "axios";
 import { doc, setDoc} from "firebase/firestore";
 import admin from "firebase-admin";
-
+import { app } from '../middlewares/FireBaseApp.js'
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+const auth = getAuth(app);
 
 
 const createComment = async (req, res) => {
-  const { CommentID, UserName, CommentText, GymName, Time, Rating, Tags } =
+
+  const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      console.error('Missing or invalid authorization header');
+      return res.status(401).json({ success: false, error: 'Authorization header is required' });
+    }
+
+    const token = authHeader.split("Bearer ")[1];
+    
+    // Verify Firebase token - with detailed logging
+    let decodedToken;
+    try {
+      console.log("Attempting to verify token...");
+      decodedToken = await admin.auth().verifyIdToken(token);
+      console.log("Token verified successfully for user:", decodedToken.uid);
+    } catch (verifyError) {
+      console.error('Token verification failed:', verifyError);
+      return res.status(401).json({ success: false, error: 'Invalid or expired authentication token' });
+    }
+
+  const { CommentID, CommentText, GymName, Time, Rating, Tags } =
     req.body;
 
-  console.log("Received Comment Data:", req.body); // ✅ Debugging log
+  let userDoc;
+  try{
+    userDoc = await fireStoreDb.collection("users").doc(decodedToken.uid).get();
+  }catch{
+    return res.status(404).json({success: false, error: 'user not found'})
+  }
 
+  let userData = userDoc.data();
+  let UserNamedata = userData.username;
   try {
-    if (!CommentID || !UserName || !CommentText || !GymName) {
+    if (!CommentID  || !CommentText || !GymName) {
       return res
         .status(400)
         .json({ success: false, error: "Missing required fields" });
@@ -21,12 +50,11 @@ const createComment = async (req, res) => {
 
     // Ensure Tags is always an array
     const processedTags = Array.isArray(Tags) ? Tags : [];
-
     await fireStoreDb
       .collection(GymName + "__Comment")
       .doc(CommentID)
       .set({
-        UserName,
+        UserNamedata, 
         CommentText,
         Time,
         Rating: Rating || 0, // Default to 0 if not provided
@@ -104,6 +132,7 @@ const getComments = async (req, res) => {
       id: doc.id,
       ...doc.data(),
       Rating: doc.data().Rating || 0,
+      UserNamedata: doc.data().UserNamedata,
       Tags: doc.data().Tags || [], // Ensure Tags is included in response
     }));
 

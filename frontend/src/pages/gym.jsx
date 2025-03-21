@@ -36,12 +36,13 @@ const Gym = () => {
     };
 
     console.log("Sending Comment Data:", commentData); // ✅ Debugging log
-
+    const token = localStorage.getItem("token");
     try {
       const response = await fetch("/api/comment", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}` 
         },
         body: JSON.stringify(commentData),
       });
@@ -58,7 +59,10 @@ const Gym = () => {
       } else {
         console.error("Error:", result.message);
       }
-    } catch (error) {
+      if(result.message == "Invalid or expired authentication token"){
+        window.alert("Please Sign in")
+      }
+    } catch  {
       console.error("Error posting comment:", error);
     }
   };
@@ -118,6 +122,7 @@ const Gym = () => {
               <Message
                 key={msg.CommentID || index}
                 messageContent={msg.CommentText}
+                username = {msg.UserNamedata}
                 timeStamp={msg.Time}
                 rating={msg.Rating}
                 tags={msg.Tags}

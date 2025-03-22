@@ -12,6 +12,4 @@ To Do:
     9) make social medias  
     10) More feedback so when you are not logged in it says you cant leave a review.
                 Maybe like "log in to leave a review"
-    11) on review page we need to add commoun gym tags. So once a lot of reviews say 
-                a gym has something that gym will get taged with this being a feature
-                of the gym. this can then be used to filter the gym
+    11) add gyms to the database

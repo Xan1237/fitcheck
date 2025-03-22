@@ -92,21 +92,15 @@ const UserProfile = () => {
 
   return (
     <div className="user-profile">
-      {/* Profile Header Section */}
-      <div className="cover-photo">
-        <img src={userData.coverImage} alt="Cover" />
-      </div>
-      
+
       {/* User Information Section */}
       <div className="profile-info">
         {/* Profile Picture */}
-        <div className="profile-picture">
-          <img src={userData.profileImage} alt={"profilepic"} />
-        </div>
+
         
         {/* Basic User Information */}
         <div className="user-info">
-          <h1>{userData.name}</h1>
+          <h1 id="userName">{userData.name}</h1>
           <p className="username">{"@"+userData.username}</p>
           <p className="bio">{userData.bio}</p>
         </div>

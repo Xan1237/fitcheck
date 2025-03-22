@@ -96,6 +96,9 @@ const Gym = () => {
       Tags: selectedTags || [],
     };
     const token = localStorage.getItem("token");
+    if(!token){
+      window.alert("Please Sign In To Leave A Comment")
+    }
     try {
       const response = await fetch("/api/comment", {
         method: "POST",
@@ -129,6 +132,7 @@ const Gym = () => {
         console.error("Error:", result.message);
       }
     } catch (error) {
+      window.alert("Please Sign in");
       console.error("Error posting comment:", error);
     }
   };

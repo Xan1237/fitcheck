@@ -719,25 +719,9 @@ const saveAllFormData = () => {
         <div className="profile-sidebar">
           <div className="avatar-container">
             <div className="avatar">
-              {previewAvatar ? (
-                <img src={previewAvatar} alt="Profile preview" />
-              ) : (
-                <div className="avatar-placeholder">
-                  <User size={40} />
-                </div>
-              )}
+              
             </div>
-            <label className="avatar-upload" htmlFor="avatar-input">
-              <Camera size={16} />
-              <span>Upload Photo</span>
-              <input
-                type="file"
-                id="avatar-input"
-                accept="image/*"
-                onChange={handleAvatarChange}
-                hidden
-              />
-            </label>
+            
           </div>
           
           <nav className="profile-navigation">

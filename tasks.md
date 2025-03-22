@@ -3,7 +3,7 @@ To Do:
         - I want rating filter
         - filter by gym tags
         - price tange filter (this might not be doable since we wont know up to date this figure)
-        - 
+        - by location too
 
     3) when searching a location have suggestions pop up while you search
     6) change the gym hours so they are correct for each gym

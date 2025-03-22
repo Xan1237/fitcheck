@@ -16,6 +16,7 @@ const gymData = {
     position: [44.77269337771879, -63.693536924525894],
     location: "776 Sackville Dr Unit B005, Lower Sackville, NS B4E 3A4",
     link: "/gym/1",
+    tags: ["Powerlifting Friendly"]
   },
   2: {
     id: 2,

@@ -8,6 +8,7 @@ import gymData from "../../data/gymData.js";
 import GymSidebar from "../../components/GymSidebar";
 import "./styles.scss";
 
+
 const Home = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [filter, setFilter] = useState("all");

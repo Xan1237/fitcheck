@@ -16,6 +16,7 @@ import {
   FaDirections,
   FaTags
 } from "react-icons/fa";
+import { use } from "react";
 
 const Gym = () => {
   const { gym } = useParams();
@@ -30,6 +31,15 @@ const Gym = () => {
   useEffect(() => {
     fetchComments()
   }, [newComment]);
+
+  useEffect(() =>{
+    if(showModal==true){
+    if(!localStorage.getItem("tokee")){
+      window.alert("Please Sign In To Leave A Comment")
+    }
+    setShowModal(false);
+  }
+  }, [showModal]);
 
   // Temporary values for display purposes
   const [averageRating, setAverageRating] = useState(0);

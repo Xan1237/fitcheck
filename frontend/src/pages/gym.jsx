@@ -96,9 +96,6 @@ const Gym = () => {
       Tags: selectedTags || [],
     };
     const token = localStorage.getItem("token");
-    if(!token){
-      window.alert("Please Sign In To Leave A Comment")
-    }
     try {
       const response = await fetch("/api/comment", {
         method: "POST",
@@ -124,15 +121,12 @@ const Gym = () => {
         const updatedGymTags = calculateGymTags(updatedMessages, 0.25);
         setGymTags(updatedGymTags);
         
-        // Optionally update gym tags in the database
-        if (updatedGymTags.length > 0) {
-          updateGymTags(gymsData.id, updatedGymTags.map(item => item.tag));
-        }
+        // Store the calculated tags in a global state or context
+        // This will be implemented when you have a database
       } else {
         console.error("Error:", result.message);
       }
     } catch (error) {
-      window.alert("Please Sign in");
       console.error("Error posting comment:", error);
     }
   };
@@ -162,40 +156,13 @@ const Gym = () => {
         const aggregatedGymTags = calculateGymTags(formattedMessages, 0.25);
         setGymTags(aggregatedGymTags);
         
-        // Optionally save these tags to the gym in the database
-        if (aggregatedGymTags.length > 0) {
-          updateGymTags(gymsData.id, aggregatedGymTags.map(item => item.tag));
-        }
+        // Store the calculated tags in a global state or context
+        // This will be implemented when you have a database
       } else {
         console.error("Error fetching comments:", result.message);
       }
     } catch (error) {
       console.error("Error fetching comments:", error);
-    }
-  };
-
-  // API function to update gym tags in the database
-  const updateGymTags = async (gymId, tags) => {
-    try {
-      const token = localStorage.getItem("token");
-      const response = await fetch("/api/UpdateGymTags", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          gymId,
-          tags
-        }),
-      });
-      
-      const result = await response.json();
-      if (!response.ok) {
-        console.error("Error updating gym tags:", result.message);
-      }
-    } catch (error) {
-      console.error("Error updating gym tags:", error);
     }
   };
 

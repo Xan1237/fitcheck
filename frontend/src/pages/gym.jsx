@@ -34,10 +34,10 @@ const Gym = () => {
 
   useEffect(() =>{
     if(showModal==true){
-    if(!localStorage.getItem("tokee")){
+    if(!localStorage.getItem("token")){
       window.alert("Please Sign In To Leave A Comment")
+      setShowModal(false);
     }
-    setShowModal(false);
   }
   }, [showModal]);
 
@@ -91,6 +91,7 @@ const Gym = () => {
 
   // Function to post a new comment
   const postComment = async () => {
+    console.log("r")
     if (!newComment.trim()) {
       return; // Prevent posting empty comments
     }

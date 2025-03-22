@@ -22,7 +22,7 @@
     flex: 1;
     position: relative;
     min-width: 200px;
-    
+
     .search-input {
       width: 100%;
       padding: 0.8rem 1rem 0.8rem 2.5rem;
@@ -43,7 +43,7 @@
         color: #888;
       }
     }
-    
+
     .search-icon {
       position: absolute;
       left: 0.8rem;
@@ -92,28 +92,238 @@
       transform: scale(0.98);
     }
   }
+
+  /* Advanced filter button */
+  .advanced-filter-button {
+    padding: 0.8rem 1.5rem;
+    border: 2px solid #444;
+    border-radius: 8px;
+    background-color: #2a2a2a;
+    color: #ffffff;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+
+    &:hover {
+      background-color: #333;
+      border-color: #555;
+    }
+
+    &.active {
+      background-color: #333;
+      border-color: #ff6b35;
+      color: #ff6b35;
+    }
+  }
+
+  /* Advanced filters section */
+  .advanced-filters {
+    width: 100%;
+    margin-top: 1.5rem;
+    background-color: #242424;
+    border-radius: 8px;
+    padding: 1.5rem;
+    border: 1px solid #333;
+    
+    .no-tags-message {
+      color: #999;
+      text-align: center;
+      padding: 20px;
+      background-color: #1a1a1a;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      font-style: italic;
+    }
+
+    .advanced-filters-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+
+      h2 {
+        font-size: 1.2rem;
+        color: #fff;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        svg {
+          color: #ff6b35;
+        }
+      }
+
+      .clear-tags-button {
+        background: none;
+        border: none;
+        color: #ff6b35;
+        cursor: pointer;
+        font-size: 0.9rem;
+        padding: 5px 10px;
+
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+    }
+
+    .selected-tags-container {
+      margin-bottom: 1rem;
+
+      .selected-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+
+        .selected-tag {
+          display: flex;
+          align-items: center;
+          background-color: #ff6b35;
+          color: white;
+          padding: 6px 12px;
+          border-radius: 20px;
+          font-size: 0.9rem;
+
+          button {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            margin-left: 8px;
+            display: flex;
+            align-items: center;
+            padding: 0;
+            font-size: 0.8rem;
+          }
+        }
+      }
+    }
+
+    .tag-categories {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+
+      .tag-category {
+        border: 1px solid #333;
+        border-radius: 8px;
+        overflow: hidden;
+
+        .category-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 12px 15px;
+          background-color: #1a1a1a;
+          cursor: pointer;
+
+          .category-name {
+            font-weight: 500;
+            color: #fff;
+          }
+
+          .tag-count {
+            color: #ff6b35;
+            font-size: 0.9rem;
+            margin-right: 10px;
+          }
+
+          .expand-icon {
+            font-size: 12px;
+            transition: transform 0.3s;
+
+            &.expanded {
+              transform: rotate(180deg);
+            }
+          }
+        }
+
+        .category-tags {
+          display: flex;
+          flex-wrap: wrap;
+          padding: 12px;
+          gap: 8px;
+          background-color: #1a1a1a;
+          border-top: 1px solid #333;
+
+          .tag-option {
+            background-color: #2a2a2a;
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            border: 1px solid #333;
+            transition: all 0.2s;
+
+            &:hover {
+              background-color: #333;
+              border-color: #444;
+            }
+
+            &.selected {
+              background-color: #ff6b35;
+              border-color: #ff6b35;
+              color: white;
+            }
+          }
+        }
+      }
+    }
+
+    .filtered-gyms-count {
+      margin-top: 1rem;
+      color: #ccc;
+      text-align: right;
+      font-size: 0.9rem;
+    }
+  }
 }
 
 // Media queries for responsive design
 @media (max-width: 768px) {
   .search-bar {
     padding: 1rem;
-    
+
     .search-input-container {
       flex-direction: column;
       width: 100%;
     }
-    
+
     .search-field {
       width: 100%;
     }
-    
-    .filter-select {
-      width: 100%;
-    }
-    
+
+    .filter-select,
+    .advanced-filter-button,
     .search-button {
       width: 100%;
+      margin-top: 0.5rem;
+    }
+
+    .advanced-filters {
+      padding: 1rem;
+
+      .advanced-filters-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+
+      .tag-categories {
+        .tag-category {
+          .category-tags {
+            max-height: 200px;
+            overflow-y: auto;
+          }
+        }
+      }
     }
   }
 }

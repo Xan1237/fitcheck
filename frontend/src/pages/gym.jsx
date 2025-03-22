@@ -13,7 +13,8 @@ import {
   FaRegClock,
   FaMapMarkerAlt,
   FaPhone,
-  FaDirections
+  FaDirections,
+  FaTags
 } from "react-icons/fa";
 
 const Gym = () => {
@@ -24,11 +25,11 @@ const Gym = () => {
   const [showModal, setShowModal] = useState(false);
   const [rating, setRating] = useState(0);
   const [selectedTags, setSelectedTags] = useState([]);
+  const [gymTags, setGymTags] = useState([]);
 
   useEffect(() => {
     fetchComments()
   }, [newComment]);
-
 
   // Temporary values for display purposes
   const [averageRating, setAverageRating] = useState(0);
@@ -45,7 +46,38 @@ const Gym = () => {
     Sunday: "8:00 AM - 6:00 PM",
   };
 
-
+  // Function to calculate gym tags based on review frequency
+  const calculateGymTags = (reviews, threshold = 0.25) => {
+    // If there are no reviews, return empty array
+    if (!reviews || reviews.length === 0) return [];
+    
+    // Count occurrence of each tag
+    const tagCounts = {};
+    
+    // Count total number of reviews
+    const totalReviews = reviews.length;
+    
+    // Iterate through all reviews and count tag occurrences
+    reviews.forEach(review => {
+      if (review.Tags && Array.isArray(review.Tags)) {
+        review.Tags.forEach(tag => {
+          tagCounts[tag] = (tagCounts[tag] || 0) + 1;
+        });
+      }
+    });
+    
+    // Calculate percentage for each tag and filter by threshold
+    const gymTags = Object.entries(tagCounts)
+      .filter(([_, count]) => count / totalReviews >= threshold)
+      .map(([tag, count]) => ({
+        tag,
+        count,
+        percentage: (count / totalReviews * 100).toFixed(1)
+      }))
+      .sort((a, b) => b.count - a.count); // Sort by frequency (most frequent first)
+    
+    return gymTags;
+  };
 
   // Function to post a new comment
   const postComment = async () => {
@@ -83,6 +115,16 @@ const Gym = () => {
         setSelectedTags([]);
         setShowModal(false);
         calculateAverageRating([commentData, ...messages]);
+        
+        // Recalculate gym tags when a new comment is added
+        const updatedMessages = [commentData, ...messages];
+        const updatedGymTags = calculateGymTags(updatedMessages, 0.25);
+        setGymTags(updatedGymTags);
+        
+        // Optionally update gym tags in the database
+        if (updatedGymTags.length > 0) {
+          updateGymTags(gymsData.id, updatedGymTags.map(item => item.tag));
+        }
       } else {
         console.error("Error:", result.message);
       }
@@ -107,14 +149,49 @@ const Gym = () => {
           ...comment,
           Tags: comment.Tags || [], // Ensure Tags is always an array
         }));
+        
         setMessages(formattedMessages);
         setTotalReviews(formattedMessages.length);
         calculateAverageRating(formattedMessages);
+        
+        // Calculate gym tags from reviews (using 25% as threshold)
+        const aggregatedGymTags = calculateGymTags(formattedMessages, 0.25);
+        setGymTags(aggregatedGymTags);
+        
+        // Optionally save these tags to the gym in the database
+        if (aggregatedGymTags.length > 0) {
+          updateGymTags(gymsData.id, aggregatedGymTags.map(item => item.tag));
+        }
       } else {
         console.error("Error fetching comments:", result.message);
       }
     } catch (error) {
       console.error("Error fetching comments:", error);
+    }
+  };
+
+  // API function to update gym tags in the database
+  const updateGymTags = async (gymId, tags) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch("/api/UpdateGymTags", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          gymId,
+          tags
+        }),
+      });
+      
+      const result = await response.json();
+      if (!response.ok) {
+        console.error("Error updating gym tags:", result.message);
+      }
+    } catch (error) {
+      console.error("Error updating gym tags:", error);
     }
   };
 
@@ -129,7 +206,7 @@ const Gym = () => {
   // Fetch comments when the component mounts
   useEffect(() => {
     fetchComments();
-  }, [gymsData.id]); // Re-fetch comments if gymsData.name changes
+  }, [gymsData.id]); // Re-fetch comments if gymsData.id changes
 
   // Render stars for average rating
   const renderStars = (rating) => {
@@ -234,6 +311,23 @@ const Gym = () => {
               </div>
             </div>
           </div>
+
+          {/* Gym Tags Section */}
+          {gymTags.length > 0 && (
+            <div className="gym-tags-container">
+              <h2 className="tags-title">
+                <FaTags className="tags-icon" /> Gym Features
+              </h2>
+              <div className="gym-tags-list">
+                {gymTags.slice(0, 10).map(({ tag, percentage }) => (
+                  <div key={tag} className="gym-tag">
+                    <span className="tag-name">{tag}</span>
+                    <span className="tag-percentage">{percentage}%</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {gymsData.location && (
             <div className="gym-map-container">

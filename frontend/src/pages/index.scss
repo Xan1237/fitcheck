@@ -1,5 +1,58 @@
 /* Gym page specific styles */
 #root {
+
+  .gym-tags-container {
+    background-color: #2d2d2d;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    margin-bottom: 30px;
+    
+    .tags-title {
+      font-size: 24px;
+      font-weight: 600;
+      margin: 0 0 15px 0;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+    }
+    
+    .gym-tags-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    
+    .gym-tag {
+      display: flex;
+      align-items: center;
+      background-color: #333;
+      border-radius: 20px;
+      padding: 8px 16px;
+      
+      .tag-name {
+        color: #ffffff;
+        font-weight: 500;
+        margin-right: 6px;
+      }
+      
+      .tag-percentage {
+        color: #ff5722;
+        font-weight: 600;
+        font-size: 14px;
+      }
+    }
+    
+    .no-tags {
+      color: #cccccc;
+      font-style: italic;
+      text-align: center;
+      padding: 15px;
+      background-color: rgba(255, 255, 255, 0.05);
+      border-radius: 4px;
+    }
+  }
+
   .gym-page {
     max-width: 1200px;
     margin: 0 auto;

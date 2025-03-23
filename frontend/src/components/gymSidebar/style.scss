@@ -32,6 +32,7 @@
     max-height: 480px;
     min-height: 480px;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
   }
 
   .gym-card {
@@ -118,9 +119,14 @@
 // Small screens (768px-1366px) including iPads and small laptops
 @media (min-width: 769px) and (max-width: 1366px) {
   .gym-sidebar {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    
     .gym-list {
-      max-height: none;
+      max-height: calc(65vh - 80px); /* Constrain height to match map, accounting for header */
       min-height: auto;
+      overflow-y: auto;
     }
     
     .gym-card {
@@ -162,8 +168,17 @@
 // Additional styles for the map-sidebar container to ensure proper sizing
 @media (min-width: 769px) and (max-width: 1366px) {
   .map-sidebar-container {
+    height: 65vh; /* Maintain consistent height */
+    
     .sidebar-wrapper {
       width: 35%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .map-wrapper {
+      height: 100%;
     }
   }
 }

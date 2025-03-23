@@ -1,5 +1,7 @@
 {
   "dependencies": {
-    "dayjs": "^1.11.13"
+    "dayjs": "^1.11.13",
+    "emailjs-com": "^3.2.0",
+    "react-google-recaptcha": "^3.1.0"
   }
 }

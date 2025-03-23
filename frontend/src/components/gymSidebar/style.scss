@@ -115,25 +115,78 @@
   }
 }
 
-// Media queries for responsive design
+// Small screens (768px-1366px) including iPads and small laptops
+@media (min-width: 769px) and (max-width: 1366px) {
+  .gym-sidebar {
+    .gym-list {
+      max-height: none;
+      min-height: auto;
+    }
+    
+    .gym-card {
+      padding: 0.75rem;
+      
+      .gym-icon {
+        font-size: 1.5rem;
+        padding: 0.25rem;
+      }
+      
+      .gym-info {
+        h3 {
+          font-size: 1.1rem;
+          margin-bottom: 0.3rem;
+        }
+        
+        p {
+          font-size: 0.85rem;
+          margin-bottom: 0.7rem;
+        }
+        
+        .gym-actions {
+          flex-direction: column;
+          gap: 0.5rem;
+          
+          .gym-link, 
+          .directions-link {
+            width: 100%;
+            justify-content: center;
+            font-size: 0.85rem;
+            padding: 0.35rem 0.6rem;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Additional styles for the map-sidebar container to ensure proper sizing
+@media (min-width: 769px) and (max-width: 1366px) {
+  .map-sidebar-container {
+    .sidebar-wrapper {
+      width: 35%;
+    }
+  }
+}
+
+// Media queries for mobile devices
 @media (max-width: 768px) {
   .gym-sidebar {
     height: 100%;
     border-right: none;
     border-bottom: 1px solid #333;
-  }
+    
+    .gym-card {
+      flex-direction: column;
 
-  .gym-card {
-    flex-direction: column;
+      .gym-icon {
+        padding: 0;
+      }
 
-    .gym-icon {
-      padding: 0;
-    }
-
-    .gym-info {
-      .gym-actions {
-        flex-direction: column;
-        gap: 0.5rem;
+      .gym-info {
+        .gym-actions {
+          flex-direction: column;
+          gap: 0.5rem;
+        }
       }
     }
   }

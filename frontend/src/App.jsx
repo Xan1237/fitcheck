@@ -4,6 +4,7 @@ import Header from "./components/header";
 import Footer from "./components/footer";
 import Home from "./pages/home/home";
 import Gym from "./pages/gym"
+import AddGym from "./pages/addGym/addGym";
 import SignIn from "./pages/userAuth";
 import Profile from "./pages/profile/profile";
 import PublicProfile from "./pages/publicProfile/PublicProfile"
@@ -18,6 +19,7 @@ const App = () => {
         <Route path="/login" element={<SignIn />} />
         <Route path="/profile" element={<Profile/>} />
         <Route path="/profile/:name" element={<PublicProfile/>}/>
+        <Route path="/addGym" element={<AddGym />} />
       </Routes>
     </Router>
   );

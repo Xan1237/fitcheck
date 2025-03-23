@@ -7,6 +7,7 @@ import {
 } from "react-icons/fa";
 import "./styles.scss";
 import Header from "../../components/header";
+import Footer from "../../components/footer";
 
 const AddGym = () => {
   const [formData, setFormData] = useState({
@@ -666,6 +667,7 @@ const AddGym = () => {
           </form>
         )}
       </div>
+      <Footer />
     </>
   );
 };

@@ -1,7 +1,6 @@
 To Do:
     2) improve gym filter
         - I want rating filter
-        - filter by gym tags
         - price tange filter (this might not be doable since we wont know up to date this figure)
         - by location too
 

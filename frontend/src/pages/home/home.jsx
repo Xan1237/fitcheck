@@ -7,7 +7,8 @@ import Title from "../../components/title";
 import gymData from "../../data/gymData.js"; 
 import GymSidebar from "../../components/GymSidebar";
 import "./styles.scss";
-import axios from "axios"
+
+
 const Home = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [filter, setFilter] = useState("all");
@@ -16,17 +17,7 @@ const Home = () => {
   const [gyms, setGyms] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-
-  
-  // Convert gymData object into an array of gym objects with id
-  const gyms = Object.entries(gymData).map(([id, data]) => ({
-    id: parseInt(id),
-    ...data,
-    // Initialize empty tags array for each gym if not present
-    tags: data.tags || []
-  }));
-
-  // Initialize filteredGyms with all gyms on first render
+  // Fetch dynamic gym data and merge with static data on component mount
   useEffect(() => {
     const fetchGymData = async () => {
       try {

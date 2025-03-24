@@ -45,16 +45,7 @@ const Gym = () => {
   const [averageRating, setAverageRating] = useState(0);
   const [totalReviews, setTotalReviews] = useState(0);
 
-  // Example gym hours (you can replace these with actual data later)
-  const gymHours = {
-    Monday: "6:00 AM - 10:00 PM",
-    Tuesday: "6:00 AM - 10:00 PM",
-    Wednesday: "6:00 AM - 10:00 PM",
-    Thursday: "6:00 AM - 10:00 PM",
-    Friday: "6:00 AM - 9:00 PM",
-    Saturday: "8:00 AM - 8:00 PM",
-    Sunday: "8:00 AM - 6:00 PM",
-  };
+  
 
   // Function to calculate gym tags based on review frequency
   const calculateGymTags = (reviews, threshold = 0.25) => {
@@ -282,7 +273,7 @@ const Gym = () => {
                   <FaRegClock className="hours-icon" /> Hours of Operation
                 </h3>
                 <div className="gym-hours">
-                  {Object.entries(gymHours).map(([day, hours]) => (
+                  {Object.entries(gymsData.gymHours).map(([day, hours]) => (
                     <div key={day} className="hours-row">
                       <span className="day">{day}:</span>
                       <span className="hours">{hours}</span>

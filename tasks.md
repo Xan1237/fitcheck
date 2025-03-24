@@ -11,3 +11,6 @@ To Do:
     10) More feedback so when you are not logged in it says you cant leave a review.
                 Maybe like "log in to leave a review"
     11) add gyms to the database
+    12) figure out why the hell the gym map is not visible for mobile on desctop bit is visible
+            on my actual phone
+    13) add the form auth codes to .env (I think we     should do this)

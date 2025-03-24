@@ -14,18 +14,69 @@ const Home = () => {
   const [filter, setFilter] = useState("all");
   const [activeGym, setActiveGym] = useState(null);
   const [filteredGyms, setFilteredGyms] = useState([]);
+  const [gyms, setGyms] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Convert gymData object into an array of gym objects with id
-  const gyms = Object.entries(gymData).map(([id, data]) => ({
-    id: parseInt(id),
-    ...data,
-    // Initialize empty tags array for each gym if not present
-    tags: data.tags || []
-  }));
-
-  // Initialize filteredGyms with all gyms on first render
+  // Fetch dynamic gym data and merge with static data on component mount
   useEffect(() => {
-    setFilteredGyms(gyms);
+    const fetchGymData = async () => {
+      try {
+        setIsLoading(true);
+        const response = await fetch("/api/getGymData");
+        
+        if (!response.ok) {
+          console.warn("API response not OK:", response.status);
+          throw new Error("Failed to fetch gym data");
+        }
+        
+        const { success, data, error } = await response.json();
+        
+        // Still proceed with static data even if API returns "No gyms found"
+        if (success && data) {
+          // Merge dynamic data with static data
+          const mergedGyms = Object.entries(gymData).map(([id, staticData]) => {
+            const dynamicData = data[id] || {};
+            
+            return {
+              id: parseInt(id),
+              ...staticData,
+              // Use dynamically fetched tags if available, otherwise use static tags or empty array
+              tags: dynamicData.tags || staticData.tags || []
+            };
+          });
+          
+          setGyms(mergedGyms);
+          setFilteredGyms(mergedGyms);
+        } else {
+          console.warn("API returned error or no data:", error);
+          // Fall back to static data
+          const staticGyms = Object.entries(gymData).map(([id, data]) => ({
+            id: parseInt(id),
+            ...data,
+            tags: data.tags || []
+          }));
+          
+          setGyms(staticGyms);
+          setFilteredGyms(staticGyms);
+        }
+      } catch (error) {
+        console.error("Error fetching gym data:", error);
+        
+        // Fall back to static data
+        const staticGyms = Object.entries(gymData).map(([id, data]) => ({
+          id: parseInt(id),
+          ...data,
+          tags: data.tags || []
+        }));
+        
+        setGyms(staticGyms);
+        setFilteredGyms(staticGyms);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchGymData();
   }, []);
 
   const handleSearchSubmit = (query, filter, filtered) => {
@@ -60,20 +111,34 @@ const Home = () => {
       />
       <div className="map-sidebar-container">
         <div className="map-wrapper">
-          <Map
-            searchResults={searchQuery}
-            markers={filteredGyms} // Use filtered gyms for the map
-            activeGym={activeGym}
-            setActiveGym={setActiveGym}
-          />
+          {isLoading ? (
+            <div className="loading-container">
+              <div className="loading-spinner"></div>
+              <p>Loading gym data...</p>
+            </div>
+          ) : (
+            <Map
+              searchResults={searchQuery}
+              markers={filteredGyms}
+              activeGym={activeGym}
+              setActiveGym={setActiveGym}
+            />
+          )}
         </div>
         <div className="sidebar-wrapper">
-          <GymSidebar
-            gyms={filteredGyms} // Use filtered gyms for the sidebar
-            activeGym={activeGym}
-            setActiveGym={setActiveGym}
-            filter={filter}
-          />
+          {isLoading ? (
+            <div className="loading-container">
+              <div className="loading-spinner"></div>
+              <p>Loading gym data...</p>
+            </div>
+          ) : (
+            <GymSidebar
+              gyms={filteredGyms}
+              activeGym={activeGym}
+              setActiveGym={setActiveGym}
+              filter={filter}
+            />
+          )}
         </div>
       </div>
       <Footer />

@@ -91,7 +91,6 @@ const Gym = () => {
 
   // Function to post a new comment
   const postComment = async () => {
-    console.log("r")
     if (!newComment.trim()) {
       return; // Prevent posting empty comments
     }

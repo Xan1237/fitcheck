@@ -281,5 +281,13 @@ const profile = async (req, res) => {
 };
 
 
+const getUserName = async(req, res)=>{
+  const authHeader = req.headers['authorization'];
+  const token = authHeader.split(' ')[1];
+ let decodedToken = await admin.auth().verifyIdToken(token);
+  const userDoc = await fireStoreDb.collection("users").doc(decodedToken.uid).get();
+  res.status(200).json({success: true, username: userDoc.data().username})
+}
 
-export { createComment, getAdress, getComments, profile, userInfo};
+
+export { createComment, getAdress, getComments, profile, userInfo, getUserName};

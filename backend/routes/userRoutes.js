@@ -1,5 +1,5 @@
 import express, { json } from "express";
-import { createComment, getAdress, getComments, profile, userInfo} from "../controllers/userController.js"; // Correct import
+import { createComment, getAdress, getComments, profile, userInfo, getUserName} from "../controllers/userController.js"; // Correct import
 import {signUpUser} from '../middlewares/auth_signup_password.js'
 import {signInUser} from '../middlewares/auth_signin_password.js'
 const router = express.Router();
@@ -11,4 +11,5 @@ router.post("/auth/signup", signUpUser)
 router.post("/auth/signin", signInUser)
 router.post("/api/profile", profile)
 router.get("/api/GetUserData", userInfo)
+router.post("/api/getUserName", getUserName)
 export default router;

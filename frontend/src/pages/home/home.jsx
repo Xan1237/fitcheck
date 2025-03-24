@@ -7,14 +7,15 @@ import Title from "../../components/title";
 import gymData from "../../data/gymData.js"; 
 import GymSidebar from "../../components/GymSidebar";
 import "./styles.scss";
-
-
+import axios from "axios"
 const Home = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [filter, setFilter] = useState("all");
   const [activeGym, setActiveGym] = useState(null);
   const [filteredGyms, setFilteredGyms] = useState([]);
 
+
+  
   // Convert gymData object into an array of gym objects with id
   const gyms = Object.entries(gymData).map(([id, data]) => ({
     id: parseInt(id),

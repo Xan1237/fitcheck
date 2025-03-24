@@ -71,8 +71,6 @@ const createComment = async (req, res) => {
       }
     }
 
-    console.log("TAGS_DEBUG: Processed tags for new comment:", processedTags);
-
     // First, save the comment
     await fireStoreDb
       .collection(GymId + "__Comment")
@@ -86,18 +84,11 @@ const createComment = async (req, res) => {
         Tags: processedTags,
       });
 
-    console.log("TAGS_DEBUG: Comment saved successfully to Firestore");
-
-    // Now update the gym tags in a separate try/catch to ensure we can handle failures
+    // Now update the gym tags
     try {
-      console.log(`TAGS_DEBUG: Starting gym tag update for gym ${GymId}`);
-      const updatedTags = await updateGymTags(GymId);
-      console.log(
-        `TAGS_DEBUG: Gym tag update completed. Updated tags:`,
-        updatedTags
-      );
+      await updateGymTags(GymId);
     } catch (tagError) {
-      console.error("TAGS_DEBUG: Error updating gym tags:", tagError);
+      console.error("Error updating gym tags:", tagError);
       // We'll still consider the comment creation successful even if tag update fails
     }
 
@@ -150,7 +141,7 @@ const getAdress = async (req, res) => {
   }
 };
 
-// // Get user by ID
+// Get comments by GymName
 const getComments = async (req, res) => {
   const { GymName } = req.query;
   console.log("Requested GymName:", GymName);
@@ -356,8 +347,6 @@ const updateGymTags = async (gymId) => {
   try {
     // Convert gymId to string to ensure it's a valid document path
     const gymIdString = String(gymId);
-    
-    console.log(`TAGS_DEBUG: Starting tag update for gym ${gymIdString}`);
 
     // 1. Get all comments for the gym
     const commentsSnapshot = await fireStoreDb
@@ -365,10 +354,7 @@ const updateGymTags = async (gymId) => {
       .get();
 
     if (commentsSnapshot.empty) {
-      console.log(`TAGS_DEBUG: No comments found for gym ${gymIdString}`);
-      
       // Still create/update the gym document with empty tags
-      console.log(`TAGS_DEBUG: Creating gym document with empty tags`);
       await fireStoreDb.collection("gyms").doc(gymIdString).set(
         {
           tags: [],
@@ -381,8 +367,6 @@ const updateGymTags = async (gymId) => {
 
     const comments = commentsSnapshot.docs.map((doc) => doc.data());
     const totalComments = comments.length;
-
-    console.log(`TAGS_DEBUG: Found ${totalComments} comments for gym ${gymIdString}`);
 
     // 2. Count tag occurrences
     const tagCounts = {};
@@ -399,23 +383,14 @@ const updateGymTags = async (gymId) => {
       }
     });
 
-    console.log("TAGS_DEBUG: Tag counts for gym", gymIdString, ":", tagCounts);
-
     // 3. Calculate which tags appear in at least 25% of comments
     const threshold = Math.max(1, Math.ceil(totalComments * 0.25)); // At least 25% of comments, minimum 1
-    console.log(
-      `TAGS_DEBUG: Threshold for popular tags: ${threshold} comments (25% of ${totalComments})`
-    );
 
     const popularTags = Object.keys(tagCounts)
       .filter((tag) => tag.trim() !== "") // Extra safety check for empty strings
       .filter((tag) => tagCounts[tag] >= threshold);
 
-    console.log(`TAGS_DEBUG: Popular tags for gym ${gymIdString}:`, popularTags);
-
     // 4. Update the gym document with the popular tags
-    console.log(`TAGS_DEBUG: Attempting to write to gyms/${gymIdString}`);
-    
     try {
       // Use gymIdString to ensure it's a string
       const gymDocRef = fireStoreDb.collection("gyms").doc(gymIdString);
@@ -426,32 +401,20 @@ const updateGymTags = async (gymId) => {
         },
         { merge: true }
       );
-      
-      console.log(`TAGS_DEBUG: Successfully updated tags for gym ${gymIdString}`);
-      
-      // Verify the update was successful by reading back the document
-      const verifyDoc = await gymDocRef.get();
-      if (verifyDoc.exists) {
-        console.log(`TAGS_DEBUG: Verified gym document data:`, verifyDoc.data());
-      } else {
-        console.error(`TAGS_DEBUG: Gym document still doesn't exist after update!`);
-      }
     } catch (writeError) {
-      console.error(`TAGS_DEBUG: Error writing to gym document:`, writeError);
-      throw writeError; // Re-throw to be caught by the main try/catch
+      console.error(`Error writing to gym document:`, writeError);
+      throw writeError;
     }
 
     return popularTags;
   } catch (error) {
-    console.error(`TAGS_DEBUG: Error in updateGymTags for gym ${gymId}:`, error);
-    throw error; // Rethrow to allow handling by the calling function
+    console.error(`Error in updateGymTags for gym ${gymId}:`, error);
+    throw error;
   }
 };
 
-// Make sure to also include this function
 const getGymData = async (req, res) => {
   try {
-    console.log("TAGS_DEBUG: Getting gym data from database");
     // Get all gyms from the gyms collection
     const gymsSnapshot = await fireStoreDb.collection("gyms").get();
 
@@ -468,126 +431,17 @@ const getGymData = async (req, res) => {
           // These would be merged with the static data from the frontend
         };
       });
-
-      console.log("TAGS_DEBUG: Retrieved gym data with tags:", gyms);
-    } else {
-      console.log("TAGS_DEBUG: No gym documents found in the database");
     }
 
     return res.status(200).json({ success: true, data: gyms });
   } catch (error) {
-    console.error("TAGS_DEBUG: Error retrieving gym data:", error);
+    console.error("Error retrieving gym data:", error);
     return res
       .status(500)
       .json({ success: false, error: "Internal Server Error" });
   }
 };
 
-const recalculateAllGymTags = async (req, res) => {
-  try {
-    // Authentication check (assuming admin-only access)
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return res
-        .status(401)
-        .json({ success: false, error: "Authorization header is required" });
-    }
-
-    const token = authHeader.split("Bearer ")[1];
-
-    // Verify Firebase token
-    let decodedToken;
-    try {
-      decodedToken = await admin.auth().verifyIdToken(token);
-    } catch (verifyError) {
-      return res.status(401).json({
-        success: false,
-        error: "Invalid or expired authentication token",
-      });
-    }
-
-    // Alternative: Get gym IDs from existing comment collections
-    const collections = await fireStoreDb.listCollections();
-    const commentCollections = collections
-      .filter((collection) => collection.id.includes("__Comment"))
-      .map((collection) => collection.id.split("__Comment")[0]);
-
-    const uniqueGymIds = [...new Set(commentCollections)];
-
-    console.log("Found gym IDs from comment collections:", uniqueGymIds);
-
-    // Update tags for each gym
-    const results = [];
-    for (const gymId of uniqueGymIds) {
-      try {
-        const tags = await updateGymTags(gymId);
-        results.push({ gymId, tags, success: true });
-      } catch (error) {
-        console.error(`Error updating tags for gym ${gymId}:`, error);
-        results.push({ gymId, error: error.message, success: false });
-      }
-    }
-
-    return res.status(200).json({
-      success: true,
-      message: `Tags recalculated for ${uniqueGymIds.length} gyms`,
-      results,
-    });
-  } catch (error) {
-    console.error("Error recalculating gym tags:", error);
-    return res
-      .status(500)
-      .json({ success: false, error: "Internal Server Error" });
-  }
-};
-
-// Also include this debugging function
-const debugAndFixGymTags = async (req, res) => {
-  try {
-    const { gymId } = req.params;
-
-    if (!gymId) {
-      return res.status(400).json({
-        success: false,
-        error: "Gym ID is required as a path parameter",
-      });
-    }
-
-    console.log(`TAGS_DEBUG: Manual tag fix requested for gym ${gymId}`);
-
-    // Check if the gym document exists first
-    const gymDoc = await fireStoreDb.collection("gyms").doc(gymId).get();
-    console.log(`TAGS_DEBUG: Gym document exists: ${gymDoc.exists}`);
-
-    if (gymDoc.exists) {
-      console.log(`TAGS_DEBUG: Current gym data:`, gymDoc.data());
-    }
-
-    // Execute the tag update
-    const updatedTags = await updateGymTags(gymId);
-
-    // Verify the update was applied
-    const verifyDoc = await fireStoreDb.collection("gyms").doc(gymId).get();
-    let verifiedData = verifyDoc.exists ? verifyDoc.data() : null;
-
-    return res.status(200).json({
-      success: true,
-      gymId,
-      message: "Tags updated successfully",
-      tags: updatedTags || [],
-      verificationData: verifiedData,
-    });
-  } catch (error) {
-    console.error(`TAGS_DEBUG: Error debugging gym tags:`, error);
-    return res.status(500).json({
-      success: false,
-      error: "Internal Server Error",
-      details: error.message,
-    });
-  }
-};
-
-// Make sure to add this to your exports at the bottom
 export {
   createComment,
   getAdress,
@@ -595,7 +449,5 @@ export {
   profile,
   userInfo,
   getGymData,
-  recalculateAllGymTags,
   updateGymTags,
-  debugAndFixGymTags, // Added the export for the missing function
 };

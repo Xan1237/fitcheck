@@ -6,6 +6,13 @@
   overflow-x: hidden;
 }
 
+/* Add specific styling for the top search area */
+.top-search-area {
+  width: 100%;
+  position: relative;
+  z-index: 10;
+}
+
 .map-sidebar-container {
   display: flex;
   flex: 1;
@@ -14,11 +21,17 @@
   max-width: 1300px;
   margin: 0 auto;
   width: 100%;
+  position: relative;
+  z-index: 5;
 
   .sidebar-wrapper {
     width: 30%;
     min-width: 300px;
     margin-left: 20px;
+    margin-top: 20px;
+    background-color: #222;
+    border-radius: 10px;
+    overflow: hidden;
   }
 
   .map-wrapper {

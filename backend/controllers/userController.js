@@ -35,18 +35,22 @@ const createComment = async (req, res) => {
   const { CommentID, CommentText, GymName, Time, Rating, Tags, GymId } =
     req.body;
 
+  // Log received rating for debugging
+  console.log(`[createComment] Received rating: ${Rating}, type: ${typeof Rating}`);
+
   let userDoc;
   try {
     userDoc = await fireStoreDb.collection("users").doc(decodedToken.uid).get();
-  } catch {
-    return res.status(404).json({ success: false, error: "user not found" });
+  } catch (error) {
+    console.error("Error fetching user:", error);
+    return res.status(404).json({ success: false, error: "User not found" });
   }
 
   let userData = userDoc.data();
   let UserNamedata = userData.username;
 
   try {
-    if (!CommentID || !CommentText || !GymName) {
+    if (!CommentID || !CommentText || !GymName || !GymId) {
       return res
         .status(400)
         .json({ success: false, error: "Missing required fields" });
@@ -71,25 +75,38 @@ const createComment = async (req, res) => {
       }
     }
 
+    // Process rating - ensure it's a number
+    const numericRating = Rating !== undefined && Rating !== null ? Number(Rating) : 0;
+    
     // First, save the comment
     await fireStoreDb
-      .collection(GymId + "__Comment")
+      .collection(`${GymId}__Comment`)
       .doc(CommentID)
       .set({
         UserNamedata,
         CommentText,
         Time,
         GymId,
-        Rating: Rating || 0,
+        Rating: numericRating, // Ensure we save as a number
         Tags: processedTags,
       });
 
-    // Now update the gym tags
+    console.log(`[createComment] Comment saved with Rating=${numericRating}`);
+
+    // Now update the gym tags and rating
     try {
-      await updateGymTags(GymId);
+      console.log(`[createComment] Updating gym tags and rating for gym ${GymId}`);
+      const result = await updateGymTags(GymId);
+      console.log(`[createComment] Gym updated successfully. Rating: ${result.rating}`);
     } catch (tagError) {
       console.error("Error updating gym tags:", tagError);
       // We'll still consider the comment creation successful even if tag update fails
+      
+      // But we'll send a more specific response
+      return res.status(201).json({ 
+        success: true, 
+        message: "Review added but gym stats may not be updated. Please refresh the page."
+      });
     }
 
     return res
@@ -352,12 +369,13 @@ const userInfo = async (req, res) => {
  * Calculates and updates popular tags for a gym based on review data
  * A tag is considered "popular" if it appears in at least 25% of reviews
  * @param {string|number} gymId - The ID of the gym
- * @returns {Promise<string[]>} - Array of popular tags
+ * @returns {Promise<{tags: string[], rating: number}>} - Array of popular tags and average rating
  */
 const updateGymTags = async (gymId) => {
   try {
     // Convert gymId to string to ensure it's a valid document path
     const gymIdString = String(gymId);
+    console.log(`[updateGymTags] Processing gym ID: ${gymIdString}`);
 
     // 1. Get all comments for the gym
     const commentsSnapshot = await fireStoreDb
@@ -365,35 +383,60 @@ const updateGymTags = async (gymId) => {
       .get();
 
     if (commentsSnapshot.empty) {
+      console.log(`[updateGymTags] No comments found for gym ${gymIdString}`);
       // Still create/update the gym document with empty tags
       await fireStoreDb.collection("gyms").doc(gymIdString).set(
         {
           tags: [],
+          rating: 0,
+          ratingCount: 0,
           updatedAt: admin.firestore.FieldValue.serverTimestamp(),
         },
         { merge: true }
       );
-      return [];
+      return { tags: [], rating: 0 };
     }
 
     const comments = commentsSnapshot.docs.map((doc) => doc.data());
     const totalComments = comments.length;
+    console.log(`[updateGymTags] Found ${totalComments} comments for gym ${gymIdString}`);
 
     // 2. Count tag occurrences
     const tagCounts = {};
 
+    let totalRating = 0;
+    let ratingCount = 0;
+
     comments.forEach((comment) => {
+      // Process tags
       if (comment.Tags && Array.isArray(comment.Tags)) {
         // Filter out empty tags and normalize
         const validTags = comment.Tags.filter(
-          (tag) => tag && tag.trim() !== ""
+          (tag) => tag && typeof tag === "string" && tag.trim() !== ""
         ).map((tag) => tag.trim());
 
         validTags.forEach((tag) => {
           tagCounts[tag] = (tagCounts[tag] || 0) + 1;
         });
       }
+
+      // Process rating
+      if (comment.Rating !== undefined && comment.Rating !== null) {
+        const numericRating = Number(comment.Rating);
+        if (!isNaN(numericRating)) {
+          totalRating += numericRating;
+          ratingCount++;
+        }
+      }
     });
+
+    console.log(`[updateGymTags] Calculated ratings: total=${totalRating}, count=${ratingCount}`);
+
+    // Calculate average rating
+    const averageRating = ratingCount > 0 ? totalRating / ratingCount : 0;
+    // Round to 1 decimal place
+    const roundedRating = Math.round(averageRating * 10) / 10;
+    console.log(`[updateGymTags] Final average rating: ${roundedRating}`);
 
     // 3. Calculate which tags appear in at least 25% of comments
     const threshold = Math.max(1, Math.ceil(totalComments * 0.25)); // At least 25% of comments, minimum 1
@@ -402,25 +445,38 @@ const updateGymTags = async (gymId) => {
       .filter((tag) => tag.trim() !== "") // Extra safety check for empty strings
       .filter((tag) => tagCounts[tag] >= threshold);
 
-    // 4. Update the gym document with the popular tags
+    console.log(`[updateGymTags] Popular tags: ${popularTags.join(', ')}`);
+
+    // 4. Update the gym document with the popular tags and rating
+    // BUT DO NOT include the rating as a tag
     try {
+      console.log(`[updateGymTags] Updating gym document with rating=${roundedRating} and ${popularTags.length} tags`);
       // Use gymIdString to ensure it's a string
       const gymDocRef = fireStoreDb.collection("gyms").doc(gymIdString);
+      
+      // Important: We do NOT add a rating tag now
       await gymDocRef.set(
         {
-          tags: popularTags,
+          tags: [...popularTags],  // No rating tag here
+          rating: roundedRating,
+          ratingCount: ratingCount,
           updatedAt: admin.firestore.FieldValue.serverTimestamp(),
         },
         { merge: true }
       );
+      
+      console.log(`[updateGymTags] Successfully updated gym document`);
     } catch (writeError) {
-      console.error(`Error writing to gym document:`, writeError);
+      console.error(`[updateGymTags] Error writing to gym document:`, writeError);
       throw writeError;
     }
 
-    return popularTags;
+    return { 
+      tags: [...popularTags],  // Return without the rating tag
+      rating: roundedRating 
+    };
   } catch (error) {
-    console.error(`Error in updateGymTags for gym ${gymId}:`, error);
+    console.error(`[updateGymTags] Error processing gym ${gymId}:`, error);
     throw error;
   }
 };
@@ -439,6 +495,8 @@ const getGymData = async (req, res) => {
         gyms[doc.id] = {
           id: doc.id,
           tags: gymData.tags || [],
+          rating: gymData.rating || 0,
+          ratingCount: gymData.ratingCount || 0,
           // Include other gym properties as needed
           // These would be merged with the static data from the frontend
         };
@@ -462,5 +520,5 @@ export {
   userInfo,
   getGymData,
   updateGymTags,
-  getUserName
+  getUserName,
 };

@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { FaSearch, FaFilter, FaTimes, FaTags } from 'react-icons/fa';
+import { FaSearch, FaFilter, FaTimes, FaTags, FaStar } from 'react-icons/fa';
 import './style.scss';
 
 // Import the tag categories from the shared file
-// Replace with the correct path to your tagCategories.js file
 import { tagCategories } from '../../data/tagCategories';
 
 const Search = ({ onSearchSubmit, gyms, searchQuery, setSearchQuery, filter, setFilter }) => {
@@ -14,6 +13,16 @@ const Search = ({ onSearchSubmit, gyms, searchQuery, setSearchQuery, filter, set
   const [selectedTags, setSelectedTags] = useState([]);
   const [expandedCategories, setExpandedCategories] = useState({});
   const [filteredGyms, setFilteredGyms] = useState([]);
+  const [selectedRating, setSelectedRating] = useState(0); // New state for rating filter
+
+  // Debug: Log gyms on component mount or when gyms change
+  useEffect(() => {
+    if (gyms && gyms.length > 0) {
+      console.log('Search component received gyms with ratings:', 
+        gyms.map(gym => ({ id: gym.id, name: gym.name, rating: gym.rating }))
+      );
+    }
+  }, [gyms]);
 
   // Update local state when props change
   useEffect(() => {
@@ -76,11 +85,19 @@ const Search = ({ onSearchSubmit, gyms, searchQuery, setSearchQuery, filter, set
 
   const clearTags = () => {
     setSelectedTags([]);
+    setSelectedRating(0); // Clear rating filter as well
   };
 
-  // Filter gyms based on search, gym name filter, and tags
+  // Handle rating selection
+  const handleRatingSelect = (rating) => {
+    setSelectedRating(rating === selectedRating ? 0 : rating);
+  };
+
+  // Filter gyms based on search, gym name filter, tags, and rating
   useEffect(() => {
     if (!gyms) return;
+    
+    console.log('Filtering gyms with rating threshold:', selectedRating);
     
     const filtered = gyms.filter(gym => {
       // Filter by gym name
@@ -91,15 +108,25 @@ const Search = ({ onSearchSubmit, gyms, searchQuery, setSearchQuery, filter, set
         (gym.location && gym.location.toLowerCase().includes(localSearchQuery.toLowerCase()));
       
       // Filter by selected tags
-      // Note: For now, we're assuming gym.tags exists - we'll handle empty tags as well
       const matchesTags = selectedTags.length === 0 || 
         (gym.tags && selectedTags.every(tag => gym.tags.includes(tag)));
       
-      return matchesGymFilter && matchesSearch && matchesTags;
+      // Filter by rating - ensure we're comparing numbers
+      const gymRating = typeof gym.rating === 'number' ? gym.rating : Number(gym.rating || 0);
+      
+      // Debug: log rating values when filtering
+      if (selectedRating > 0) {
+        console.log(`Gym ${gym.id} (${gym.name}) has rating ${gymRating}, comparing with ${selectedRating}`);
+      }
+      
+      const matchesRating = selectedRating === 0 || gymRating >= selectedRating;
+      
+      return matchesGymFilter && matchesSearch && matchesTags && matchesRating;
     });
     
+    console.log(`Filtered gyms: ${filtered.length} of ${gyms.length} match criteria`);
     setFilteredGyms(filtered);
-  }, [localSearchQuery, localFilter, selectedTags, gyms]);
+  }, [localSearchQuery, localFilter, selectedTags, selectedRating, gyms]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -135,6 +162,23 @@ const Search = ({ onSearchSubmit, gyms, searchQuery, setSearchQuery, filter, set
   };
 
   const categorizedAvailableTags = getAvailableTagsByCategory();
+
+  // Helper function to render stars for rating filter
+  const renderStars = (maxRating = 5) => {
+    const stars = [];
+    for (let i = 1; i <= maxRating; i++) {
+      stars.push(
+        <div 
+          key={i} 
+          className={`star ${i <= selectedRating ? 'selected' : ''}`}
+          onClick={() => handleRatingSelect(i)}
+        >
+          <FaStar />
+        </div>
+      );
+    }
+    return stars;
+  };
 
   return (
     <div className="search-bar">
@@ -181,11 +225,33 @@ const Search = ({ onSearchSubmit, gyms, searchQuery, setSearchQuery, filter, set
           <div className="advanced-filters">
             <div className="advanced-filters-header">
               <h2><FaTags /> Filter by Gym Features</h2>
-              {selectedTags.length > 0 && (
+              {(selectedTags.length > 0 || selectedRating > 0) && (
                 <button type="button" className="clear-tags-button" onClick={clearTags}>
                   Clear All Filters
                 </button>
               )}
+            </div>
+
+            {/* Rating filter section */}
+            <div className="rating-filter">
+              <div className="rating-filter-header">
+                <h3>Minimum Rating</h3>
+                {selectedRating > 0 && (
+                  <span className="selected-rating">{selectedRating}+ stars</span>
+                )}
+              </div>
+              <div className="stars-container">
+                {renderStars(5)}
+                {selectedRating > 0 && (
+                  <button 
+                    type="button" 
+                    className="clear-rating-button"
+                    onClick={() => setSelectedRating(0)}
+                  >
+                    <FaTimes />
+                  </button>
+                )}
+              </div>
             </div>
 
             {/* Selected tags */}

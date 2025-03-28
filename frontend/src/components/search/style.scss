@@ -5,6 +5,8 @@
   padding: 1.5rem 2rem;
   background-color: #1a1a1a;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  position: relative;
+  z-index: 10;
 
   .search-form {
     width: 100%;
@@ -129,6 +131,7 @@
     border-radius: 8px;
     padding: 1.5rem;
     border: 1px solid #333;
+    z-index: 20;
     
     .no-tags-message {
       color: #999;
@@ -169,6 +172,70 @@
 
         &:hover {
           text-decoration: underline;
+        }
+      }
+    }
+
+    /* Rating filter styles */
+    .rating-filter {
+      background-color: #1a1a1a;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 1rem;
+      border: 1px solid #333;
+
+      .rating-filter-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+
+        h3 {
+          font-size: 1rem;
+          color: #fff;
+          margin: 0;
+          font-weight: 500;
+        }
+
+        .selected-rating {
+          color: #ff6b35;
+          font-size: 0.9rem;
+        }
+      }
+
+      .stars-container {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+
+        .star {
+          color: #555;
+          cursor: pointer;
+          font-size: 1.5rem;
+          transition: color 0.2s ease;
+
+          &:hover {
+            color: #ffc107;
+          }
+
+          &.selected {
+            color: #ffc107;
+          }
+        }
+
+        .clear-rating-button {
+          background: none;
+          border: none;
+          color: #888;
+          cursor: pointer;
+          margin-left: 10px;
+          padding: 5px;
+          display: flex;
+          align-items: center;
+          
+          &:hover {
+            color: #ff6b35;
+          }
         }
       }
     }
@@ -314,6 +381,12 @@
         flex-direction: column;
         align-items: flex-start;
         gap: 10px;
+      }
+
+      .rating-filter {
+        .stars-container {
+          flex-wrap: wrap;
+        }
       }
 
       .tag-categories {

@@ -8,7 +8,6 @@ import gymData from "../../data/gymData.js";
 import GymSidebar from "../../components/GymSidebar";
 import "./styles.scss";
 
-
 const Home = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [filter, setFilter] = useState("all");
@@ -38,10 +37,13 @@ const Home = () => {
             const dynamicData = data[id] || {};
             
             return {
-              id: parseInt(id),
               ...staticData,
+              id: parseInt(id),
               // Use dynamically fetched tags if available, otherwise use static tags or empty array
-              tags: dynamicData.tags || staticData.tags || []
+              tags: dynamicData.tags || staticData.tags || [],
+              // Include rating data from backend
+              rating: dynamicData.rating !== undefined ? Number(dynamicData.rating) : 0,
+              ratingCount: dynamicData.ratingCount || 0
             };
           });
           
@@ -51,9 +53,11 @@ const Home = () => {
           console.warn("API returned error or no data:", error);
           // Fall back to static data
           const staticGyms = Object.entries(gymData).map(([id, data]) => ({
-            id: parseInt(id),
             ...data,
-            tags: data.tags || []
+            id: parseInt(id),
+            tags: data.tags || [],
+            rating: 0,
+            ratingCount: 0
           }));
           
           setGyms(staticGyms);
@@ -64,9 +68,11 @@ const Home = () => {
         
         // Fall back to static data
         const staticGyms = Object.entries(gymData).map(([id, data]) => ({
-          id: parseInt(id),
           ...data,
-          tags: data.tags || []
+          id: parseInt(id),
+          tags: data.tags || [],
+          rating: 0,
+          ratingCount: 0
         }));
         
         setGyms(staticGyms);
@@ -101,14 +107,16 @@ const Home = () => {
     <div className="home-container">
       <Header />
       <Title />
-      <Search
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        filter={filter}
-        setFilter={setFilter}
-        onSearchSubmit={handleSearchSubmit}
-        gyms={gyms}
-      />
+      <div className="top-search-area">
+        <Search
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          filter={filter}
+          setFilter={setFilter}
+          onSearchSubmit={handleSearchSubmit}
+          gyms={gyms}
+        />
+      </div>
       <div className="map-sidebar-container">
         <div className="map-wrapper">
           {isLoading ? (
@@ -146,4 +154,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default Home; 

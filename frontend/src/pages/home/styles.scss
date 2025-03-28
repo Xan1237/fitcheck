@@ -6,6 +6,15 @@
   overflow-x: hidden;
 }
 
+/* Add specific styling for the top search area */
+.top-search-area {
+  width: 100%;
+  max-width: 1300px;
+  margin: 0 auto;
+  z-index: 10; /* Ensure this is above other elements */
+  position: relative;
+}
+
 .map-sidebar-container {
   display: flex;
   flex: 1;
@@ -14,11 +23,17 @@
   max-width: 1300px;
   margin: 0 auto;
   width: 100%;
+  position: relative; /* Add position relative */
 
   .sidebar-wrapper {
     width: 30%;
     min-width: 300px;
     margin-left: 20px;
+    z-index: 5; /* Lower z-index than top search */
+    background-color: #222; /* Make sure it has a background */
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: 20px;
   }
 
   .map-wrapper {
@@ -26,6 +41,7 @@
     border-radius: 10px;
     overflow: hidden;
     margin-top: 20px;
+    z-index: 1;
   }
   
   /* Loading state styles */
@@ -60,6 +76,14 @@
       }
     }
   }
+}
+
+/* Make sure advanced filters don't overflow incorrectly */
+.search-bar .advanced-filters {
+  position: absolute;
+  width: 100%;
+  z-index: 20;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
 // Media queries for responsive design

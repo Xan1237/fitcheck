@@ -38,7 +38,8 @@ const Home = () => {
           throw new Error("Failed to fetch gym data");
         }
         
-        const { success, data, error } = await response.json();
+        const responseData = await response.json();
+        const { success, data, error } = responseData;
         
         // Still proceed with static data even if API returns "No gyms found"
         if (success && data) {
@@ -47,9 +48,12 @@ const Home = () => {
             const dynamicData = data[id] || {};
             
             return {
-              id: parseInt(id),
               ...staticData,
-              // Use dynamically fetched tags if available, otherwise use static tags or empty array
+              id: parseInt(id),
+              // Include ratings from backend data
+              rating: dynamicData.rating !== undefined ? Number(dynamicData.rating) : 0,
+              ratingCount: dynamicData.ratingCount || 0,
+              // Use dynamically fetched tags if available
               tags: dynamicData.tags || staticData.tags || []
             };
           });
@@ -60,9 +64,11 @@ const Home = () => {
           console.warn("API returned error or no data:", error);
           // Fall back to static data
           const staticGyms = Object.entries(gymData).map(([id, data]) => ({
-            id: parseInt(id),
             ...data,
-            tags: data.tags || []
+            id: parseInt(id),
+            tags: data.tags || [],
+            rating: 0,
+            ratingCount: 0
           }));
           
           setGyms(staticGyms);
@@ -73,9 +79,11 @@ const Home = () => {
         
         // Fall back to static data
         const staticGyms = Object.entries(gymData).map(([id, data]) => ({
-          id: parseInt(id),
           ...data,
-          tags: data.tags || []
+          id: parseInt(id),
+          tags: data.tags || [],
+          rating: 0,
+          ratingCount: 0
         }));
         
         setGyms(staticGyms);
@@ -110,15 +118,21 @@ const Home = () => {
     <div className="home-container">
       <Header />
       <Title />
-      <Search
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        filter={filter}
-        setFilter={setFilter}
-        onSearchSubmit={handleSearchSubmit}
-        gyms={gyms}
-      />
+      
+      {/* Main search area */}
+      <div className="top-search-area">
+        <Search
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          filter={filter}
+          setFilter={setFilter}
+          onSearchSubmit={handleSearchSubmit}
+          gyms={gyms}
+        />
+      </div>
+      
       <div className="map-sidebar-container">
+        {/* Map area */}
         <div className="map-wrapper">
           {isLoading ? (
             <div className="loading-container">
@@ -134,6 +148,8 @@ const Home = () => {
             />
           )}
         </div>
+        
+        {/* Force the sidebar to be a GymSidebar, not a Search component */}
         <div className="sidebar-wrapper">
           {isLoading ? (
             <div className="loading-container">
@@ -150,6 +166,7 @@ const Home = () => {
           )}
         </div>
       </div>
+      
       <Footer />
     </div>
   );

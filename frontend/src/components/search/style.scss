@@ -132,6 +132,39 @@
     padding: 1.5rem;
     border: 1px solid #333;
     z-index: 20;
+    transition: all 0.3s ease;
+    max-height: 2000px; /* Set a large enough height to contain all content */
+    opacity: 1;
+    transform: translateY(0);
+    overflow: hidden;
+
+    /* Animation states */
+    &.closing {
+      max-height: 0;
+      opacity: 0;
+      transform: translateY(-20px);
+      padding-top: 0;
+      padding-bottom: 0;
+      margin-top: 0;
+      border-width: 0;
+    }
+    
+    &.opening {
+      animation: slideDown 0.3s forwards;
+    }
+    
+    @keyframes slideDown {
+      from {
+        max-height: 0;
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        max-height: 2000px;
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
     
     .no-tags-message {
       color: #999;

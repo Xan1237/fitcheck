@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { FaSearch, FaFilter, FaTimes, FaTags, FaStar } from 'react-icons/fa';
 import './style.scss';
 
@@ -13,7 +13,10 @@ const Search = ({ onSearchSubmit, gyms, searchQuery, setSearchQuery, filter, set
   const [selectedTags, setSelectedTags] = useState([]);
   const [expandedCategories, setExpandedCategories] = useState({});
   const [filteredGyms, setFilteredGyms] = useState([]);
-  const [selectedRating, setSelectedRating] = useState(0); // New state for rating filter
+  const [selectedRating, setSelectedRating] = useState(0);
+  const [isClosing, setIsClosing] = useState(false); // New state for animation
+  
+  const advancedFiltersRef = useRef(null);
 
   // Debug: Log gyms on component mount or when gyms change
   useEffect(() => {
@@ -65,7 +68,24 @@ const Search = ({ onSearchSubmit, gyms, searchQuery, setSearchQuery, filter, set
   };
 
   const toggleAdvancedFilters = () => {
-    setShowAdvancedFilters(!showAdvancedFilters);
+    if (showAdvancedFilters) {
+      closeAdvancedFilters();
+    } else {
+      setShowAdvancedFilters(true);
+      setIsClosing(false);
+    }
+  };
+
+  const closeAdvancedFilters = () => {
+    if (!showAdvancedFilters) return;
+    
+    setIsClosing(true);
+    
+    // Wait for the animation to complete before actually hiding the element
+    setTimeout(() => {
+      setShowAdvancedFilters(false);
+      setIsClosing(false);
+    }, 600); // Increased to 600ms for a slower animation
   };
 
   const toggleCategory = (category) => {
@@ -114,11 +134,6 @@ const Search = ({ onSearchSubmit, gyms, searchQuery, setSearchQuery, filter, set
       // Filter by rating - ensure we're comparing numbers
       const gymRating = typeof gym.rating === 'number' ? gym.rating : Number(gym.rating || 0);
       
-      // Debug: log rating values when filtering
-      if (selectedRating > 0) {
-        console.log(`Gym ${gym.id} (${gym.name}) has rating ${gymRating}, comparing with ${selectedRating}`);
-      }
-      
       const matchesRating = selectedRating === 0 || gymRating >= selectedRating;
       
       return matchesGymFilter && matchesSearch && matchesTags && matchesRating;
@@ -137,6 +152,9 @@ const Search = ({ onSearchSubmit, gyms, searchQuery, setSearchQuery, filter, set
     
     // Pass filtered gyms to parent component
     onSearchSubmit(localSearchQuery, localFilter, filteredGyms);
+    
+    // Close advanced filters with animation
+    closeAdvancedFilters();
   };
 
   // Group available tags by category
@@ -220,9 +238,12 @@ const Search = ({ onSearchSubmit, gyms, searchQuery, setSearchQuery, filter, set
           </button>
         </div>
 
-        {/* Advanced filters section */}
-        {showAdvancedFilters && (
-          <div className="advanced-filters">
+        {/* Advanced filters section - now with animation classes */}
+        {(showAdvancedFilters || isClosing) && (
+          <div 
+            ref={advancedFiltersRef}
+            className={`advanced-filters ${isClosing ? 'closing' : 'opening'}`}
+          >
             <div className="advanced-filters-header">
               <h2><FaTags /> Filter by Gym Features</h2>
               {(selectedTags.length > 0 || selectedRating > 0) && (
@@ -270,7 +291,7 @@ const Search = ({ onSearchSubmit, gyms, searchQuery, setSearchQuery, filter, set
               </div>
             )}
             
-            {/* Dummy tag option for now - we'll handle real tags when they're available */}
+            {/* Dummy tag option for now */}
             {availableTags.length === 0 && (
               <div className="no-tags-message">
                 No tags available yet. As users review gyms, tags will appear here for filtering.

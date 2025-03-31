@@ -195,6 +195,7 @@ const getComments = async (req, res) => {
 };
 
 const getUserName = async (req, res) => {
+  try{
   const authHeader = req.headers["authorization"];
   const token = authHeader.split(" ")[1];
   let decodedToken = await admin.auth().verifyIdToken(token);
@@ -203,6 +204,10 @@ const getUserName = async (req, res) => {
     .doc(decodedToken.uid)
     .get();
   res.status(200).json({ success: true, username: userDoc.data().username });
+  }
+  catch{
+    res.status(401).json({success: false})
+  }
 };
 
 const profile = async (req, res) => {

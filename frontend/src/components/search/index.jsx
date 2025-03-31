@@ -245,7 +245,12 @@ const Search = ({ onSearchSubmit, gyms, searchQuery, setSearchQuery, filter, set
             className={`advanced-filters ${isClosing ? 'closing' : 'opening'}`}
           >
             <div className="advanced-filters-header">
-              <h2><FaTags /> Filter by Gym Features</h2>
+              <div className="header-left">
+                <h2><FaTags /> Filter by Gym Features</h2>
+                <div className="filtered-gyms-count">
+                  {filteredGyms.length} gyms match your filters
+                </div>
+              </div>
               {(selectedTags.length > 0 || selectedRating > 0) && (
                 <button type="button" className="clear-tags-button" onClick={clearTags}>
                   Clear All Filters
@@ -336,10 +341,6 @@ const Search = ({ onSearchSubmit, gyms, searchQuery, setSearchQuery, filter, set
                   </div>
                 );
               })}
-            </div>
-            
-            <div className="filtered-gyms-count">
-              {filteredGyms.length} gyms match your filters
             </div>
           </div>
         )}

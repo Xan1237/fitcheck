@@ -1,9 +1,25 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { FaDumbbell, FaDirections, FaInfoCircle } from 'react-icons/fa';
+import { FaDumbbell, FaDirections, FaInfoCircle, FaStar } from 'react-icons/fa';
 import './style.scss';
 
 const GymSidebar = ({ gyms, activeGym, setActiveGym, filter }) => {
+  // Function to render star rating
+  const renderStarRating = (rating) => {
+    const ratingValue = Math.round(rating);
+    return (
+      <div className="gym-rating">
+        {[...Array(5)].map((_, index) => (
+          <FaStar 
+            key={index} 
+            className={index < ratingValue ? "star-filled" : "star-empty"} 
+          />
+        ))}
+        <span className="rating-value">{rating.toFixed(1)}</span>
+      </div>
+    );
+  };
+
   return (
     <div className="gym-sidebar">
       <div className="sidebar-header">
@@ -22,7 +38,10 @@ const GymSidebar = ({ gyms, activeGym, setActiveGym, filter }) => {
                 <FaDumbbell />
               </div>
               <div className="gym-info">
-                <h3>{gym.name}</h3>
+                <div className="gym-header">
+                  <h3>{gym.name}</h3>
+                  {renderStarRating(gym.rating || 0)}
+                </div>
                 <p>{gym.location}</p>
                 <div className="gym-actions">
                   <Link to={gym.link} className="gym-link">

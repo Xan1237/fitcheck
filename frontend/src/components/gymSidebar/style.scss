@@ -66,10 +66,38 @@
     .gym-info {
       flex: 1;
 
+      .gym-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 0.5rem;
+      }
+
       h3 {
         color: #fff;
-        margin: 0 0 0.5rem 0;
+        margin: 0;
         font-size: 1.2rem;
+      }
+
+      .gym-rating {
+        display: flex;
+        align-items: center;
+        font-size: 0.8rem;
+        margin-left: 8px;
+        
+        .star-filled {
+          color: #ffc107;
+        }
+        
+        .star-empty {
+          color: #555;
+        }
+        
+        .rating-value {
+          margin-left: 5px;
+          color: #ff6b35;
+          font-weight: 600;
+        }
       }
 
       p {
@@ -138,9 +166,18 @@
       }
       
       .gym-info {
-        h3 {
-          font-size: 1.1rem;
-          margin-bottom: 0.3rem;
+        .gym-header {
+          flex-wrap: wrap;
+          
+          h3 {
+            font-size: 1.1rem;
+            margin-right: auto;
+          }
+          
+          .gym-rating {
+            font-size: 0.7rem;
+            margin-top: 2px;
+          }
         }
         
         p {
@@ -204,6 +241,19 @@
       }
 
       .gym-info {
+        .gym-header {
+          flex-direction: row;
+          align-items: center;
+          
+          h3 {
+            margin-right: 8px;
+          }
+          
+          .gym-rating {
+            margin-top: 0;
+          }
+        }
+        
         .gym-actions {
           flex-direction: column;
           gap: 0.5rem;

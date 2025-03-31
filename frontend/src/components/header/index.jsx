@@ -14,33 +14,48 @@ const Header = () => {
     setIsLoggedIn(!!token); 
   }, []);
 
+  // Add effect to control body scroll when menu is open
+  useEffect(() => {
+    if (menuOpen) {
+      // Prevent body scrolling when menu is open
+      document.body.classList.add('menu-open');
+    } else {
+      // Re-enable scrolling when menu is closed
+      document.body.classList.remove('menu-open');
+    }
+    
+    // Clean up effect when component unmounts
+    return () => {
+      document.body.classList.remove('menu-open');
+    };
+  }, [menuOpen]);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
     setIsLoggedIn(false);
   };
 
-  useEffect( ()=>{
-    username()
-  }, [])
+  useEffect(() => {
+    username();
+  }, []);
 
-  const username = () =>{
-  const token = localStorage.getItem("token");  
-  axios.post('/api/getUserName', {
-    firstName: 'Fred',
-    lastName: 'Flintstone'
-  }, {
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  })
-  .then(function (response) {
-    console.log(response.data.username);
-    setUserName(response.data.username);
-  })
-  .catch(function (error) {
-    console.log(error);
-  });
+  const username = () => {
+    const token = localStorage.getItem("token");  
+    axios.post('/api/getUserName', {
+      firstName: 'Fred',
+      lastName: 'Flintstone'
+    }, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+    .then(function (response) {
+      console.log(response.data.username);
+      setUserName(response.data.username);
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
   }
 
   return (

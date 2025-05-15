@@ -120,23 +120,19 @@ const Search = ({ onSearchSubmit, gyms, searchQuery, setSearchQuery, filter, set
     console.log('Filtering gyms with rating threshold:', selectedRating);
     
     const filtered = gyms.filter(gym => {
-      // Filter by gym name
-      const matchesGymFilter = localFilter === 'all' || gym.name === localFilter;
-      
-      // Filter by search query (location)
-      const matchesSearch = !localSearchQuery || 
-        (gym.location && gym.location.toLowerCase().includes(localSearchQuery.toLowerCase()));
-      
-      // Filter by selected tags
-      const matchesTags = selectedTags.length === 0 || 
-        (gym.tags && selectedTags.every(tag => gym.tags.includes(tag)));
-      
-      // Filter by rating - ensure we're comparing numbers
-      const gymRating = typeof gym.rating === 'number' ? gym.rating : Number(gym.rating || 0);
-      
-      const matchesRating = selectedRating === 0 || gymRating >= selectedRating;
-      
-      return matchesGymFilter && matchesSearch && matchesTags && matchesRating;
+    // Filter by gym name
+    const matchesGymFilter = localFilter === 'all' || gym.name === localFilter;
+    
+    // Filter by selected tags
+    const matchesTags = selectedTags.length === 0 || 
+      (gym.tags && selectedTags.every(tag => gym.tags.includes(tag)));
+    
+    // Filter by rating - ensure we're comparing numbers
+    const gymRating = typeof gym.rating === 'number' ? gym.rating : Number(gym.rating || 0);
+    
+    const matchesRating = selectedRating === 0 || gymRating >= selectedRating;
+    
+    return matchesGymFilter && matchesTags && matchesRating;
     });
     
     console.log(`Filtered gyms: ${filtered.length} of ${gyms.length} match criteria`);

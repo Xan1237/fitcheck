@@ -1,0 +1,60 @@
+.gym-tags-container {
+  padding: 24px;
+  border-top: 1px solid #eee;
+
+  .tags-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 20px;
+    margin-bottom: 16px;
+
+    .tags-icon {
+      color: #333;
+    }
+  }
+
+  .gym-tags-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+
+    .gym-tag {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      background-color: #f5f5f5;
+      border-radius: 20px;
+      font-size: 14px;
+
+      .tag-name {
+        color: #333;
+      }
+
+      .tag-percentage {
+        color: #666;
+        font-size: 12px;
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .gym-tags-container {
+    padding: 16px;
+
+    .tags-title {
+      font-size: 18px;
+    }
+
+    .gym-tags-list {
+      gap: 8px;
+
+      .gym-tag {
+        padding: 6px 10px;
+        font-size: 12px;
+      }
+    }
+  }
+} 

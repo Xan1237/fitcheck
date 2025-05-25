@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import './style.scss';
 import { useParams } from "react-router-dom";
+import axios from 'axios';
 
 /**
  * UserProfile Component
@@ -32,6 +33,32 @@ const UserProfile = () => {
 
   // Track which content tab is currently active
   const [activeTab, setActiveTab] = useState('stats');
+  // Track if the current user owns this profile
+  const [isOwnProfile, setIsOwnProfile] = useState(false);
+
+  /**
+   * Checks if the current authenticated user owns this profile
+   */
+  const checkProfileOwnership = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setIsOwnProfile(false);
+        return;
+      }
+
+      const response = await axios.get(`/api/checkProfileOwnership/${name}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      setIsOwnProfile(response.data.isOwner);
+    } catch (error) {
+      console.error('Error checking profile ownership:', error);
+      setIsOwnProfile(false);
+    }
+  };
 
   /**
    * Fetches user data from the API
@@ -88,6 +115,7 @@ const UserProfile = () => {
   // Fetch user data when component mounts or name parameter changes
   useEffect(() => {
     getData();
+    checkProfileOwnership();
   }, [name]); // Re-run when name changes
 
   return (
@@ -103,6 +131,14 @@ const UserProfile = () => {
           <h1 id="userName">{userData.name}</h1>
           <p className="username">{"@"+userData.username}</p>
           <p className="bio">{userData.bio}</p>
+          {isOwnProfile && (
+            <button 
+              className="edit-profile-btn"
+              onClick={() => window.location.href = '/profile'}
+            >
+              Edit Profile
+            </button>
+          )}
         </div>
 
         {/* User Statistics Summary */}
@@ -123,6 +159,11 @@ const UserProfile = () => {
             <p className="stat-value">{userData.stats.following}</p>
             <p className="stat-label">Following</p>
           </div>
+          {!isOwnProfile && (
+            <button className="follow-btn">
+              Follow
+            </button>
+          )}
         </div>
       </div>
       

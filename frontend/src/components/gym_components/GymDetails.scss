@@ -1,0 +1,92 @@
+.gym-main-info {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  padding: 24px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+
+  .gym-image-container {
+    width: 100%;
+    aspect-ratio: 16/9;
+    border-radius: 8px;
+    overflow: hidden;
+
+    .gym-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
+  .gym-details {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+
+    .gym-contact-info {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+
+      .info-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: #666;
+
+        .info-icon {
+          width: 20px;
+          height: 20px;
+          color: #333;
+        }
+
+        .info-text {
+          font-size: 14px;
+        }
+
+        .info-link {
+          color: #0066cc;
+          text-decoration: none;
+          font-size: 14px;
+
+          &:hover {
+            text-decoration: underline;
+          }
+        }
+      }
+    }
+
+    .gym-hours-container {
+      h3 {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 18px;
+        margin-bottom: 16px;
+
+        .hours-icon {
+          color: #333;
+        }
+      }
+
+      .gym-hours {
+        display: grid;
+        gap: 8px;
+
+        .hours-row {
+          display: flex;
+          justify-content: space-between;
+          font-size: 14px;
+          color: #666;
+
+          .day {
+            font-weight: 600;
+          }
+        }
+      }
+    }
+  }
+} 

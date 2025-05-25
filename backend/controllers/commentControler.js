@@ -1,45 +1,41 @@
 import { supabase } from '../middlewares/supabaseApp.js'
 import axios from "axios";
+import { updateGymTags } from './gymController.js';
 
-
+/* 
+  this method creates a comment and updates the gym tags and rating
+  The payload is the comment data and the gym id
+  The comment data is the comment id, the comment text, the gym name, the time the comment was made, the rating, the tags, and the gym id
+  The gym id is the id of the gym that the comment is for
+  The gym name is the name of the gym that the comment is for
+  The time the comment was made is the time the comment was made
+  The rating is the rating of the gym
+  The tags are the tags of the gym
+*/
 const createComment = async (req, res) => {
     try {
-      
+      //get the comment data from the request body
       const { CommentID, CommentText, GymName, Time, Rating, Tags, GymId } = req.body;
-  
       if (!CommentID || !CommentText || !GymName || !GymId) {
         return res
           .status(400)
           .json({ success: false, error: "Missing required fields" });
       }
-         // Debug auth header
-      console.log("Auth header present:", !!req.headers.authorization);
-      const authHeader = req.headers.authorization;
-      if (!authHeader?.startsWith('Bearer ')) {
-        console.log("Invalid auth header format");
-        return res.status(401).json({ error: 'Missing token' });
-      }
-      const token = authHeader.split(' ')[1];
-      
-      console.log("Verifying token with Supabase...");
-      const authResponse = await supabase.auth.getUser(token);
-      console.log("Auth response received:", !!authResponse);
-      
-      const { data: { user }, error: authErr } = authResponse;
-      // Get user's username
+
+      // Get user's username from the database
       const { data: userData, error: userError } = await supabase
         .from('users')
         .select('username')
-        .eq('id', user.id)
+        .eq('id', req.user.id)
         .single();
-  
+
       if (userError || !userData) {
         console.error("Error fetching user:", userError);
         return res.status(404).json({ success: false, error: "User not found" });
       }
-  
+
       const UserNamedata = userData.username;
-  
+
       // Process tags
       let processedTags = [];
       if (Tags) {
@@ -54,7 +50,7 @@ const createComment = async (req, res) => {
           ).map((tag) => tag.trim());
         }
       }
-  
+
       // Process rating
       const numericRating = Rating !== undefined && Rating !== null ? Number(Rating) : 0;
       
@@ -63,7 +59,7 @@ const createComment = async (req, res) => {
         .from('comments')
         .insert({
           id: CommentID,
-          user_id: user.id,
+          user_id: req.user.id,
           username: UserNamedata,
           gym_id: GymId,
           comment_text: CommentText,
@@ -71,7 +67,7 @@ const createComment = async (req, res) => {
           tags: processedTags,
           created_at: new Date()
         });
-  
+
       if (commentError) {
         console.error("Error creating comment:", commentError);
         return res.status(500).json({
@@ -79,9 +75,9 @@ const createComment = async (req, res) => {
           error: commentError.message || "Failed to create comment"
         });
       }
-  
+
       console.log(`[createComment] Comment saved with Rating=${numericRating}`);
-  
+
       // Update gym tags and rating
       try {
         console.log(`[createComment] Updating gym tags and rating for gym ${GymId}`);
@@ -95,7 +91,7 @@ const createComment = async (req, res) => {
           message: "Review added but gym stats may not be updated. Please refresh the page."
         });
       }
-  
+
       return res
         .status(201)
         .json({ success: true, message: "Review added successfully" });
@@ -109,6 +105,15 @@ const createComment = async (req, res) => {
   };
 
 
+  /*
+  this method gets all the comments for a gym
+  The payload is the gym name
+  The gym name is the name of the gym that the comments are for
+  The comments are the comments of the gym
+  The comments are returned in a json array
+  The comments are returned in the order of the comments in the database
+  The comments are returned in the order of the comments in the database
+  */
   const getComments = async (req, res) => {
     const { GymName } = req.query;
     console.log("Requested GymName:", GymName);

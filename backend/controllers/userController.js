@@ -2,45 +2,6 @@ import { supabase } from '../middlewares/supabaseApp.js'
 import axios from "axios";
 
 
-// Middleware to verify JWT token from Supabase Auth
-const verifyAuth = async (req, res, next) => {
-  const authHeader = req.headers.authorization;
-  
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    console.error("Missing or invalid authorization header");
-    return res
-      .status(401)
-      .json({ success: false, error: "Authorization header is required" });
-  }
-
-  const token = authHeader.split("Bearer ")[1];
-
-  try {
-    // Verify the JWT with Supabase
-    const { data: { user }, error } = await supabase.auth.getUser(token);
-    
-    if (error || !user) {
-      console.error("Token verification failed:", error);
-      return res.status(401).json({
-        success: false,
-        error: "Invalid or expired authentication token",
-      });
-    }
-    
-    // Add user data to request object
-    req.user = user;
-    next();
-  } catch (error) {
-    console.error("Auth verification error:", error);
-    return res.status(401).json({
-      success: false,
-      error: "Authentication failed",
-    });
-  }
-};
-
-
-
 const getAdress = async (req, res) => {
   const { searchResults } = req.body;
 
@@ -439,13 +400,39 @@ const getGymData = async (req, res) => {
   }
 };
 
+const checkProfileOwnership = async (req, res) => {
+  try {
+    const { username } = req.params;
+    
+    // Get the current user's username from the database
+    const { data: userData, error: userError } = await supabase
+      .from('users')
+      .select('username')
+      .eq('id', req.user.id)
+      .single();
+
+    if (userError) {
+      console.error("Error fetching user data:", userError);
+      return res.status(500).json({ error: 'Error fetching user data' });
+    }
+
+    // Check if the username matches
+    const isOwner = userData.username === username;
+    
+    res.status(200).json({ isOwner });
+  } catch (error) {
+    console.error("Error checking profile ownership:", error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
 // Export middleware and controllers
-export {
-  verifyAuth,  // New middleware for authentication
+export {// New middleware for authentication
   getAdress,
   profile,
   userInfo,
   getGymData,
   updateGymTags,
   getUserName,
+  checkProfileOwnership
 };

@@ -1,14 +1,11 @@
-import { fireStoreDb } from "../config/db.js";
-import { Timestamp } from "firebase-admin/firestore";
+import { supabase } from '../middlewares/supabaseApp.js'
 import axios from "axios";
-import { doc, setDoc } from "firebase/firestore";
-import admin from "firebase-admin";
-import { app } from "../middlewares/FireBaseApp.js";
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
-const auth = getAuth(app);
 
-const createComment = async (req, res) => {
+
+// Middleware to verify JWT token from Supabase Auth
+const verifyAuth = async (req, res, next) => {
   const authHeader = req.headers.authorization;
+  
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     console.error("Missing or invalid authorization header");
     return res
@@ -18,110 +15,32 @@ const createComment = async (req, res) => {
 
   const token = authHeader.split("Bearer ")[1];
 
-  // Verify Firebase token - with detailed logging
-  let decodedToken;
   try {
-    console.log("Attempting to verify token...");
-    decodedToken = await admin.auth().verifyIdToken(token);
-    console.log("Token verified successfully for user:", decodedToken.uid);
-  } catch (verifyError) {
-    console.error("Token verification failed:", verifyError);
+    // Verify the JWT with Supabase
+    const { data: { user }, error } = await supabase.auth.getUser(token);
+    
+    if (error || !user) {
+      console.error("Token verification failed:", error);
+      return res.status(401).json({
+        success: false,
+        error: "Invalid or expired authentication token",
+      });
+    }
+    
+    // Add user data to request object
+    req.user = user;
+    next();
+  } catch (error) {
+    console.error("Auth verification error:", error);
     return res.status(401).json({
       success: false,
-      error: "Invalid or expired authentication token",
-    });
-  }
-
-  const { CommentID, CommentText, GymName, Time, Rating, Tags, GymId } =
-    req.body;
-
-  // Log received rating for debugging
-  console.log(`[createComment] Received rating: ${Rating}, type: ${typeof Rating}`);
-
-  let userDoc;
-  try {
-    userDoc = await fireStoreDb.collection("users").doc(decodedToken.uid).get();
-  } catch (error) {
-    console.error("Error fetching user:", error);
-    return res.status(404).json({ success: false, error: "User not found" });
-  }
-
-  let userData = userDoc.data();
-  let UserNamedata = userData.username;
-
-  try {
-    if (!CommentID || !CommentText || !GymName || !GymId) {
-      return res
-        .status(400)
-        .json({ success: false, error: "Missing required fields" });
-    }
-
-    // Enhanced tag processing to ensure valid tags
-    // First check if Tags is defined and is an array
-    let processedTags = [];
-    if (Tags) {
-      // If it's a string (single tag), convert to array
-      if (typeof Tags === "string") {
-        const trimmedTag = Tags.trim();
-        if (trimmedTag !== "") {
-          processedTags = [trimmedTag];
-        }
-      }
-      // If it's already an array, filter out empty strings and trim values
-      else if (Array.isArray(Tags)) {
-        processedTags = Tags.filter(
-          (tag) => tag && typeof tag === "string" && tag.trim() !== ""
-        ).map((tag) => tag.trim());
-      }
-    }
-
-    // Process rating - ensure it's a number
-    const numericRating = Rating !== undefined && Rating !== null ? Number(Rating) : 0;
-    
-    // First, save the comment
-    await fireStoreDb
-      .collection(`${GymId}__Comment`)
-      .doc(CommentID)
-      .set({
-        UserNamedata,
-        CommentText,
-        Time,
-        GymId,
-        Rating: numericRating, // Ensure we save as a number
-        Tags: processedTags,
-      });
-
-    console.log(`[createComment] Comment saved with Rating=${numericRating}`);
-
-    // Now update the gym tags and rating
-    try {
-      console.log(`[createComment] Updating gym tags and rating for gym ${GymId}`);
-      const result = await updateGymTags(GymId);
-      console.log(`[createComment] Gym updated successfully. Rating: ${result.rating}`);
-    } catch (tagError) {
-      console.error("Error updating gym tags:", tagError);
-      // We'll still consider the comment creation successful even if tag update fails
-      
-      // But we'll send a more specific response
-      return res.status(201).json({ 
-        success: true, 
-        message: "Review added but gym stats may not be updated. Please refresh the page."
-      });
-    }
-
-    return res
-      .status(201)
-      .json({ success: true, message: "Review added successfully" });
-  } catch (error) {
-    console.error("Error creating comment:", error);
-    return res.status(500).json({
-      success: false,
-      error: error.message || "Unknown error occurred",
+      error: "Authentication failed",
     });
   }
 };
 
-// POST /api/adress route to handle address-related requests
+
+
 const getAdress = async (req, res) => {
   const { searchResults } = req.body;
 
@@ -158,156 +77,153 @@ const getAdress = async (req, res) => {
   }
 };
 
-// Get comments by GymName
-const getComments = async (req, res) => {
-  const { GymName } = req.query;
-  console.log("Requested GymName:", GymName);
 
-  try {
-    if (!GymName) {
-      return res
-        .status(400)
-        .json({ success: false, error: "GymName is required" });
-    }
-
-    const userDoc = await fireStoreDb.collection(`${GymName}__Comment`).get();
-    if (userDoc.empty) {
-      return res
-        .status(404)
-        .json({ success: false, error: "No comments found" });
-    }
-
-    const comments = userDoc.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-      Rating: doc.data().Rating || 0,
-      UserNamedata: doc.data().UserNamedata,
-      Tags: doc.data().Tags || [], // Ensure Tags is included in response
-    }));
-
-    console.log("Fetched Comments with Tags:", comments); // Debugging
-
-    res.status(200).json({ success: true, data: comments });
-  } catch (error) {
-    console.error("Error retrieving comments:", error);
-    res.status(500).json({ success: false, error: "Internal Server Error" });
-  }
-};
 
 const getUserName = async (req, res) => {
-  try{
-  const authHeader = req.headers["authorization"];
-  const token = authHeader.split(" ")[1];
-  let decodedToken = await admin.auth().verifyIdToken(token);
-  const userDoc = await fireStoreDb
-    .collection("users")
-    .doc(decodedToken.uid)
-    .get();
-  res.status(200).json({ success: true, username: userDoc.data().username });
-  }
-  catch{
-    res.status(401).json({success: false})
+  try {
+    const authHeader = req.headers.authorization
+    if (!authHeader?.startsWith('Bearer '))
+      return res.status(401).json({ error: 'Missing token' })
+    const token = authHeader.split(' ')[1]
+
+    const { data: { user }, error: authErr } = await supabase.auth.getUser(token)
+    if (authErr || !user)
+      return res.status(401).json({ error: authErr?.message || 'Invalid token' })
+
+
+    const { data, error } = await supabase
+      .from('users')
+      .select('id, username')
+      .eq('id', user.id)
+      .single();
+    console.log(data)
+      
+    if (error) {
+      throw error;
+    }
+    
+    res.status(200).json({ success: true, username: data.username });
+  } catch (error) {
+    console.error("Error fetching username:", error);
+    res.status(401).json({ success: false });
   }
 };
 
 const profile = async (req, res) => {
   try {
-    // Extract user data from request
+    console.log("Profile update request received");
+    
+    // Debug request body
+    console.log("Request body:", JSON.stringify(req.body));
+    
     const { sendingdata } = req.body;
     if (!sendingdata) {
-      return res
-        .status(400)
-        .json({ success: false, error: "Profile data is required" });
+      console.log("Missing sendingdata in request body");
+      return res.status(400).json({ error: 'Missing data in request body' });
     }
-
-    // Validate essential fields
-    if (!sendingdata.email) {
-      return res
-        .status(400)
-        .json({ success: false, error: "Email is required" });
-    }
-
-    // Authentication - Get token from header
+    
+    // Debug auth header
+    console.log("Auth header present:", !!req.headers.authorization);
     const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      console.error("Missing or invalid authorization header");
-      return res
-        .status(401)
-        .json({ success: false, error: "Authorization header is required" });
+    if (!authHeader?.startsWith('Bearer ')) {
+      console.log("Invalid auth header format");
+      return res.status(401).json({ error: 'Missing token' });
     }
-
-    const token = authHeader.split("Bearer ")[1];
-
-    // Verify Firebase token - with detailed logging
-    let decodedToken;
-    try {
-      console.log("Attempting to verify token...");
-      decodedToken = await admin.auth().verifyIdToken(token);
-      console.log("Token verified successfully for user:", decodedToken.uid);
-    } catch (verifyError) {
-      console.error("Token verification failed:", verifyError);
-      return res.status(401).json({
-        success: false,
-        error: "Invalid or expired authentication token",
-      });
+    const token = authHeader.split(' ')[1];
+    
+    console.log("Verifying token with Supabase...");
+    const authResponse = await supabase.auth.getUser(token);
+    console.log("Auth response received:", !!authResponse);
+    
+    const { data: { user }, error: authErr } = authResponse;
+    
+    if (authErr) {
+      console.log("Auth error:", authErr.message);
+      return res.status(401).json({ error: authErr.message || 'Invalid token' });
     }
-
-    // Create a sanitized profile object
-    try {
-      console.log(sendingdata.overheadPressPR);
-    } catch {
-      console.log("failed");
+    
+    if (!user) {
+      console.log("No user found with provided token");
+      return res.status(401).json({ error: 'Invalid token' });
     }
+    
+    console.log("User authenticated successfully. User ID:", user.id);
+
     const profileData = {
-      benchPR: sendingdata.benchPR || null,
+      id: user.id,
+      email: sendingdata.email,
+      username: sendingdata.username,
+      first_name: sendingdata.firstName || "",
+      last_name: sendingdata.lastName || "",
       bio: sendingdata.bio || "",
       birthdate: sendingdata.birthdate || null,
-      deadliftPR: sendingdata.deadliftPR || null,
-      email: sendingdata.email,
-      firstName: sendingdata.firstName || "",
-      fitnessGoals: sendingdata.fitnessGoals || [],
       gender: sendingdata.gender || "",
-      gymExperience: sendingdata.gymExperience || "",
-      lastName: sendingdata.lastName || "",
       location: sendingdata.location || "",
+      bench_pr: sendingdata.benchPR || null,
+      deadlift_pr: sendingdata.deadliftPR || null,
+      squat_pr: sendingdata.squatPR || null,
+      overhead_press_pr: sendingdata.overheadPressPR || null,
+      pull_up_max: sendingdata.pullUpMax || null,
       mile: sendingdata.mile || null,
-      overheadPressPR: sendingdata.overheadPressPR,
-      preferredGymType: sendingdata.preferredGymType,
-      pullUpMax: sendingdata.pullUpMax,
-      squatPR: sendingdata.squatPR,
-      trainingFrequency: sendingdata.trainingFrequency,
-      username: sendingdata.username,
-      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      gym_experience: sendingdata.gymExperience || "",
+      preferred_gym_type: sendingdata.preferredGymType || "",
+      training_frequency: sendingdata.trainingFrequency || "",
+      updated_at: new Date(),
     };
 
-    // Update profile in Firestore - with better error handling
-    try {
-      await fireStoreDb
-        .collection("users")
-        .doc(decodedToken.uid)
-        .set(profileData, { merge: true });
-      console.log("Profile updated successfully for user:", decodedToken.uid);
-    } catch (dbError) {
-      console.error("Database operation failed:", dbError);
+    const profileData2 = {
+      username: sendingdata.username,
+      first_name: sendingdata.firstName || "",
+      last_name: sendingdata.lastName || "",
+      bio: sendingdata.bio || "",
+      gender: sendingdata.gender || "",
+      location: sendingdata.location || "",
+      bench_pr: sendingdata.benchPR || null,
+      deadlift_pr: sendingdata.deadliftPR || null,
+      squat_pr: sendingdata.squatPR || null,
+      overhead_press_pr: sendingdata.overheadPressPR || null,
+      pull_up_max: sendingdata.pullUpMax || null,
+      mile: sendingdata.mile || null,
+      gym_experience: sendingdata.gymExperience || "",
+      preferred_gym_type: sendingdata.preferredGymType || "",
+      training_frequency: sendingdata.trainingFrequency || "",
+    };
+    
+    console.log("Prepared profile data. Attempting database upsert...");
+    
+    // 2) upsert on the PK "id"
+    const dbResponse = await supabase
+      .from("users")
+      .upsert([profileData], { onConflict: "id" });
+
+
+    const dbResponse2 = await supabase
+    .from("public_profiles")
+    .upsert([profileData2], { onConflict: "username" });
+      
+    console.log("Database response received");
+    
+    const { data, error: userUpdateError } = dbResponse;
+
+    if (userUpdateError) {
+      console.log("Database operation failed:", userUpdateError);
       return res
         .status(500)
-        .json({ success: false, error: "Failed to update profile" });
+        .json({ success: false, error: "Failed to upsert profile", details: userUpdateError });
     }
-    await fireStoreDb
-      .collection("publicData")
-      .doc(profileData.username)
-      .set(profileData, { merge: true });
 
+    console.log("Profile update successful");
     return res
       .status(200)
-      .json({ success: true, message: "Profile updated successfully" });
+      .json({ success: true, message: "Profile saved successfully", data });
   } catch (error) {
-    console.error("Unexpected error in updateUserProfile:", error);
+    console.error("Unexpected error in profile update:", error);
     return res
       .status(500)
-      .json({ success: false, error: "Internal Server Error" });
+      .json({ success: false, error: "Internal Server Error", details: error.message });
   }
 };
+
 
 const userInfo = async (req, res) => {
   try {
@@ -320,46 +236,38 @@ const userInfo = async (req, res) => {
         .json({ success: false, error: "Username is required" });
     }
 
-    // Get the user document directly by username as document ID
-    const userDoc = await fireStoreDb
-      .collection("publicData")
-      .doc(userName)
-      .get();
+    // Get the user's public profile
+    const { data: userData, error } = await supabase
+      .from('public_profiles')
+      .select('*')
+      .eq('username', userName)
+      .single();
 
-    if (!userDoc.exists) {
+    if (error || !userData) {
       return res.status(404).json({ success: false, error: "User not found" });
     }
 
-    const userData = userDoc.data();
-
-    // Create a sanitized object with only the fields you want to expose publicly
+    // Create a sanitized object with renamed fields to match frontend expectations
     const publicUserData = {
-      benchPR: userData.benchPR,
       username: userData.username,
-      firstName: userData.firstName,
-      lastName: userData.lastName,
+      firstName: userData.first_name,
+      lastName: userData.last_name,
       gender: userData.gender,
-      pullUpMax: userData.pullUpMax,
-      squatPR: userData.squatPR,
-      overheadPressPR: userData.overheadPressPR,
-      mile: userData.mile,
-      deadliftPR: userData.deadliftPR,
       bio: userData.bio,
       location: userData.location,
-      fitnessGoals: userData.fitnessGoals,
-      gymExperience: userData.gymExperience,
-      preferredGymType: userData.preferredGymType,
-      trainingFrequency: userData.trainingFrequency,
+      fitnessGoals: userData.fitness_goals,
+      gymExperience: userData.gym_experience,
+      preferredGymType: userData.preferred_gym_type,
+      trainingFrequency: userData.training_frequency,
     };
 
     // Include fitness stats if they exist
-    if (userData.benchPR) publicUserData.benchPR = userData.benchPR;
-    if (userData.deadliftPR) publicUserData.deadliftPR = userData.deadliftPR;
-    if (userData.squatPR) publicUserData.squatPR = userData.squatPR;
-    if (userData.overheadPressPR)
-      publicUserData.overheadPressPR = userData.overheadPressPR;
-    if (userData.pullUpMax) publicUserData.pullUpMax = userData.pullUpMax;
-    if (userData.mile) publicUserData.mile = userData.mile;
+    if (userData.bench_pr !== null) publicUserData.benchPR = userData.bench_pr;
+    if (userData.deadlift_pr !== null) publicUserData.deadliftPR = userData.deadlift_pr;
+    if (userData.squat_pr !== null) publicUserData.squatPR = userData.squat_pr;
+    if (userData.overhead_press_pr !== null) publicUserData.overheadPressPR = userData.overhead_press_pr;
+    if (userData.pull_up_max !== null) publicUserData.pullUpMax = userData.pull_up_max;
+    if (userData.mile !== null) publicUserData.mile = userData.mile;
 
     return res.status(200).json({ success: true, user: publicUserData });
   } catch (error) {
@@ -373,50 +281,58 @@ const userInfo = async (req, res) => {
 /**
  * Calculates and updates popular tags for a gym based on review data
  * A tag is considered "popular" if it appears in at least 25% of reviews
- * @param {string|number} gymId - The ID of the gym
+ * @param {string} gymId - The ID of the gym
  * @returns {Promise<{tags: string[], rating: number}>} - Array of popular tags and average rating
  */
 const updateGymTags = async (gymId) => {
   try {
-    // Convert gymId to string to ensure it's a valid document path
     const gymIdString = String(gymId);
     console.log(`[updateGymTags] Processing gym ID: ${gymIdString}`);
 
     // 1. Get all comments for the gym
-    const commentsSnapshot = await fireStoreDb
-      .collection(`${gymId}__Comment`)
-      .get();
+    const { data: comments, error: commentsError } = await supabase
+      .from('comments')
+      .select('*')
+      .eq('gym_id', gymIdString);
 
-    if (commentsSnapshot.empty) {
+    if (commentsError) {
+      console.error(`[updateGymTags] Error fetching comments:`, commentsError);
+      throw commentsError;
+    }
+
+    if (!comments || comments.length === 0) {
       console.log(`[updateGymTags] No comments found for gym ${gymIdString}`);
-      // Still create/update the gym document with empty tags
-      await fireStoreDb.collection("gyms").doc(gymIdString).set(
-        {
+      // Create/update the gym document with empty tags
+      const { error: updateError } = await supabase
+        .from('gyms')
+        .upsert({
+          id: gymIdString,
           tags: [],
           rating: 0,
-          ratingCount: 0,
-          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-        },
-        { merge: true }
-      );
+          rating_count: 0,
+          updated_at: new Date()
+        });
+        
+      if (updateError) {
+        throw updateError;
+      }
+      
       return { tags: [], rating: 0 };
     }
 
-    const comments = commentsSnapshot.docs.map((doc) => doc.data());
     const totalComments = comments.length;
     console.log(`[updateGymTags] Found ${totalComments} comments for gym ${gymIdString}`);
 
     // 2. Count tag occurrences
     const tagCounts = {};
-
     let totalRating = 0;
     let ratingCount = 0;
 
     comments.forEach((comment) => {
       // Process tags
-      if (comment.Tags && Array.isArray(comment.Tags)) {
+      if (comment.tags && Array.isArray(comment.tags)) {
         // Filter out empty tags and normalize
-        const validTags = comment.Tags.filter(
+        const validTags = comment.tags.filter(
           (tag) => tag && typeof tag === "string" && tag.trim() !== ""
         ).map((tag) => tag.trim());
 
@@ -426,8 +342,8 @@ const updateGymTags = async (gymId) => {
       }
 
       // Process rating
-      if (comment.Rating !== undefined && comment.Rating !== null) {
-        const numericRating = Number(comment.Rating);
+      if (comment.rating !== undefined && comment.rating !== null) {
+        const numericRating = Number(comment.rating);
         if (!isNaN(numericRating)) {
           totalRating += numericRating;
           ratingCount++;
@@ -452,32 +368,33 @@ const updateGymTags = async (gymId) => {
 
     console.log(`[updateGymTags] Popular tags: ${popularTags.join(', ')}`);
 
-    // 4. Update the gym document with the popular tags and rating
-    // BUT DO NOT include the rating as a tag
+    // 4. Update the gym record with the popular tags and rating
     try {
-      console.log(`[updateGymTags] Updating gym document with rating=${roundedRating} and ${popularTags.length} tags`);
-      // Use gymIdString to ensure it's a string
-      const gymDocRef = fireStoreDb.collection("gyms").doc(gymIdString);
+      console.log(`[updateGymTags] Updating gym with rating=${roundedRating} and ${popularTags.length} tags`);
       
-      // Important: We do NOT add a rating tag now
-      await gymDocRef.set(
-        {
-          tags: [...popularTags],  // No rating tag here
+      const { error: updateError } = await supabase
+        .from('gyms')
+        .upsert({
+          id: gymIdString,
+          tags: popularTags,
           rating: roundedRating,
-          ratingCount: ratingCount,
-          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-        },
-        { merge: true }
-      );
+          rating_count: ratingCount,
+          updated_at: new Date()
+        });
+        
+      if (updateError) {
+        console.error(`[updateGymTags] Error updating gym:`, updateError);
+        throw updateError;
+      }
       
-      console.log(`[updateGymTags] Successfully updated gym document`);
+      console.log(`[updateGymTags] Successfully updated gym data`);
     } catch (writeError) {
-      console.error(`[updateGymTags] Error writing to gym document:`, writeError);
+      console.error(`[updateGymTags] Error writing to gym:`, writeError);
       throw writeError;
     }
 
     return { 
-      tags: [...popularTags],  // Return without the rating tag
+      tags: popularTags,
       rating: roundedRating 
     };
   } catch (error) {
@@ -488,27 +405,32 @@ const updateGymTags = async (gymId) => {
 
 const getGymData = async (req, res) => {
   try {
-    // Get all gyms from the gyms collection
-    const gymsSnapshot = await fireStoreDb.collection("gyms").get();
+    // Get all gyms
+    const { data: gyms, error } = await supabase
+      .from('gyms')
+      .select('*');
 
-    const gyms = {};
+    if (error) {
+      console.error("Error retrieving gym data:", error);
+      return res
+        .status(500)
+        .json({ success: false, error: "Internal Server Error" });
+    }
 
-    // Process each gym document
-    if (!gymsSnapshot.empty) {
-      gymsSnapshot.docs.forEach((doc) => {
-        const gymData = doc.data();
-        gyms[doc.id] = {
-          id: doc.id,
-          tags: gymData.tags || [],
-          rating: gymData.rating || 0,
-          ratingCount: gymData.ratingCount || 0,
-          // Include other gym properties as needed
-          // These would be merged with the static data from the frontend
+    // Format the response
+    const formattedGyms = {};
+    if (gyms && gyms.length > 0) {
+      gyms.forEach((gym) => {
+        formattedGyms[gym.id] = {
+          id: gym.id,
+          tags: gym.tags || [],
+          rating: gym.rating || 0,
+          ratingCount: gym.rating_count || 0,
         };
       });
     }
 
-    return res.status(200).json({ success: true, data: gyms });
+    return res.status(200).json({ success: true, data: formattedGyms });
   } catch (error) {
     console.error("Error retrieving gym data:", error);
     return res
@@ -517,10 +439,10 @@ const getGymData = async (req, res) => {
   }
 };
 
+// Export middleware and controllers
 export {
-  createComment,
+  verifyAuth,  // New middleware for authentication
   getAdress,
-  getComments,
   profile,
   userInfo,
   getGymData,

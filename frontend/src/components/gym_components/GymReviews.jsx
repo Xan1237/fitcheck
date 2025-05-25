@@ -1,6 +1,6 @@
 import React from 'react';
-import Message from '../../../components/message';
-import CommentModal from '../../../components/CommentModal';
+import Message from '../message';
+import CommentModal from '../CommentModal';
 import './GymReviews.scss';
 
 const GymReviews = ({

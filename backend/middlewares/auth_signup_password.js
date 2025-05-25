@@ -1,75 +1,51 @@
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
-import { app } from './FireBaseApp.js'
-const auth = getAuth(app);
+// signUpUser.js
+import { supabase } from './supabaseApp.js'
 
-const signUpUser = async (req, res) => {
-  const { email, password } = req.body;
-  
-  // Basic validation
+export const signUpUser = async (req, res) => {
+  const { email, password } = req.body
+
+  // 1) Basic validation
   if (!email || !password) {
-    return res.status(400).json({ 
-      success: false, 
-      message: "Email and password are required" 
-    });
+    return res
+      .status(400)
+      .json({ success: false, message: 'Email and password are required' })
   }
-  
-  try {
-    console.log(`Attempting to create user with email: ${email}`);
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    const user = userCredential.user;
-    console.log(`User created successfully: ${user.uid}`);
-    
-    // Get the user's ID token
-    const token = await user.getIdToken();
-    
-    return user.getIdToken()
-    .then(token => {
-      res.status(201).json({ 
-        success: true, 
-        uid: user.uid, 
-        email: user.email,
-        token: token 
-      });
-    });
-  } catch (error) {
-    console.error(`Signup error: ${error.code} - ${error.message}`);
-    
-    // Map Firebase error codes to appropriate HTTP status codes
-    let statusCode = 400; // Default to bad request
-    let message = error.message;
-    
-    switch(error.code) {
-      case 'auth/email-already-in-use':
-        statusCode = 409; // Conflict
-        message = "Email already in use";
-        break;
-      case 'auth/invalid-email':
-        statusCode = 400; // Bad request
-        message = "Invalid email format";
-        break;
-      case 'auth/weak-password':
-        statusCode = 400; // Bad request
-        message = "Password is too weak";
-        break;
-      case 'auth/network-request-failed':
-        statusCode = 503; // Service unavailable
-        message = "Network error, please try again";
-        break;
-      case 'auth/operation-not-allowed':
-        statusCode = 403; // Forbidden
-        message = "Email/password accounts are not enabled";
-        break;
-      default:
-        statusCode = 500; // Internal server error
-        break;
-    }
-    
-    return res.status(statusCode).json({ 
-      success: false, 
-      code: error.code,
-      message: message
-    });
-  }
-};
 
-export { signUpUser }
+  try {
+    console.log(`Attempting to create user with email: ${email}`)
+
+    // 2) Call Supabase Auth
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+    })
+
+    if (error) {
+      console.error('Signup error:', error)
+      // Use error.status if available, otherwise default to 400
+      const status = error.status || 400
+      return res
+        .status(status)
+        .json({ success: false, message: error.message })
+    }
+
+    // 3) On success, Supabase will send a confirmation email
+    console.log('User created (pending email confirmation):', data.user)
+
+    
+
+    return res.status(201).json({
+      success: true,
+      user: {
+        id: data.user.id,
+        email: data.user.email,
+        // note: `data.session` is null until they confirm their email
+      },
+    })
+  } catch (err) {
+    console.error('Unexpected signup error:', err)
+    return res
+      .status(500)
+      .json({ success: false, message: 'Internal server error' })
+  }
+}

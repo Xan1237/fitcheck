@@ -1,13 +1,12 @@
 import express, { json } from "express";
 import {
-  createComment,
   getAdress,
-  getComments,
   profile,
   userInfo,
   getGymData,
   getUserName
 } from "../controllers/userController.js"; // Updated import
+import { createComment, getComments } from "../controllers/commentControler.js";
 import { signUpUser } from "../middlewares/auth_signup_password.js";
 import { signInUser } from "../middlewares/auth_signin_password.js";
 

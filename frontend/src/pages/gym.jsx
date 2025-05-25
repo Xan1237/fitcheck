@@ -98,6 +98,7 @@ const Gym = () => {
     };
     const token = localStorage.getItem("token");
     try {
+      console.log(commentData)
       const response = await fetch("/api/comment", {
         method: "POST",
         headers: {

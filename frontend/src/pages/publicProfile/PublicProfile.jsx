@@ -24,10 +24,7 @@ const UserProfile = () => {
       following: 267
     },
     gymStats: [
-      { exercise: "Bench Press", weight: "225 lbs", reps: "Max" },
-      { exercise: "Squat", weight: "315 lbs", reps: "Max" },
-      { exercise: "Deadlift", weight: "405 lbs", reps: "Max" },
-      { exercise: "Pull-ups", weight: "Bodyweight", reps: 15 }
+      
     ]
   });
 
@@ -35,6 +32,9 @@ const UserProfile = () => {
   const [activeTab, setActiveTab] = useState('stats');
   // Track if the current user owns this profile
   const [isOwnProfile, setIsOwnProfile] = useState(false);
+  // State for managing the Add PR modal
+  const [showAddPRModal, setShowAddPRModal] = useState(false);
+  const [newPR, setNewPR] = useState({ exercise: '', weight: '', reps: '' });
 
   /**
    * Checks if the current authenticated user owns this profile
@@ -95,9 +95,11 @@ const UserProfile = () => {
         username: result.user.username,
         bio: result.user.bio,
         gymStats: [
-          { ...userData.gymStats[0], weight: result.user.benchPR+" lbs" },
-          { ...userData.gymStats[1], weight: result.user.squatPR+" lbs"},
-          { ...userData.gymStats[2], weight: result.user.deadliftPR+" lbs"}
+          ...result.user.pr.map(pr => ({
+            exercise: pr.exercise_name,
+            weight: pr.weight + " lbs",
+            reps: pr.reps
+          }))
         ]
       });
      
@@ -117,6 +119,45 @@ const UserProfile = () => {
     getData();
     checkProfileOwnership();
   }, [name]); // Re-run when name changes
+
+  /**
+   * Handles saving a new PR
+   */
+  const handleSavePR = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      await axios.post('/api/addPersonalRecord', {
+        newPR: newPR},
+        {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      
+      // Update the local state with the new PR
+      setUserData(prevData => ({
+        ...prevData,
+        stats: {
+          ...prevData.stats,
+          personalBests: prevData.stats.personalBests + 1
+        },
+        gymStats: [
+          ...prevData.gymStats,
+          {
+            exercise: newPR.exercise,
+            weight: `${newPR.weight} lbs`,
+            reps: newPR.reps
+          }
+        ]
+      }));
+
+      // Close modal and reset form
+      setShowAddPRModal(false);
+      setNewPR({ exercise: '', weight: '', reps: '' });
+    } catch (error) {
+      console.error('Error saving PR:', error);
+    }
+  };
 
   return (
     <div className="user-profile">
@@ -196,7 +237,17 @@ const UserProfile = () => {
           {/* Gym Stats Tab */}
           {activeTab === 'stats' && (
             <div className="stats-tab">
-              <h2>Personal Records</h2>
+              <div className="stats-header">
+                <h2>Personal Records</h2>
+                {isOwnProfile && (
+                  <button 
+                    className="add-pr-btn"
+                    onClick={() => setShowAddPRModal(true)}
+                  >
+                    + Add PR
+                  </button>
+                )}
+              </div>
               <div className="gym-stats">
                 {userData.gymStats.map((stat, index) => (
                   <div key={index} className="stat-card">
@@ -229,6 +280,61 @@ const UserProfile = () => {
           )}
         </div>
       </div>
+
+      {/* Add PR Modal */}
+      {showAddPRModal && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h3>Add New Personal Record</h3>
+            <div className="modal-form">
+              <div className="form-group">
+                <label>Exercise</label>
+                <input
+                  type="text"
+                  value={newPR.exercise}
+                  onChange={(e) => setNewPR({...newPR, exercise: e.target.value})}
+                  placeholder="e.g., Bench Press"
+                />
+              </div>
+              <div className="form-group">
+                <label>Weight (lbs)</label>
+                <input
+                  type="number"
+                  value={newPR.weight}
+                  onChange={(e) => setNewPR({...newPR, weight: e.target.value})}
+                  placeholder="e.g., 225"
+                />
+              </div>
+              <div className="form-group">
+                <label>Reps</label>
+                <input
+                  type="number"
+                  value={newPR.reps}
+                  onChange={(e) => setNewPR({...newPR, reps: e.target.value})}
+                  placeholder="e.g., 5"
+                />
+              </div>
+              <div className="modal-actions">
+                <button 
+                  className="cancel-btn"
+                  onClick={() => {
+                    setShowAddPRModal(false);
+                    setNewPR({ exercise: '', weight: '', reps: '' });
+                  }}
+                >
+                  Cancel
+                </button>
+                <button 
+                  className="save-btn"
+                  onClick={handleSavePR}
+                >
+                  Save PR
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

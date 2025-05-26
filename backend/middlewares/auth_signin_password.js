@@ -1,5 +1,5 @@
 // signInUser.js
-import { supabase } from './supabaseApp.js'
+import { supabase } from '../config/supabaseApp.js'
 
 export const signInUser = async (req, res) => {
   const { email, password } = req.body

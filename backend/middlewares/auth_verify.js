@@ -1,4 +1,4 @@
-import { supabase } from './supabaseApp.js'
+import { supabase } from '../config/supabaseApp.js'
 
 
 // Middleware to verify JWT token from Supabase Auth
@@ -28,7 +28,10 @@ const verifyAuth = async (req, res, next) => {
       
       // Add user data to request object
       req.user = user;
+
+      //Passes the user data to the next middleware
       next();
+
     } catch (error) {
       console.error("Auth verification error:", error);
       return res.status(401).json({
@@ -37,3 +40,5 @@ const verifyAuth = async (req, res, next) => {
       });
     }
   };
+
+  export { verifyAuth };

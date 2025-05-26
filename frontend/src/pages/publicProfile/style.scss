@@ -178,6 +178,33 @@ min-height: 100vh;
         font-weight: 600;
         margin: 0 0 16px 0;
       }
+
+      .stats-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+
+        h2 {
+          margin: 0;
+        }
+
+        .add-pr-btn {
+          background-color: $orange;
+          color: $white;
+          border: none;
+          border-radius: 4px;
+          padding: 8px 16px;
+          font-size: 14px;
+          font-weight: 500;
+          cursor: pointer;
+          transition: background-color 0.2s;
+
+          &:hover {
+            background-color: $orange-light;
+          }
+        }
+      }
       
       .gym-stats {
         display: flex;
@@ -260,6 +287,104 @@ min-height: 100vh;
         
         h1 {
           font-size: 20px;
+        }
+      }
+    }
+  }
+}
+
+// Modal Styles
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: $dark-gray;
+  padding: 24px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+
+  h3 {
+    color: $white;
+    margin: 0 0 20px 0;
+    font-size: 20px;
+    font-weight: 600;
+  }
+
+  .modal-form {
+    .form-group {
+      margin-bottom: 16px;
+
+      label {
+        display: block;
+        color: $text-gray;
+        margin-bottom: 8px;
+        font-size: 14px;
+      }
+
+      input {
+        width: 100%;
+        padding: 8px 12px;
+        background-color: $medium-gray;
+        border: 1px solid $light-gray;
+        border-radius: 4px;
+        color: $white;
+        font-size: 14px;
+
+        &:focus {
+          outline: none;
+          border-color: $orange;
+        }
+
+        &::placeholder {
+          color: $text-gray;
+        }
+      }
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      margin-top: 24px;
+
+      button {
+        padding: 8px 16px;
+        border-radius: 4px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.2s;
+
+        &.cancel-btn {
+          background-color: transparent;
+          border: 1px solid $light-gray;
+          color: $text-gray;
+
+          &:hover {
+            background-color: $medium-gray;
+          }
+        }
+
+        &.save-btn {
+          background-color: $orange;
+          border: none;
+          color: $white;
+
+          &:hover {
+            background-color: $orange-light;
+          }
         }
       }
     }

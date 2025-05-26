@@ -1,4 +1,4 @@
-import { supabase } from '../middlewares/supabaseApp.js'
+import { supabase } from '../config/supabaseApp.js'
 import axios from "axios";
 
 
@@ -208,6 +208,11 @@ const userInfo = async (req, res) => {
       return res.status(404).json({ success: false, error: "User not found" });
     }
 
+    const { data: prData, error: prError } = await supabase
+      .from('pr')
+      .select('exercise_name, weight, reps')
+      .eq('username', userName);
+
     // Create a sanitized object with renamed fields to match frontend expectations
     const publicUserData = {
       username: userData.username,
@@ -220,6 +225,7 @@ const userInfo = async (req, res) => {
       gymExperience: userData.gym_experience,
       preferredGymType: userData.preferred_gym_type,
       trainingFrequency: userData.training_frequency,
+      pr: prData
     };
 
     // Include fitness stats if they exist
@@ -239,130 +245,7 @@ const userInfo = async (req, res) => {
   }
 };
 
-/**
- * Calculates and updates popular tags for a gym based on review data
- * A tag is considered "popular" if it appears in at least 25% of reviews
- * @param {string} gymId - The ID of the gym
- * @returns {Promise<{tags: string[], rating: number}>} - Array of popular tags and average rating
- */
-const updateGymTags = async (gymId) => {
-  try {
-    const gymIdString = String(gymId);
-    console.log(`[updateGymTags] Processing gym ID: ${gymIdString}`);
 
-    // 1. Get all comments for the gym
-    const { data: comments, error: commentsError } = await supabase
-      .from('comments')
-      .select('*')
-      .eq('gym_id', gymIdString);
-
-    if (commentsError) {
-      console.error(`[updateGymTags] Error fetching comments:`, commentsError);
-      throw commentsError;
-    }
-
-    if (!comments || comments.length === 0) {
-      console.log(`[updateGymTags] No comments found for gym ${gymIdString}`);
-      // Create/update the gym document with empty tags
-      const { error: updateError } = await supabase
-        .from('gyms')
-        .upsert({
-          id: gymIdString,
-          tags: [],
-          rating: 0,
-          rating_count: 0,
-          updated_at: new Date()
-        });
-        
-      if (updateError) {
-        throw updateError;
-      }
-      
-      return { tags: [], rating: 0 };
-    }
-
-    const totalComments = comments.length;
-    console.log(`[updateGymTags] Found ${totalComments} comments for gym ${gymIdString}`);
-
-    // 2. Count tag occurrences
-    const tagCounts = {};
-    let totalRating = 0;
-    let ratingCount = 0;
-
-    comments.forEach((comment) => {
-      // Process tags
-      if (comment.tags && Array.isArray(comment.tags)) {
-        // Filter out empty tags and normalize
-        const validTags = comment.tags.filter(
-          (tag) => tag && typeof tag === "string" && tag.trim() !== ""
-        ).map((tag) => tag.trim());
-
-        validTags.forEach((tag) => {
-          tagCounts[tag] = (tagCounts[tag] || 0) + 1;
-        });
-      }
-
-      // Process rating
-      if (comment.rating !== undefined && comment.rating !== null) {
-        const numericRating = Number(comment.rating);
-        if (!isNaN(numericRating)) {
-          totalRating += numericRating;
-          ratingCount++;
-        }
-      }
-    });
-
-    console.log(`[updateGymTags] Calculated ratings: total=${totalRating}, count=${ratingCount}`);
-
-    // Calculate average rating
-    const averageRating = ratingCount > 0 ? totalRating / ratingCount : 0;
-    // Round to 1 decimal place
-    const roundedRating = Math.round(averageRating * 10) / 10;
-    console.log(`[updateGymTags] Final average rating: ${roundedRating}`);
-
-    // 3. Calculate which tags appear in at least 25% of comments
-    const threshold = Math.max(1, Math.ceil(totalComments * 0.25)); // At least 25% of comments, minimum 1
-
-    const popularTags = Object.keys(tagCounts)
-      .filter((tag) => tag.trim() !== "") // Extra safety check for empty strings
-      .filter((tag) => tagCounts[tag] >= threshold);
-
-    console.log(`[updateGymTags] Popular tags: ${popularTags.join(', ')}`);
-
-    // 4. Update the gym record with the popular tags and rating
-    try {
-      console.log(`[updateGymTags] Updating gym with rating=${roundedRating} and ${popularTags.length} tags`);
-      
-      const { error: updateError } = await supabase
-        .from('gyms')
-        .upsert({
-          id: gymIdString,
-          tags: popularTags,
-          rating: roundedRating,
-          rating_count: ratingCount,
-          updated_at: new Date()
-        });
-        
-      if (updateError) {
-        console.error(`[updateGymTags] Error updating gym:`, updateError);
-        throw updateError;
-      }
-      
-      console.log(`[updateGymTags] Successfully updated gym data`);
-    } catch (writeError) {
-      console.error(`[updateGymTags] Error writing to gym:`, writeError);
-      throw writeError;
-    }
-
-    return { 
-      tags: popularTags,
-      rating: roundedRating 
-    };
-  } catch (error) {
-    console.error(`[updateGymTags] Error processing gym ${gymId}:`, error);
-    throw error;
-  }
-};
 
 const getGymData = async (req, res) => {
   try {
@@ -400,11 +283,21 @@ const getGymData = async (req, res) => {
   }
 };
 
-const checkProfileOwnership = async (req, res) => {
+const addPersonalRecord = async (req, res) => {
+  const { newPR } = req.body;
+  // req.user comes directly from verifyAuth middleware
+  console.log("newPR:", newPR);
+  console.log("req.user:", req.user);
+
+  if (!req.user || !req.user.id) {
+    return res.status(401).json({ 
+      success: false, 
+      error: "User not authenticated" 
+    });
+  }
+
   try {
-    const { username } = req.params;
-    
-    // Get the current user's username from the database
+    // First get the username
     const { data: userData, error: userError } = await supabase
       .from('users')
       .select('username')
@@ -413,16 +306,40 @@ const checkProfileOwnership = async (req, res) => {
 
     if (userError) {
       console.error("Error fetching user data:", userError);
-      return res.status(500).json({ error: 'Error fetching user data' });
+      return res.status(500).json({ 
+        success: false, 
+        error: "Failed to fetch user data" 
+      });
     }
 
-    // Check if the username matches
-    const isOwner = userData.username === username;
-    
-    res.status(200).json({ isOwner });
+    // Then upsert the PR record
+    const { data, error } = await supabase
+      .from('pr')
+      .upsert({
+        username: userData.username,  // Include username in the record
+        exercise_name: newPR.exercise,
+        weight: newPR.weight,
+        reps: newPR.reps,
+      });
+
+    if (error) {
+      console.error("Error updating personal record:", error);
+      return res.status(500).json({ 
+        success: false, 
+        error: "Internal Server Error" 
+      });
+    }
+
+    return res.status(200).json({ 
+      success: true, 
+      message: "Personal record updated successfully" 
+    });
   } catch (error) {
-    console.error("Error checking profile ownership:", error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error("Unexpected error in addPersonalRecord:", error);
+    return res.status(500).json({ 
+      success: false, 
+      error: "Internal Server Error" 
+    });
   }
 };
 
@@ -432,7 +349,6 @@ export {// New middleware for authentication
   profile,
   userInfo,
   getGymData,
-  updateGymTags,
   getUserName,
-  checkProfileOwnership
+  addPersonalRecord
 };

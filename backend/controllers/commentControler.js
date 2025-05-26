@@ -1,4 +1,4 @@
-import { supabase } from '../middlewares/supabaseApp.js'
+import { supabase } from '../config/supabaseApp.js'
 import axios from "axios";
 import { updateGymTags } from './gymController.js';
 

@@ -58,15 +58,32 @@ const getUserName = async (req, res) => {
       .eq('id', user.id)
       .single();
     console.log(data)
+
+    if (error) throw error;
+    
+    if (!data || data.length === 0) {
+      // Create a default profile if missing
+      const { error: upsertError } = await supabase
+        .from('users')
+        .upsert({
+          id: user.id,
+          email: user.email,
+          username: user.email.split('@')[0],
+          updated_at: new Date()
+        });
+        
+      if (upsertError) throw upsertError;
       
-    if (error) {
-      throw error;
+      return res.status(200).json({ 
+        success: true, 
+        username: user.email.split('@')[0] 
+      });
     }
     
-    res.status(200).json({ success: true, username: data.username });
+    res.status(200).json({ success: true, username: data[0].username });
   } catch (error) {
     console.error("Error fetching username:", error);
-    res.status(401).json({ success: false });
+    res.status(500).json({ success: false, error: "Internal server error" });
   }
 };
 

@@ -1,101 +1,106 @@
 import React, { useState } from 'react';
 import './SignIn.scss';
-import { FaBars, FaTimes, FaDumbbell } from "react-icons/fa";
+import { FaDumbbell } from "react-icons/fa";
+import axios from 'axios';
+
 const AuthPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (isSignUp) {
-      if (password !== confirmPassword) {
-        alert("Passwords don't match!");
-        return;
+    setError('');
+    setLoading(true);
+
+    try {
+      if (isSignUp) {
+        await handleSignUp();
+      } else {
+        await handleSignIn();
       }
-      console.log('Signing up with:', { email, password });
-      async function signup(email, password) {
-        try {
-          const response = await fetch('/auth/signup', {
-            method: "POST",
-            headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email, password }),
-        });
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-  
-        const data = await response.json();
-        console.log(data)
-        if (data.success) {
-          // Store authentication data in localStorage
-          if (data.token) {
-            localStorage.setItem('token', data.token);
-            console.log("Token stored:", data.token);
-          } else {
-            console.error("Token is undefined in the response");
-          }
-        }
-        window.location.href = "/profile";
-        console.log("Token stored:", data.token);
-      } catch (error) {
-        console.error('Error:', error);
-      }
+    } catch (err) {
+      console.error('Authentication error:', err);
+      setError(err.message || 'An error occurred during authentication');
+    } finally {
+      setLoading(false);
     }
-    signup(email, password);
-    
-    } else {
-      async function signin(email, password) {
-        try {
-          const response = await fetch('/auth/signin', {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ email, password }),
-          });
-          
-          if (!response.ok) {
-            throw new Error('Network response was not ok');
-          }
-          
-          const data = await response.json();
-          console.log("Response data:", data); // Add this line for debugging
-          
-          if (data.success) {
-            // Store authentication data in localStorage
-            if (data.token) {
-              localStorage.setItem('token', data.token);
-              console.log("Token stored:", data.token);
-            } else {
-              console.error("Token is undefined in the response");
-            }
-          
-            
-            // Redirect after successfully processing the data
-            window.location.href = "/";
-          } else {
-            // Handle authentication failure
-            console.error('Authentication failed:', data.message);
-            // You might want to show an error message to the user here
-          }
-        } catch (error) {
-          console.error('Error:', error);
-          // Handle error - show message to user
-        }
+  };
+
+  const handleSignUp = async () => {
+    // Validate inputs
+    if (!email || !password || !confirmPassword) {
+      throw new Error('All fields are required');
+    }
+
+    if (password !== confirmPassword) {
+      throw new Error("Passwords don't match!");
+    }
+
+    if (password.length < 6) {
+      throw new Error("Password must be at least 6 characters");
+    }
+
+    try {
+      const response = await axios.post('/auth/signup', {
+        email,
+        password
+      });
+
+      if (response.data.success) {
+        localStorage.setItem('token', response.data.token);
+        window.location.href = "/profile";
+      } else {
+        throw new Error(response.data.message || 'Signup failed');
       }
-      
-      signin(email, password);
+    } catch (err) {
+      const errorMessage = err.response?.data?.message || 
+                         err.message || 
+                         'Signup failed. Please try again.';
+      throw new Error(errorMessage);
+    }
+  };
+
+  const handleSignIn = async () => {
+    if (!email || !password) {
+      throw new Error('Email and password are required');
+    }
+
+    try {
+      const response = await axios.post('/auth/signin', {
+        email,
+        password
+      });
+
+      if (response.data.success) {
+        localStorage.setItem('token', response.data.token);
+        
+        // Set expiration if rememberMe is checked (7 days)
+        if (rememberMe) {
+          const expiresAt = new Date();
+          expiresAt.setDate(expiresAt.getDate() + 7);
+          localStorage.setItem('expiresAt', expiresAt.toISOString());
+        }
+        
+        window.location.href = "/";
+      } else {
+        throw new Error(response.data.message || 'Login failed');
+      }
+    } catch (err) {
+      const errorMessage = err.response?.data?.message || 
+                         err.message || 
+                         'Login failed. Please try again.';
+      throw new Error(errorMessage);
     }
   };
 
   const toggleAuthMode = () => {
     setIsSignUp(!isSignUp);
-    // Reset form fields when switching modes
+    setError('');
     setEmail('');
     setPassword('');
     setConfirmPassword('');
@@ -108,18 +113,24 @@ const AuthPage = () => {
         <div className="signin-left">
           <div className="logo-container">
             <div className="logo">
-            <FaDumbbell style={{ fontSize: "50px", color: "black" }} />
-
+              <FaDumbbell style={{ fontSize: "50px", color: "black" }} />
             </div>
           </div>
-          <h2>{isSignUp ? 'Join FitCheck' : 'Login To Your FitCheck Acount'}</h2>
+          <h2>{isSignUp ? 'Join FitCheck' : 'Login To Your FitCheck Account'}</h2>
           <p>Track, review, and discover the best gyms in your area</p>
         </div>
+        
         <div className="signin-right">
           <div className="signin-header">
             <h1>{isSignUp ? 'Create an account' : 'Welcome back'}</h1>
-            <p>{isSignUp ? 'Sign up to start using GymReview' : 'Sign in to continue to GymReview'}</p>
+            <p>{isSignUp ? 'Sign up to start using FitCheck' : 'Sign in to continue to FitCheck'}</p>
           </div>
+
+          {error && (
+            <div className="error-message">
+              {error}
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="signin-form">
             <div className="form-group">
@@ -143,6 +154,7 @@ const AuthPage = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter your password"
                 required
+                minLength={isSignUp ? 6 : undefined}
               />
             </div>
             
@@ -177,8 +189,12 @@ const AuthPage = () => {
               </div>
             )}
 
-            <button type="submit" className="signin-button">
-              {isSignUp ? 'Sign Up' : 'Sign In'}
+            <button 
+              type="submit" 
+              className="signin-button"
+              disabled={loading}
+            >
+              {loading ? 'Processing...' : isSignUp ? 'Sign Up' : 'Sign In'}
             </button>
 
             {!isSignUp && (

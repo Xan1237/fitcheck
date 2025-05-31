@@ -50,26 +50,17 @@ const Header = () => {
 
     setLoading(true);
     try {
-      // First verify the token by getting user info
-      const { data: { user }, error: authErr } = await axios.post('/api/getUser', {}, {
+      // Just call getUserName - it already handles token verification
+      const response = await axios.post('/api/getUserName', {}, {
         headers: {
           Authorization: `Bearer ${token}`
         }
       });
 
-      if (authErr || !user) {
-        throw new Error(authErr?.message || 'Invalid token');
-      }
-
-      // Then get the username from the users table
-      const { data: userData, error: userError } = await axios.post('/api/getUserName', {}, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
-
-      if (userError || !userData) {
-        throw new Error(userError?.message || 'User not found');
+      const userData = response.data;
+      
+      if (!userData || !userData.success) {
+        throw new Error('Failed to get username');
       }
 
       if (userData.username) {

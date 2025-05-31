@@ -8,3 +8,4 @@
     6)  figure out why the hell the gym map is not visible for mobile on desctop bit is visible on my actual phone
     7)  add the form auth codes to .env (I think we should do this)
     8)  the log in token keep expiring and it kills the database
+    9)  The gym ratings in broken and always shows 0 in the main page

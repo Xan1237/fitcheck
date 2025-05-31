@@ -65,54 +65,56 @@ const UserProfile = () => {
    * @returns {Promise} The data returned from the API
    */
   const getData = async () => {
-    try {
-      // Validate URL parameter
-      if (!name) {
-        console.error("Error: No username provided in URL parameters");
-        throw new Error("Username parameter is required");
-      }
-      
-      console.log(`Fetching data for user: ${name}`);
-      
-      // Make API request to get user data
-      const response = await fetch(
-        `/api/GetUserData/?userName=${encodeURIComponent(name)}`,
-        { method: "GET" }
-      );
-      
-      // Handle non-200 responses
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error(`API error (${response.status}): ${errorText}`);
-        throw new Error(`API request failed with status ${response.status}`);
-      }
-      
-      // Process response data
-      const result = await response.json();
-      setUserData({
-        ...userData,
-        name: result.user.firstName + " "+ result.user.lastName,
-        username: result.user.username,
-        bio: result.user.bio,
-        gymStats: [
-          ...result.user.pr.map(pr => ({
-            exercise: pr.exercise_name,
-            weight: pr.weight + " lbs",
-            reps: pr.reps
-          }))
-        ]
-      });
-     
-      return result.data;
-    } catch (error) {
-      console.error("Error fetching user data:", error.message);
-      // You could also implement user-facing error handling here
-      // For example: setError(error.message);
-      
-      // Re-throw the error to allow calling functions to handle it
-      throw error;
+  try {
+    if (!name) {
+      console.error("Error: No username provided in URL parameters");
+      throw new Error("Username parameter is required");
     }
-  };
+    
+    console.log(`Fetching data for user: ${name}`);
+    
+    const response = await fetch(
+      `/api/GetUserData/?userName=${encodeURIComponent(name)}`,
+      { method: "GET" }
+    );
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      if (response.status === 404) {
+        // Handle "user not found" case specifically
+        console.error(`User not found: ${name}`);
+        // Optionally show a message to the user
+        return;
+      }
+      throw new Error(errorData.error || `API request failed with status ${response.status}`);
+    }
+    
+    const result = await response.json();
+    if (!result.success) {
+      throw new Error(result.error || "Failed to fetch user data");
+    }
+    
+    setUserData({
+      ...userData,
+      name: result.user.firstName + " "+ result.user.lastName,
+      username: result.user.username,
+      bio: result.user.bio,
+      gymStats: [
+        ...result.user.pr.map(pr => ({
+          exercise: pr.exercise_name,
+          weight: pr.weight + " lbs",
+          reps: pr.reps
+        }))
+      ]
+    });
+    
+  } catch (error) {
+    console.error("Error fetching user data:", error.message);
+    // Consider setting an error state to show to the user
+    // setError(error.message);
+    throw error;
+  }
+};
   
   // Fetch user data when component mounts or name parameter changes
   useEffect(() => {

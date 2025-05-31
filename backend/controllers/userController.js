@@ -42,50 +42,70 @@ const getAdress = async (req, res) => {
 
 const getUserName = async (req, res) => {
   try {
-    const authHeader = req.headers.authorization
-    if (!authHeader?.startsWith('Bearer '))
-      return res.status(401).json({ error: 'Missing token' })
-    const token = authHeader.split(' ')[1]
+    const authHeader = req.headers.authorization;
+    if (!authHeader?.startsWith('Bearer ')) {
+      return res.status(401).json({ error: 'Missing token' });
+    }
+    const token = authHeader.split(' ')[1];
 
-    const { data: { user }, error: authErr } = await supabase.auth.getUser(token)
-    if (authErr || !user)
-      return res.status(401).json({ error: authErr?.message || 'Invalid token' })
-
+    const { data: { user }, error: authErr } = await supabase.auth.getUser(token);
+    if (authErr || !user) {
+      return res.status(401).json({ error: authErr?.message || 'Invalid token' });
+    }
 
     const { data, error } = await supabase
       .from('users')
       .select('id, username')
       .eq('id', user.id)
       .single();
-    console.log(data)
 
-    if (error) throw error;
+    console.log('Database query result:', data);
+    console.log('Database query error:', error);
+
+    if (error) {
+      console.error('Database error:', error);
+      return res.status(500).json({ success: false, error: error.message });
+    }
     
-    if (!data || data.length === 0) {
+    if (!data) {
+      console.log('No user data found, creating default profile');
       // Create a default profile if missing
+      const defaultUsername = user.email.split('@')[0];
       const { error: upsertError } = await supabase
         .from('users')
         .upsert({
           id: user.id,
           email: user.email,
-          username: user.email.split('@')[0],
+          username: defaultUsername,
           updated_at: new Date()
         });
         
-      if (upsertError) throw upsertError;
+      if (upsertError) {
+        console.error('Error creating default profile:', upsertError);
+        return res.status(500).json({ success: false, error: upsertError.message });
+      }
       
       return res.status(200).json({ 
         success: true, 
-        username: user.email.split('@')[0] 
+        username: defaultUsername 
       });
     }
     
-    res.status(200).json({ success: true, username: data[0].username });
+    // Add extra safety check
+    if (data.username) {
+      console.log('Returning username:', data.username);
+      return res.status(200).json({ success: true, username: data.username });
+    } else {
+      console.log('Data exists but no username found:', data);
+      return res.status(500).json({ success: false, error: "Username not found in user data" });
+    }
+    
   } catch (error) {
     console.error("Error fetching username:", error);
-    res.status(500).json({ success: false, error: "Internal server error" });
+    return res.status(500).json({ success: false, error: "Internal server error" });
   }
 };
+
 
 const profile = async (req, res) => {
   try {

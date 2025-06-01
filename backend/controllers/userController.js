@@ -305,7 +305,7 @@ const getGymData = async (req, res) => {
         formattedGyms[gym.id] = {
           id: gym.id,
           tags: gym.tags || [],
-          rating: gym.rating || 0,
+          rating: gym.avg_rating || 0,
           ratingCount: gym.rating_count || 0,
         };
       });

@@ -1,0 +1,77 @@
+@import '../../pages/profile/profile.scss';
+
+.image-cropper-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.image-cropper-content {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 12px;
+  max-width: 90vw;
+  max-height: 90vh;
+  overflow: auto;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+
+  h3 {
+    margin-bottom: 1.5rem;
+    color: $dark-black;
+    text-align: center;
+  }
+}
+
+.crop-container {
+  margin-bottom: 1.5rem;
+}
+
+/* ReactCrop styles */
+.ReactCrop {
+  max-height: 70vh;
+}
+
+.ReactCrop__crop-selection {
+  border-radius: 50%;
+}
+
+.crop-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+
+  button {
+    padding: 0.75rem 1.5rem;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &.cancel-button {
+      background-color: $gray-bg;
+      color: $gray-dark;
+      border: none;
+
+      &:hover {
+        background-color: darken($gray-bg, 5%);
+      }
+    }
+
+    &.save-button {
+      background-color: $primary-orange;
+      color: white;
+      border: none;
+
+      &:hover {
+        background-color: darken($primary-orange, 10%);
+      }
+    }
+  }
+} 

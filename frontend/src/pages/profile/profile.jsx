@@ -3,6 +3,111 @@ import { ChevronDown, Save, Camera, Dumbbell, Award, Clipboard, User, MapPin, Ca
 import './profile.scss';
 import axios from 'axios';
 import { getAuth } from "firebase/auth";
+import ImageCropper from '../../components/ImageCropper/ImageCropper';
+
+const ProfilePictureUpload = ({ onUploadSuccess }) => {
+  const fileInputRef = useRef(null);
+  const [uploading, setUploading] = useState(false);
+  const [tempImage, setTempImage] = useState(null);
+  const [showCropper, setShowCropper] = useState(false);
+
+  const handleFileChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      alert('Please upload an image file');
+      return;
+    }
+
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (file.size > maxSize) {
+      alert('File size must be less than 5MB');
+      return;
+    }
+
+    // Create a temporary URL for the image
+    const imageUrl = URL.createObjectURL(file);
+    setTempImage(imageUrl);
+    setShowCropper(true);
+  };
+
+  const handleCropComplete = async (croppedImageUrl) => {
+    setShowCropper(false);
+    setUploading(true);
+
+    try {
+      // Convert cropped image URL to base64
+      const response = await fetch(croppedImageUrl);
+      const blob = await response.blob();
+      const reader = new FileReader();
+      
+      reader.onload = async (event) => {
+        const base64File = event.target.result;
+        
+        const uploadResponse = await fetch('/api/uploadProfilePicture', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          },
+          body: JSON.stringify({
+            file: base64File
+          })
+        });
+
+        const data = await uploadResponse.json();
+        if (!data.success) {
+          throw new Error(data.error);
+        }
+
+        onUploadSuccess(data.url);
+        URL.revokeObjectURL(croppedImageUrl); // Clean up
+        URL.revokeObjectURL(tempImage); // Clean up
+        setTempImage(null);
+      };
+      
+      reader.readAsDataURL(blob);
+    } catch (error) {
+      console.error('Error uploading profile picture:', error);
+      alert('Failed to upload profile picture. Please try again.');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleCropCancel = () => {
+    setShowCropper(false);
+    setTempImage(null);
+  };
+
+  return (
+    <div className="profile-picture-upload">
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleFileChange}
+        accept="image/*"
+        style={{ display: 'none' }}
+      />
+      <button 
+        onClick={() => fileInputRef.current?.click()}
+        disabled={uploading}
+        className="upload-button"
+      >
+        {uploading ? 'Uploading...' : 'Upload Profile Picture'}
+      </button>
+
+      {showCropper && tempImage && (
+        <ImageCropper
+          image={tempImage}
+          onCropComplete={handleCropComplete}
+          onCancel={handleCropCancel}
+        />
+      )}
+    </div>
+  );
+};
 
 const Profile = () => {
   const [activeTab, setActiveTab] = useState('personal');
@@ -713,15 +818,38 @@ const saveAllFormData = () => {
     }
   };
   
+  const [profilePicture, setProfilePicture] = useState('');
+
+  const handleProfilePictureUpload = (url) => {
+    setProfilePicture(url);
+    // Update the form data with the new profile picture URL
+    setData(prevState => ({
+      ...prevState,
+      profilePictureUrl: url
+    }));
+  };
+  
   return (
     <div className="profile-setup-container">    
       <div className="profile-setup-content">
         <div className="profile-sidebar">
           <div className="avatar-container">
             <div className="avatar">
-              
+              {profilePicture ? (
+                <img 
+                  src={profilePicture} 
+                  alt="Profile" 
+                  className="profile-image"
+                />
+              ) : (
+                <div className="avatar-placeholder">
+                  <User size={40} />
+                </div>
+              )}
             </div>
-            
+            <ProfilePictureUpload 
+              onUploadSuccess={handleProfilePictureUpload}
+            />
           </div>
           
           <nav className="profile-navigation">
@@ -770,7 +898,9 @@ const saveAllFormData = () => {
         </div>
         
         <div className="profile-form-container">
-          {/* Changed onSubmit to onKeyDown to prevent default form submission */}
+          <div className="profile-header">
+            <h1>Create Profile</h1>
+          </div>
           <form onKeyDown={handleKeyDown}>
             <div className="tab-header">
               <h2>

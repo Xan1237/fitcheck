@@ -15,69 +15,148 @@ $text-gray: #bbbbbb;
   margin: 0 auto;
   background-color: $black;
   color: $white;
-  border-radius: 8px;
+  border-radius: 0;
   overflow: hidden;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
   font-family: 'Roboto', Arial, sans-serif;
-min-height: 100vh;
+  min-height: 100vh;
+  padding: 0;
+
+  @media (max-width: 768px) {
+    margin: 0;
+    padding: 0;
+  }
+
+  @media (max-width: 480px) {
+    margin: 0;
+    padding: 0;
+  }
+
   // Cover Photo
   .cover-photo {
     height: 160px;
     width: 100%;
     position: relative;
+    border-radius: 8px 8px 0 0;
     
     img {
       width: 100%;
       height: 100%;
       object-fit: cover;
+      border-radius: 8px 8px 0 0;
     }
   }
 
   // Profile Info Section
   .profile-info {
     position: relative;
-    padding: 16px 24px 32px;
+    padding: 32px 24px;
+    background-color: $medium-gray;
+    border-radius: 0;
+    margin: 0;
+
+    @media (max-width: 768px) {
+      padding: 24px 20px;
+    }
+
+    @media (max-width: 480px) {
+      padding: 20px 16px;
+    }
 
     // Profile Picture
     .profile-picture {
-      position: absolute;
-      top: -48px;
-      left: 24px;
-   
+      width: 120px;
+      height: 120px;
+      margin: 0 auto 24px;
       border-radius: 50%;
       overflow: hidden;
+      border: 3px solid $orange;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      background-color: $medium-gray;
       
       img {
-        width: 96px;
-        height: 96px;
+        width: 100%;
+        height: 100%;
         border-radius: 50%;
+        object-fit: cover;
+      }
+
+      .profile-picture-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: $medium-gray;
+        color: $white;
+        font-size: 2.5rem;
+        font-weight: bold;
+      }
+
+      @media (max-width: 768px) {
+        width: 100px;
+        height: 100px;
+        margin-bottom: 20px;
+        
+        .profile-picture-placeholder {
+          font-size: 2rem;
+        }
+      }
+
+      @media (max-width: 480px) {
+        width: 80px;
+        height: 80px;
+        margin-bottom: 16px;
+        
+        .profile-picture-placeholder {
+          font-size: 1.8rem;
+        }
       }
     }
 
     // User Info
     .user-info {
-      margin-top: 64px;
+      text-align: center;
+      margin: 0;
       
-      #userName{
-        font-size: 40px;
+      #userName {
+        font-size: 32px;
+        margin: 0 0 8px 0;
+
+        @media (max-width: 768px) {
+          font-size: 28px;
+        }
+
+        @media (max-width: 480px) {
+          font-size: 24px;
+        }
       }
       
       h1 {
         font-size: 24px;
         font-weight: 700;
         margin: 0 0 4px 0;
+
+        @media (max-width: 480px) {
+          font-size: 20px;
+        }
       }
       
       .username {
         color: $orange;
-        margin: 0 0 8px 0;
+        margin: 0 0 12px 0;
         font-weight: 500;
+        font-size: 16px;
       }
       
       .bio {
         color: $text-gray;
-        margin: 8px 0;
-        line-height: 1.5;
+        margin: 12px 0;
+        line-height: 1.6;
+        font-size: 14px;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
       }
 
       .edit-profile-btn {
@@ -89,10 +168,11 @@ min-height: 100vh;
         border-radius: 4px;
         cursor: pointer;
         font-size: 0.9rem;
-        transition: background-color 0.2s;
+        transition: all 0.2s ease;
 
         &:hover {
           background-color: #34495e;
+          transform: translateY(-2px);
         }
       }
     }
@@ -105,9 +185,21 @@ min-height: 100vh;
       margin-top: 24px;
       padding-top: 24px;
       border-top: 1px solid $light-gray;
+
+      @media (max-width: 768px) {
+        grid-template-columns: repeat(2, 1fr);
+      }
       
       .stat-item {
+        padding: 12px;
+        background-color: rgba($black, 0.2);
+        border-radius: 8px;
+        transition: transform 0.2s ease;
         text-align: center;
+
+        &:hover {
+          transform: translateY(-2px);
+        }
         
         .stat-value {
           font-size: 24px;
@@ -124,18 +216,22 @@ min-height: 100vh;
       }
 
       .follow-btn {
-        margin-left: 1rem;
-        padding: 0.5rem 1.5rem;
+        margin: 16px 0 0 0;
+        padding: 0.5rem 1rem;
         background-color: #3498db;
         color: white;
         border: none;
         border-radius: 4px;
         cursor: pointer;
         font-size: 0.9rem;
-        transition: background-color 0.2s;
+        transition: all 0.2s ease;
+        grid-column: 1 / -1;
+        width: fit-content;
+        justify-self: start;
 
         &:hover {
           background-color: #2980b9;
+          transform: translateY(-2px);
         }
       }
     }

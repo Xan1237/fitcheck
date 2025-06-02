@@ -5,6 +5,7 @@ import {
   userInfo,
   getGymData,
   getUserName,
+  uploadProfilePicture,
 } from "../controllers/userController.js"; // Updated import
 import { createComment, getComments } from "../controllers/commentControler.js";
 import { signUpUser } from "../middlewares/auth_signup_password.js";
@@ -27,6 +28,6 @@ router.get("/api/getGymData", getGymData);
 router.post("/api/getUserName", getUserName);
 router.get("/api/checkProfileOwnership/:username", verifyAuth, checkProfileOwnership);
 router.post("/api/addPersonalRecord", verifyAuth, addPersonalRecord);
-
+router.post("/api/uploadProfilePicture", verifyAuth, uploadProfilePicture);
 
 export default router;

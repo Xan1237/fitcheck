@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import './style.scss';
 import { useParams } from "react-router-dom";
 import axios from 'axios';
+import { User } from 'lucide-react';
 
 /**
  * UserProfile Component
@@ -17,6 +18,7 @@ const UserProfile = () => {
     name: "Alex Johnson",
     username: "@alexfit",
     bio: "Fitness enthusiast | Personal Trainer | Nutrition Coach",
+    profilePicture: null,
     stats: {
       workoutsCompleted: 128,
       personalBests: 15,
@@ -65,56 +67,53 @@ const UserProfile = () => {
    * @returns {Promise} The data returned from the API
    */
   const getData = async () => {
-  try {
-    if (!name) {
-      console.error("Error: No username provided in URL parameters");
-      throw new Error("Username parameter is required");
-    }
-    
-    console.log(`Fetching data for user: ${name}`);
-    
-    const response = await fetch(
-      `/api/GetUserData/?userName=${encodeURIComponent(name)}`,
-      { method: "GET" }
-    );
-    
-    if (!response.ok) {
-      const errorData = await response.json();
-      if (response.status === 404) {
-        // Handle "user not found" case specifically
-        console.error(`User not found: ${name}`);
-        // Optionally show a message to the user
-        return;
+    try {
+      if (!name) {
+        console.error("Error: No username provided in URL parameters");
+        throw new Error("Username parameter is required");
       }
-      throw new Error(errorData.error || `API request failed with status ${response.status}`);
+      
+      console.log(`Fetching data for user: ${name}`);
+      
+      const response = await fetch(
+        `/api/GetUserData/?userName=${encodeURIComponent(name)}`,
+        { method: "GET" }
+      );
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        if (response.status === 404) {
+          console.error(`User not found: ${name}`);
+          return;
+        }
+        throw new Error(errorData.error || `API request failed with status ${response.status}`);
+      }
+      
+      const result = await response.json();
+      if (!result.success) {
+        throw new Error(result.error || "Failed to fetch user data");
+      }
+      
+      setUserData({
+        ...userData,
+        name: result.user.firstName + " "+ result.user.lastName,
+        username: result.user.username,
+        bio: result.user.bio,
+        profilePicture: result.user.profilePictureUrl,
+        gymStats: [
+          ...result.user.pr.map(pr => ({
+            exercise: pr.exercise_name,
+            weight: pr.weight + " lbs",
+            reps: pr.reps
+          }))
+        ]
+      });
+      
+    } catch (error) {
+      console.error("Error fetching user data:", error.message);
+      throw error;
     }
-    
-    const result = await response.json();
-    if (!result.success) {
-      throw new Error(result.error || "Failed to fetch user data");
-    }
-    
-    setUserData({
-      ...userData,
-      name: result.user.firstName + " "+ result.user.lastName,
-      username: result.user.username,
-      bio: result.user.bio,
-      gymStats: [
-        ...result.user.pr.map(pr => ({
-          exercise: pr.exercise_name,
-          weight: pr.weight + " lbs",
-          reps: pr.reps
-        }))
-      ]
-    });
-    
-  } catch (error) {
-    console.error("Error fetching user data:", error.message);
-    // Consider setting an error state to show to the user
-    // setError(error.message);
-    throw error;
-  }
-};
+  };
   
   // Fetch user data when component mounts or name parameter changes
   useEffect(() => {
@@ -163,13 +162,20 @@ const UserProfile = () => {
 
   return (
     <div className="user-profile">
-
-      {/* User Information Section */}
       <div className="profile-info">
-        {/* Profile Picture */}
+        <div className="profile-picture">
+          {userData.profilePicture ? (
+            <img 
+              src={userData.profilePicture} 
+              alt={`${userData.name}'s profile`} 
+            />
+          ) : (
+            <div className="profile-picture-placeholder">
+              <User size={72} />
+            </div>
+          )}
+        </div>
 
-        
-        {/* Basic User Information */}
         <div className="user-info">
           <h1 id="userName">{userData.name}</h1>
           <p className="username">{"@"+userData.username}</p>

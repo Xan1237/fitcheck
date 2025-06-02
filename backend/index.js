@@ -6,19 +6,13 @@ import commentRouter  from './routes/userRoutes.js'; // Adjust path
 // Load environment variables
 dotenv.config();
 
-
 const app = express();
-app.use(express.json());
+
+// Increase payload size limit for file uploads (set to 10MB)
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
+
 app.use(commentRouter);
-
-
-
-
-
-
-
-
-
 
 // Start Server
 const PORT = process.env.PORT || 5175;

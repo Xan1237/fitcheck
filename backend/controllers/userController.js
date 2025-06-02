@@ -1,6 +1,8 @@
 import { supabase } from '../config/supabaseApp.js'
 import axios from "axios";
+import dotenv from "dotenv";
 
+dotenv.config();
 
 const getAdress = async (req, res) => {
   const { searchResults } = req.body;
@@ -262,6 +264,7 @@ const userInfo = async (req, res) => {
       gymExperience: userData.gym_experience,
       preferredGymType: userData.preferred_gym_type,
       trainingFrequency: userData.training_frequency,
+      profilePictureUrl: userData.profile_picture_url,
       pr: prData
     };
 
@@ -380,6 +383,87 @@ const addPersonalRecord = async (req, res) => {
   }
 };
 
+const uploadProfilePicture = async (req, res) => {
+  try {
+    const { file } = req.body;
+    if (!file) {
+      return res.status(400).json({ 
+        success: false, 
+        error: "File is required" 
+      });
+    }
+
+    // Get user's username from the database using the token's user ID
+    const { data: userData, error: userError } = await supabase
+      .from('users')
+      .select('username')
+      .eq('id', req.user.id)
+      .single();
+
+    if (userError || !userData) {
+      console.error("Error fetching user:", userError);
+      return res.status(404).json({ success: false, error: "User not found" });
+    }
+
+    const username = userData.username;
+
+    // Convert base64 to buffer
+    const buffer = Buffer.from(file.split(',')[1], 'base64');
+    const fileExt = file.split(';')[0].split('/')[1];
+    const fileName = `${username}-${Date.now()}.${fileExt}`;
+
+    // Upload to Supabase Storage
+    const { data, error } = await supabase.storage
+      .from(process.env.SUPABASE_STORAGE_BUCKET)
+      .upload(fileName, buffer, {
+        contentType: `image/${fileExt}`,
+        upsert: true,
+        owner: req.user.id  // Set the owner to the authenticated user's ID
+      });
+
+    if (error) {
+      console.error("Error uploading file:", error);
+      // More detailed error message
+      return res.status(500).json({ 
+        success: false, 
+        error: "Failed to upload profile picture",
+        details: error.message || error.error || "Unknown error",
+        statusCode: error.statusCode
+      });
+    }
+
+    // Get the public URL
+    const { data: { publicUrl } } = supabase.storage
+      .from(process.env.SUPABASE_STORAGE_BUCKET)
+      .getPublicUrl(fileName);
+
+    // Update user profile with the new picture URL
+    const { error: updateError } = await supabase
+      .from('users')
+      .update({ profile_picture_url: publicUrl })
+      .eq('id', req.user.id);  // Use user ID instead of username
+
+    if (updateError) {
+      console.error("Error updating profile:", updateError);
+      return res.status(500).json({ 
+        success: false, 
+        error: "Failed to update profile with new picture" 
+      });
+    }
+
+    return res.status(200).json({ 
+      success: true, 
+      url: publicUrl 
+    });
+  } catch (error) {
+    console.error("Error in uploadProfilePicture:", error);
+    return res.status(500).json({ 
+      success: false, 
+      error: "Internal Server Error" 
+    });
+  }
+};
+
 // Export middleware and controllers
 export {// New middleware for authentication
   getAdress,
@@ -387,5 +471,6 @@ export {// New middleware for authentication
   userInfo,
   getGymData,
   getUserName,
-  addPersonalRecord
+  addPersonalRecord,
+  uploadProfilePicture
 };

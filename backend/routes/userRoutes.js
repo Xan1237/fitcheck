@@ -6,13 +6,14 @@ import {
   getGymData,
   getUserName,
   uploadProfilePicture,
+  addPersonalRecord,
+  createPost
 } from "../controllers/userController.js"; // Updated import
 import { createComment, getComments } from "../controllers/commentControler.js";
 import { signUpUser } from "../middlewares/auth_signup_password.js";
 import { signInUser } from "../middlewares/auth_signin_password.js";
 import { verifyAuth } from "../middlewares/auth_verify.js";
 import { checkProfileOwnership } from "../middlewares/check_profile_ownership.js";
-import { addPersonalRecord } from "../controllers/userController.js";
 
 const router = express.Router();
 
@@ -29,5 +30,6 @@ router.post("/api/getUserName", getUserName);
 router.get("/api/checkProfileOwnership/:username", verifyAuth, checkProfileOwnership);
 router.post("/api/addPersonalRecord", verifyAuth, addPersonalRecord);
 router.post("/api/uploadProfilePicture", verifyAuth, uploadProfilePicture);
+router.post("/api/createPost", verifyAuth, createPost);
 
 export default router;

@@ -252,6 +252,17 @@ const userInfo = async (req, res) => {
       .select('exercise_name, weight, reps')
       .eq('username', userName);
 
+    // Get user's posts
+    const { data: postsData, error: postsError } = await supabase
+      .from('posts')
+      .select('*')
+      .eq('username', userName)
+      .order('created_at', { ascending: false });
+
+    if (postsError) {
+      console.error("Error fetching posts:", postsError);
+    }
+
     // Create a sanitized object with renamed fields to match frontend expectations
     const publicUserData = {
       username: userData.username,
@@ -265,7 +276,8 @@ const userInfo = async (req, res) => {
       preferredGymType: userData.preferred_gym_type,
       trainingFrequency: userData.training_frequency,
       profilePictureUrl: userData.profile_picture_url,
-      pr: prData
+      pr: prData,
+      posts: postsData || [] // Add posts to the response
     };
 
     // Include fitness stats if they exist
@@ -464,6 +476,99 @@ const uploadProfilePicture = async (req, res) => {
   }
 };
 
+const createPost = async (req, res) => {
+  const { title, description, imageFile, tags } = req.body;
+
+  if (!req.user || !req.user.id) {
+    return res.status(401).json({ 
+      success: false, 
+      error: "User not authenticated" 
+    });
+  }
+
+  try {
+    // Get user's username from the database using the token's user ID
+    const { data: userData, error: userError } = await supabase
+      .from('users')
+      .select('username')
+      .eq('id', req.user.id)
+      .single();
+
+    if (userError || !userData) {
+      console.error("Error fetching user:", userError);
+      return res.status(404).json({ success: false, error: "User not found" });
+    }
+
+    const username = userData.username;
+
+    // Convert base64 to buffer
+    const buffer = Buffer.from(imageFile.split(',')[1], 'base64');
+    const fileExt = imageFile.split(';')[0].split('/')[1];
+    const fileName = `${username}-${Date.now()}.${fileExt}`;
+
+    // Upload to Supabase Storage with owner field
+    const { data: uploadData, error: uploadError } = await supabase.storage
+      .from('post-images-f423yiufg348ygv3rhfvbf34yibv34gb')
+      .upload(fileName, buffer, {
+        contentType: `image/${fileExt}`,
+        upsert: true,
+        duplex: 'half',
+        owner: req.user.id
+      });
+
+    if (uploadError) {
+      console.error("Error uploading file:", uploadError);
+      return res.status(500).json({ 
+        success: false, 
+        error: "Failed to upload post image",
+        details: uploadError.message || uploadError.error || "Unknown error"
+      });
+    }
+
+    // Get the public URL
+    const { data: { publicUrl } } = supabase.storage
+      .from('post-images-f423yiufg348ygv3rhfvbf34yibv34gb')
+      .getPublicUrl(fileName);
+
+    // Create post record in the database
+    const { data: postData, error: postError } = await supabase
+      .from('posts')
+      .insert([{
+        title,
+        description,
+        image_url: publicUrl,
+        tags,
+        username,
+        uuid: req.user.id,
+        created_at: new Date()
+      }])
+      .select();
+
+    if (postError) {
+      console.error("Error creating post:", postError);
+      return res.status(500).json({ 
+        success: false, 
+        error: "Failed to create post",
+        details: postError.message
+      });
+    }
+
+    return res.status(200).json({ 
+      success: true, 
+      message: "Post created successfully",
+      data: postData
+    });
+
+  } catch (error) {
+    console.error("Unexpected error in createPost:", error);
+    return res.status(500).json({ 
+      success: false, 
+      error: "Internal Server Error",
+      details: error.message
+    });
+  }
+};
+
 // Export middleware and controllers
 export {// New middleware for authentication
   getAdress,
@@ -472,5 +577,6 @@ export {// New middleware for authentication
   getGymData,
   getUserName,
   addPersonalRecord,
-  uploadProfilePicture
+  uploadProfilePicture,
+  createPost
 };

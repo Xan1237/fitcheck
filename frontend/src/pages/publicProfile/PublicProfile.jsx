@@ -1,5 +1,5 @@
 // UserProfile.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './style.scss';
 import { useParams } from "react-router-dom";
 import axios from 'axios';
@@ -37,6 +37,15 @@ const UserProfile = () => {
   // State for managing the Add PR modal
   const [showAddPRModal, setShowAddPRModal] = useState(false);
   const [newPR, setNewPR] = useState({ exercise: '', weight: '', reps: '' });
+  const [showAddPostModal, setShowAddPostModal] = useState(false);
+  const [newPost, setNewPost] = useState({ 
+    title: '',
+    description: '',
+    imageFile: null,
+    tags: ''  // Will be split into array before sending
+  });
+  const [posts, setPosts] = useState([]);
+  const fileInputRef = useRef(null);
 
   /**
    * Checks if the current authenticated user owns this profile
@@ -108,6 +117,9 @@ const UserProfile = () => {
           }))
         ]
       });
+
+      // Set posts data
+      setPosts(result.user.posts || []);
       
     } catch (error) {
       console.error("Error fetching user data:", error.message);
@@ -157,6 +169,67 @@ const UserProfile = () => {
       setNewPR({ exercise: '', weight: '', reps: '' });
     } catch (error) {
       console.error('Error saving PR:', error);
+    }
+  };
+
+  const handleFileSelect = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      alert('Please upload an image file');
+      return;
+    }
+
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (file.size > maxSize) {
+      alert('File size must be less than 5MB');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      setNewPost(prev => ({ ...prev, imageFile: event.target.result }));
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleCreatePost = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.post('/api/createPost', 
+        { 
+          title: newPost.title,
+          description: newPost.description,
+          imageFile: newPost.imageFile,
+          tags: newPost.tags.split(',').map(tag => tag.trim()).filter(tag => tag !== '') // Convert comma-separated string to array
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+
+      if (response.data.success) {
+        // Add the new post to the posts array
+        setPosts(prevPosts => [{
+          id: response.data.data[0].id,
+          title: newPost.title,
+          description: newPost.description,
+          image_url: response.data.data[0].image_url,
+          tags: newPost.tags.split(',').map(tag => tag.trim()).filter(tag => tag !== ''),
+          created_at: new Date(),
+          username: userData.username
+        }, ...prevPosts]);
+
+        // Close modal and reset form
+        setShowAddPostModal(false);
+        setNewPost({ title: '', description: '', imageFile: null, tags: '' });
+      }
+    } catch (error) {
+      console.error('Error creating post:', error);
+      alert('Failed to create post. Please try again.');
     }
   };
 
@@ -283,7 +356,44 @@ const UserProfile = () => {
           {/* Nutrition Tab - Currently a placeholder */}
           {activeTab === 'nutrition' && (
             <div className="nutrition-tab">
-              <p>Nutrition data will appear here</p>
+              {isOwnProfile && (
+                <button 
+                  className="add-post-btn"
+                  onClick={() => setShowAddPostModal(true)}
+                >
+                  + New Post
+                </button>
+              )}
+              <div className="posts-grid">
+                {posts.map((post) => (
+                  <div key={post.id} className="post-card">
+                    <img src={post.image_url} alt={post.title} className="post-image" />
+                    <div className="post-details">
+                      <h3 className="post-title">{post.title}</h3>
+                      <p className="post-description">{post.description}</p>
+                      <div className="post-tags">
+                        {Array.isArray(post.tags) ? 
+                          post.tags.map((tag, index) => (
+                            <span key={index} className="tag">#{tag}</span>
+                          ))
+                          :
+                          (typeof post.tags === 'string' ? 
+                            post.tags.split(',')
+                              .map(tag => tag.trim())
+                              .filter(tag => tag !== '')
+                              .map((tag, index) => (
+                                <span key={index} className="tag">#{tag}</span>
+                              ))
+                            : null)
+                        }
+                      </div>
+                      <span className="post-date">
+                        {new Date(post.created_at).toLocaleDateString()}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
         </div>
@@ -337,6 +447,82 @@ const UserProfile = () => {
                   onClick={handleSavePR}
                 >
                   Save PR
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add Post Modal */}
+      {showAddPostModal && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h3>Create New Post</h3>
+            <div className="modal-form">
+              <div className="form-group">
+                <label>Title</label>
+                <input
+                  type="text"
+                  value={newPost.title}
+                  onChange={(e) => setNewPost(prev => ({ ...prev, title: e.target.value }))}
+                  placeholder="Enter a title for your post..."
+                />
+              </div>
+              <div className="form-group">
+                <label>Image</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileSelect}
+                  ref={fileInputRef}
+                />
+                {newPost.imageFile && (
+                  <img 
+                    src={newPost.imageFile} 
+                    alt="Selected" 
+                    style={{ 
+                      width: '100%', 
+                      height: '200px', 
+                      objectFit: 'cover',
+                      marginTop: '10px',
+                      borderRadius: '4px'
+                    }} 
+                  />
+                )}
+              </div>
+              <div className="form-group">
+                <label>Description</label>
+                <textarea
+                  value={newPost.description}
+                  onChange={(e) => setNewPost(prev => ({ ...prev, description: e.target.value }))}
+                  placeholder="Write a description..."
+                  rows={4}
+                />
+              </div>
+              <div className="form-group">
+                <label>Tags (comma-separated)</label>
+                <input
+                  type="text"
+                  value={newPost.tags}
+                  onChange={(e) => setNewPost(prev => ({ ...prev, tags: e.target.value }))}
+                  placeholder="e.g., workout, fitness, gym"
+                />
+              </div>
+              <div className="modal-actions">
+                <button 
+                  onClick={() => {
+                    setShowAddPostModal(false);
+                    setNewPost({ title: '', description: '', imageFile: null, tags: '' });
+                  }}
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={handleCreatePost}
+                  disabled={!newPost.imageFile || !newPost.title || !newPost.description}
+                >
+                  Post
                 </button>
               </div>
             </div>

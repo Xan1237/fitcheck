@@ -20,6 +20,9 @@ const getAdress = async (req, res) => {
           format: "json",
           addressdetails: 1,
         },
+        headers: {
+          'User-Agent': 'FitCheckApp/1.0 (roughleopard548@gmail.com)' // Use your app name and a contact email
+        }
       }
     );
 

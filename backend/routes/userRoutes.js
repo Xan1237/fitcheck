@@ -1,6 +1,5 @@
 import express, { json } from "express";
 import {
-  getAdress,
   profile,
   userInfo,
   getGymData,
@@ -9,6 +8,8 @@ import {
   addPersonalRecord,
   createPost
 } from "../controllers/userController.js"; // Updated import
+
+import { getAdress } from "../controllers/searchController.js";
 import { createComment, getComments } from "../controllers/commentControler.js";
 import { signUpUser } from "../middlewares/auth_signup_password.js";
 import { signInUser } from "../middlewares/auth_signin_password.js";

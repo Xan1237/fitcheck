@@ -9,4 +9,5 @@
     7)  add the form auth codes to .env (I think we should do this) (what does this even mean)
     8)  the log in token keep expiring and it kills the database
     9)  all the gyms that come  from the txt file cant have reviews on them since they are not in the DB (Done!)
+    10) split controllers into multiple files for better code clairity
    

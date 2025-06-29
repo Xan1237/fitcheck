@@ -10,4 +10,10 @@
     8)  the log in token keep expiring and it kills the database
     9)  all the gyms that come  from the txt file cant have reviews on them since they are not in the DB (Done!)
     10) split controllers into multiple files for better code clairity
+    
+
+
+    IDEAS
+
+    1) the home page should be diffrent and what the home page is not should be like a search page
    

@@ -22,7 +22,6 @@ const UserProfile = () => {
     stats: {
       workoutsCompleted: 128,
       personalBests: 15,
-      followers: 543,
       following: 267
     },
     gymStats: [
@@ -71,7 +70,39 @@ const UserProfile = () => {
     }
   };
 
-  /**
+  const getFollowerCount = async () => {
+    const token = localStorage.getItem('token');
+    const response = await axios.get(`/api/getFollowerCount/${name}`,{
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+    setUserData(prevData => ({
+      ...prevData,
+      stats: {
+        ...prevData.stats,
+        followers: response.data.follower_count 
+      }
+    }))
+  }
+
+  const getFollowingCount = async () => {
+    const token = localStorage.getItem('token');
+    const response = await axios.get(`/api/getFollowingCount/${name}`,{
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+    setUserData(prevData => ({
+      ...prevData,
+      stats: {
+        ...prevData.stats,
+        following: response.data.following_count 
+      }
+    }))
+  }
+
+    /**
    * Fetches user data from the API
    * @returns {Promise} The data returned from the API
    */
@@ -129,9 +160,14 @@ const UserProfile = () => {
   
   // Fetch user data when component mounts or name parameter changes
   useEffect(() => {
-    getData();
-    checkProfileOwnership();
-  }, [name]); // Re-run when name changes
+    const fetchAll = async () => {
+      await checkProfileOwnership();
+      await getData();
+      await getFollowerCount();
+      await getFollowingCount();
+    };
+    fetchAll();
+  }, [name]);
 
   /**
    * Handles saving a new PR
@@ -170,6 +206,22 @@ const UserProfile = () => {
     } catch (error) {
       console.error('Error saving PR:', error);
     }
+  };
+
+  const handleFollow = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      await axios.post('/api/newFollower', {
+        targetUserName: name
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+    } catch (error) {
+      console.error('Error following user:', error);
+    }
+    getFollowerCount()
   };
 
   const handleFileSelect = (e) => {
@@ -282,7 +334,7 @@ const UserProfile = () => {
             <p className="stat-label">Following</p>
           </div>
           {!isOwnProfile && (
-            <button className="follow-btn">
+            <button className="follow-btn" onClick={handleFollow}>
               Follow
             </button>
           )}

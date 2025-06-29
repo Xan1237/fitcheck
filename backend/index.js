@@ -3,6 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import axios from "axios";
 import commentRouter  from './routes/userRoutes.js'; // Adjust path
+import profileRouter from './routes/profileRoutes.js';
 import { initializeStorage } from './config/supabaseStorage.js';
 // Load environment variables
 dotenv.config();
@@ -18,6 +19,8 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 app.use(commentRouter);
+app.use(profileRouter);
+
 
 // Start Server
 const PORT = process.env.PORT || 5175;

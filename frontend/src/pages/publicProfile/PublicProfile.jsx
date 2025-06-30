@@ -102,6 +102,38 @@ const UserProfile = () => {
     }))
   }
 
+  const getPostCount = async () => {
+    const token = localStorage.getItem('token');
+    const response = await axios.get(`/api/getNumberPost/${name}`,{
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+    setUserData(prevData => ({
+      ...prevData,
+      stats: {
+        ...prevData.stats,
+        workoutsCompleted: response.data.post_count
+      }
+    }))
+  }
+
+  const getPrCount = async () => {
+    const token = localStorage.getItem('token');
+    const response = await axios.get(`/api/getNumberPR/${name}`,{
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+    setUserData(prevData => ({
+      ...prevData,
+      stats: {
+        ...prevData.stats,
+        personalBests: response.data.pr_count
+      }
+    }))
+  }
+
     /**
    * Fetches user data from the API
    * @returns {Promise} The data returned from the API
@@ -165,6 +197,8 @@ const UserProfile = () => {
       await getData();
       await getFollowerCount();
       await getFollowingCount();
+      await getPrCount();
+      await getPostCount();
     };
     fetchAll();
   }, [name]);
@@ -319,7 +353,7 @@ const UserProfile = () => {
         <div className="quick-stats">
           <div className="stat-item">
             <p className="stat-value">{userData.stats.workoutsCompleted}</p>
-            <p className="stat-label">Workouts</p>
+            <p className="stat-label">Posts</p>
           </div>
           <div className="stat-item">
             <p className="stat-value">{userData.stats.personalBests}</p>

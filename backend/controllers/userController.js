@@ -284,6 +284,9 @@ const getGymData = async (req, res) => {
       gyms.forEach((gym) => {
         formattedGyms[gym.id] = {
           id: gym.id,
+          link: gym.link || "",
+          address: gym.address || "",
+          name: gym.name,
           tags: gym.tags || [],
           rating: gym.avg_rating || 0,
           ratingCount: gym.rating_count || 0,

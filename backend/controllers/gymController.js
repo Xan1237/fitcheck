@@ -123,4 +123,7 @@ const updateGymTags = async (gymId) => {
     }
   };
 
+
+
+
 export { updateGymTags };

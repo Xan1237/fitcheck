@@ -38,7 +38,7 @@ $text-gray: #bbbbbb;
     width: 100%;
     position: relative;
     border-radius: 8px 8px 0 0;
-    
+
     img {
       width: 100%;
       height: 100%;
@@ -73,7 +73,7 @@ $text-gray: #bbbbbb;
       border: 3px solid $orange;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
       background-color: $medium-gray;
-      
+
       img {
         width: 100%;
         height: 100%;
@@ -97,7 +97,7 @@ $text-gray: #bbbbbb;
         width: 100px;
         height: 100px;
         margin-bottom: 20px;
-        
+
         .profile-picture-placeholder {
           font-size: 2rem;
         }
@@ -107,7 +107,7 @@ $text-gray: #bbbbbb;
         width: 80px;
         height: 80px;
         margin-bottom: 16px;
-        
+
         .profile-picture-placeholder {
           font-size: 1.8rem;
         }
@@ -118,7 +118,7 @@ $text-gray: #bbbbbb;
     .user-info {
       text-align: center;
       margin: 0;
-      
+
       #userName {
         font-size: 32px;
         margin: 0 0 8px 0;
@@ -131,7 +131,7 @@ $text-gray: #bbbbbb;
           font-size: 24px;
         }
       }
-      
+
       h1 {
         font-size: 24px;
         font-weight: 700;
@@ -141,14 +141,14 @@ $text-gray: #bbbbbb;
           font-size: 20px;
         }
       }
-      
+
       .username {
         color: $orange;
         margin: 0 0 12px 0;
         font-weight: 500;
         font-size: 16px;
       }
-      
+
       .bio {
         color: $text-gray;
         margin: 12px 0;
@@ -159,20 +159,29 @@ $text-gray: #bbbbbb;
         margin-right: auto;
       }
 
-      .edit-profile-btn {
-        margin-top: 1rem;
-        padding: 0.5rem 1rem;
-        background-color: #2c3e50;
-        color: white;
+      .edit-profile-btn, .add-post-btn {
+        margin-top: 0.5rem;
+        padding: 8px 24px;
+        background-color: $orange;
+        color: $white;
         border: none;
         border-radius: 4px;
         cursor: pointer;
-        font-size: 0.9rem;
+        font-size: 14px;
+        font-weight: 600;
         transition: all 0.2s ease;
 
         &:hover {
-          background-color: #34495e;
+          background-color: $orange-light;
           transform: translateY(-2px);
+        }
+      }
+
+      .add-post-btn {
+        margin-left: 12px;
+
+        .plus-icon {
+          margin-right: 4px;
         }
       }
     }
@@ -189,7 +198,7 @@ $text-gray: #bbbbbb;
       @media (max-width: 768px) {
         grid-template-columns: repeat(2, 1fr);
       }
-      
+
       .stat-item {
         padding: 12px;
         background-color: rgba($black, 0.2);
@@ -200,14 +209,14 @@ $text-gray: #bbbbbb;
         &:hover {
           transform: translateY(-2px);
         }
-        
+
         .stat-value {
           font-size: 24px;
           font-weight: 700;
           color: $orange;
           margin: 0 0 4px 0;
         }
-        
+
         .stat-label {
           font-size: 12px;
           color: $text-gray;
@@ -283,11 +292,11 @@ $text-gray: #bbbbbb;
         }
       }
     }
-    
+
     .tab-content {
       width: 100%;
       padding: 24px;
-      
+
       h2 {
         font-size: 20px;
         font-weight: 600;
@@ -320,55 +329,104 @@ $text-gray: #bbbbbb;
           }
         }
       }
-      
+
       .gym-stats {
         display: flex;
         flex-direction: column;
         gap: 16px;
-        
+
         .stat-card {
           background-color: $medium-gray;
           border-radius: 8px;
           padding: 16px;
-          
+
           .stat-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            
+
             .exercise-name {
               font-size: 16px;
               font-weight: 500;
             }
-            
+
             .exercise-weight {
               color: $orange;
               font-weight: 700;
             }
           }
-          
+
           .stat-details {
             display: flex;
             justify-content: space-between;
             margin-top: 8px;
-            
+
             .detail-label {
               color: $text-gray;
             }
-            
+
             .detail-value {
               color: $white;
             }
           }
         }
       }
-      
-      .progress-tab, .nutrition-tab {
+
+      .progress-tab {
         display: flex;
-        justify-content: center;
+        flex-direction: column;
+        align-items: flex-start;
+        margin: 20px 0;
+        width: 100%;
+
+        .add-gym-btn.orange-btn {
+          background-color: $orange;
+          color: $white;
+          border: none;
+          padding: 8px 16px;
+          border-radius: 4px;
+          margin-bottom: 20px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+
+          &:hover {
+            background-color: $orange-light;
+            transform: translateY(-2px);
+          }
+        }
+
+        .gym-list.horizontal {
+          display: flex;
+          flex-wrap: wrap;
+          width: 100%;
+
+          .gym-card {
+            flex: 0 0 calc(33.333% - 20px);
+            min-width: 250px;
+            background-color: $medium-gray;
+            border-radius: 8px;
+
+            h3 {
+              color: $white;
+              margin: 0 0 8px 0;
+            }
+
+            p {
+              color: $text-gray;
+              margin: 0;
+              font-size: 14px;
+            }
+          }
+        }
+      }
+
+      .nutrition-tab {
+        display: flex;
+        justify-content: flex-start;
         align-items: center;
         height: 200px;
         color: $text-gray;
+        width: 100%;
       }
     }
   }
@@ -377,104 +435,140 @@ $text-gray: #bbbbbb;
     width: 100%;
     box-sizing: border-box;
     background-color: $black;
-    min-height: calc(100vh - 400px);
+    min-height: 100%;
+    height: 100%;
     overflow-y: auto;
+    padding: 0;
+    position: relative;
 
     .add-post-btn {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
       background-color: $orange;
       color: $white;
       border: none;
-      padding: 8px 16px;
-      border-radius: 4px;
+      padding: 12px 20px;
+      border-radius: 50px;
       font-size: 14px;
-      font-weight: 500;
+      font-weight: 600;
       cursor: pointer;
-      transition: all 0.2s ease;
-      width: fit-content;
-      margin: 12px 0 12px 20px;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      gap: 8px;
 
       &:hover {
-        background-color: darken($orange, 10%);
+        background-color: $orange-light;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
       }
+
+      &:active {
+        transform: translateY(0);
+      }
+    }
+
+    .add-post-btn {
+      background: linear-gradient(45deg, #ff6b6b, #ff8e53);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 25px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: transform 0.2s, box-shadow 0.2s;
+      cursor: pointer;
+      margin-left: 10px;
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(255, 107, 107, 0.2);
+      }
+
+      .plus-icon {
+        font-size: 18px;
+        font-weight: bold;
+      }
+    }
+
+    .primary-btn {
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
 
     .posts-grid {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 400px));
-      gap: 20px;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 12px;
+      padding: 16px;
       width: 100%;
-      justify-content: center;
-      padding: 0 20px;
-
-      @media (max-width: 768px) {
-        grid-template-columns: minmax(0, 400px);
-      }
+      height: 100%;
+      justify-content: start;
+      align-content: start;
 
       .post-card {
-        background-color: $dark-gray;
-        border-radius: 8px;
+        width: 100%;
+        border: 1px solid rgba($light-gray, 0.2);
+        border-radius: 6px;
         overflow: hidden;
+        background-color: $medium-gray;
         transition: transform 0.2s ease;
-        height: fit-content;
-        border: 1px solid rgba($light-gray, 0.1);
-        cursor: pointer;
-        display: flex;
-        flex-direction: column;
-        max-width: 400px;
-        margin: 0 auto;
 
         &:hover {
-          transform: translateY(-4px);
+          transform: translateY(-2px);
         }
 
         .post-image {
           width: 100%;
-          height: 200px;
+          height: 90px;
           object-fit: cover;
         }
 
         .post-details {
-          padding: 14px;
-          background-color: $dark-gray;
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
+          padding: 8px;
 
           .post-title {
+            font-size: 13px;
+            font-weight: 600;
             color: $white;
-            font-size: 15px;
-            font-weight: 500;
-            margin: 0;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
           }
 
           .post-description {
+            font-size: 11px;
             color: $text-gray;
-            font-size: 13px;
-            margin: 0;
+            margin-bottom: 4px;
             display: -webkit-box;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
-            text-overflow: ellipsis;
           }
 
           .post-tags {
             display: flex;
             flex-wrap: wrap;
-            gap: 6px;
+            gap: 3px;
 
             .tag {
-              color: $orange;
-              font-size: 13px;
-              font-weight: 500;
+              font-size: 9px;
+              background-color: rgba($light-gray, 0.2);
+              color: $text-gray;
+              padding: 2px 4px;
+              border-radius: 3px;
             }
           }
 
           .post-date {
+            font-size: 9px;
             color: $text-gray;
-            font-size: 11px;
-            opacity: 0.7;
-            margin-top: auto;
+            margin-top: 4px;
           }
         }
       }
@@ -486,7 +580,7 @@ $text-gray: #bbbbbb;
 @media (max-width: 600px) {
   .user-profile {
     border-radius: 0;
-    
+
     .profile-info {
       .quick-stats {
         grid-template-columns: repeat(2, 1fr);
@@ -504,10 +598,10 @@ $text-gray: #bbbbbb;
           height: 80px;
         }
       }
-      
+
       .user-info {
         margin-top: 48px;
-        
+
         h1 {
           font-size: 20px;
         }
@@ -627,147 +721,75 @@ $text-gray: #bbbbbb;
     color: $white;
     margin: 0;
   }
-
-  .add-post-btn {
-    background-color: $orange;
-    color: $white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 6px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-
-    &:hover {
-      background-color: darken($orange, 10%);
-      transform: translateY(-2px);
-    }
-  }
 }
 
 .posts-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 20px;
-  padding: 0 16px 16px 16px;
-  margin: 0 auto;
-  max-width: 1200px;
-  width: 100%;
-  box-sizing: border-box;
-
-  @media (max-width: 768px) {
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 16px;
-    padding: 0 12px 12px 12px;
-  }
-
-  @media (max-width: 480px) {
-    grid-template-columns: 1fr; // Single column for mobile
-    gap: 16px;
-    padding: 0 8px 8px 8px;
-  }
+  grid-template-columns: repeat(auto-fill, 140px);
+  gap: 12px;
+  padding: 16px;
+  justify-content: start;
+  align-content: start;
 
   .post-card {
-    background-color: $dark-gray;
-    border-radius: 12px;
+    width: 140px;
+    border: 1px solid rgba($light-gray, 0.2);
+    border-radius: 6px;
     overflow: hidden;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    background-color: $medium-gray;
     transition: transform 0.2s ease;
-    height: fit-content;
-    border: 1px solid rgba($light-gray, 0.1);
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    box-sizing: border-box;
 
     &:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+      transform: translateY(-2px);
     }
 
     .post-image {
       width: 100%;
-      height: 200px;
+      height: 90px;
       object-fit: cover;
-      flex-shrink: 0;
-
-      @media (max-width: 768px) {
-        height: 180px;
-      }
-
-      @media (max-width: 480px) {
-        height: 200px; // Slightly larger for mobile single column
-      }
     }
 
     .post-details {
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      flex-grow: 1;
-      box-sizing: border-box;
-
-      @media (max-width: 768px) {
-        padding: 12px;
-      }
+      padding: 8px;
 
       .post-title {
-        color: $white;
-        font-size: 16px;
+        font-size: 13px;
         font-weight: 600;
-        margin: 0 0 8px 0;
-        line-height: 1.4;
+        color: $white;
+        margin-bottom: 4px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
 
       .post-description {
+        font-size: 11px;
         color: $text-gray;
-        margin: 0 0 12px 0;
-        font-size: 13px;
-        line-height: 1.5;
-        flex-grow: 1;
-
-        // Limit description to 3 lines with ellipsis
+        margin-bottom: 4px;
         display: -webkit-box;
-        -webkit-line-clamp: 3;
+        -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
-        text-overflow: ellipsis;
       }
 
       .post-tags {
         display: flex;
         flex-wrap: wrap;
-        gap: 6px;
-        margin-bottom: 12px;
+        gap: 3px;
 
         .tag {
-          background-color: rgba($orange, 0.1);
-          color: $orange;
-          padding: 4px 8px;
-          border-radius: 12px;
-          font-size: 11px;
-          font-weight: 500;
-          transition: all 0.2s ease;
-          display: inline-block;
-
-          &:hover {
-            background-color: rgba($orange, 0.2);
-            transform: translateY(-1px);
-          }
+          font-size: 9px;
+          background-color: rgba($light-gray, 0.2);
+          color: $text-gray;
+          padding: 2px 4px;
+          border-radius: 3px;
         }
       }
 
       .post-date {
+        font-size: 9px;
         color: $text-gray;
-        font-size: 11px;
-        display: block;
-        margin-top: auto;
-        padding-top: 8px;
-        opacity: 0.8;
+        margin-top: 4px;
       }
     }
   }
@@ -892,24 +914,5 @@ $text-gray: #bbbbbb;
     font-size: 20px;
     color: $white;
     margin: 0;
-  }
-
-  .new-post-btn {
-    background-color: $orange;
-    color: $white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 4px;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-
-    &:hover {
-      background-color: darken($orange, 10%);
-    }
   }
 }

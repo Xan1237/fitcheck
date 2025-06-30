@@ -4,6 +4,7 @@ import './style.scss';
 import { useParams } from "react-router-dom";
 import axios from 'axios';
 import { User } from 'lucide-react';
+import GymSearch from '../../components/GymSearch/GymSearch';
 
 /**
  * UserProfile Component
@@ -45,6 +46,8 @@ const UserProfile = () => {
   });
   const [posts, setPosts] = useState([]);
   const fileInputRef = useRef(null);
+  const [userGyms, setUserGyms] = useState([]);
+  const [showGymSearch, setShowGymSearch] = useState(false);
 
   /**
    * Checks if the current authenticated user owns this profile
@@ -199,6 +202,10 @@ const UserProfile = () => {
       await getFollowingCount();
       await getPrCount();
       await getPostCount();
+      // Initialize with some mock data if needed
+      setUserGyms([
+        { id: 1, name: "24 Hour Fitness", address: "123 Main St, Seattle, WA" }
+      ]);
     };
     fetchAll();
   }, [name]);
@@ -319,6 +326,28 @@ const UserProfile = () => {
     }
   };
 
+  const handleGymSelect = async (gym) => {
+    // Prevent adding duplicate gyms
+    if (userGyms.some(g => g.id === gym.id)) {
+      alert('This gym is already in your profile!');
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('token');
+      // In production, you would make an API call here
+      // await axios.post('/api/addUserGym', { gymId: gym.id }, {
+      //     headers: { Authorization: `Bearer ${token}` }
+      // });
+      
+      setUserGyms(prev => [...prev, gym]);
+      setShowGymSearch(false);
+    } catch (error) {
+      console.error('Error adding gym:', error);
+      alert('Failed to add gym. Please try again.');
+    }
+  };
+
   return (
     <div className="user-profile">
       <div className="profile-info">
@@ -340,12 +369,19 @@ const UserProfile = () => {
           <p className="username">{"@"+userData.username}</p>
           <p className="bio">{userData.bio}</p>
           {isOwnProfile && (
-            <button 
+            <><button
               className="edit-profile-btn"
               onClick={() => window.location.href = '/profile'}
             >
               Edit Profile
             </button>
+            <button
+              className="add-post-btn"
+              onClick={() => [setShowAddPostModal(true), setActiveTab("nutrition")]}
+            >
+              <span className="plus-icon">+</span>
+              New Post
+            </button></>
           )}
         </div>
 
@@ -432,24 +468,42 @@ const UserProfile = () => {
             </div>
           )}
           
-          {/* Progress Tab - Currently a placeholder */}
+          {/* Progress Tab */}
           {activeTab === 'progress' && (
             <div className="progress-tab">
-              <p>Progress charts will appear here</p>
+              {isOwnProfile && (
+                <button 
+                  className="add-gym-btn orange-btn"
+                  onClick={() => setShowGymSearch(true)}
+                >
+                  + Add Gym
+                </button>
+              )}
+              <div className="gym-list horizontal">
+                {userGyms.map((gym) => (
+                  <div key={gym.id} className="gym-card">
+                    <h3>{gym.name}</h3>
+                    <p>{gym.address}</p>
+                  </div>
+                ))}
+              </div>
+              {showGymSearch && (
+                <div className="modal-overlay">
+                  <div className="modal-content gym-search-modal">
+                    <div className="modal-header">
+                      <h3>Search Gyms</h3>
+                      <button className="close-btn" onClick={() => setShowGymSearch(false)}>×</button>
+                    </div>
+                    <GymSearch onGymSelect={handleGymSelect} />
+                  </div>
+                </div>
+              )}
             </div>
           )}
           
-          {/* Nutrition Tab - Currently a placeholder */}
+          {/* Nutrition Tab */}
           {activeTab === 'nutrition' && (
             <div className="nutrition-tab">
-              {isOwnProfile && (
-                <button 
-                  className="add-post-btn"
-                  onClick={() => setShowAddPostModal(true)}
-                >
-                  + New Post
-                </button>
-              )}
               <div className="posts-grid">
                 {posts.map((post) => (
                   <div key={post.id} className="post-card">

@@ -91,13 +91,16 @@ const Header = () => {
         </div>
 
         <nav className={`nav-links ${menuOpen ? "open" : ""}`}>
-          <Link to="/ContactUs" onClick={() => setMenuOpen(false)}>Contact Us</Link>
-          <Link to="/addGym" onClick={() => setMenuOpen(false)}>Don't See Your Gym</Link>
+        <Link to="/" onClick={() => setMenuOpen(false)}>Home</Link>
+          <Link to="/" onClick={() => setMenuOpen(false)}>People</Link>
+          <Link to="/FindGym" onClick={() => setMenuOpen(false)}>Gyms</Link>
+          
+          
           
           {isLoggedIn ? (
             <>
               <Link to={`/profile/${userName}`} onClick={() => setMenuOpen(false)}>
-                {loading ? "Loading..." : userName || "My Profile"}
+                {loading ? "Loading..." : "Profile"}
               </Link>
               <button 
                 className="cta-button" 

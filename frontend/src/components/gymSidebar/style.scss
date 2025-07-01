@@ -44,6 +44,9 @@
     transition: all 0.3s ease;
     cursor: pointer;
     border-left: 3px solid transparent;
+    min-width: 0; /* Prevent flex overflow */
+    max-width: 100%; /* Ensure cards don't exceed container */
+    box-sizing: border-box; /* Include padding in width calculation */
 
     &:hover {
       background-color: #333;
@@ -65,18 +68,25 @@
 
     .gym-info {
       flex: 1;
+      min-width: 0; /* Allow flex item to shrink */
+      overflow: hidden; /* Prevent content overflow */
 
       .gym-header {
         display: flex;
         justify-content: space-between;
         align-items: flex-start;
         margin-bottom: 0.5rem;
+        flex-wrap: wrap; /* Allow wrapping on small screens */
+        gap: 0.5rem; /* Add gap between wrapped items */
       }
 
       h3 {
         color: #fff;
         margin: 0;
         font-size: 1.2rem;
+        word-wrap: break-word; /* Handle long gym names */
+        overflow-wrap: break-word;
+        max-width: 100%;
       }
 
       .gym-rating {
@@ -104,11 +114,14 @@
         color: #ccc;
         margin: 0 0 1rem 0;
         font-size: 0.9rem;
+        word-wrap: break-word; /* Handle long addresses */
+        overflow-wrap: break-word;
       }
 
       .gym-actions {
         display: flex;
         gap: 1rem;
+        flex-wrap: wrap; /* Allow buttons to wrap on narrow screens */
 
         .gym-link,
         .directions-link {
@@ -120,6 +133,8 @@
           text-decoration: none;
           font-size: 0.9rem;
           transition: all 0.2s ease;
+          white-space: nowrap; /* Prevent button text from wrapping */
+          min-width: 0; /* Allow buttons to shrink if needed */
         }
 
         .gym-link {

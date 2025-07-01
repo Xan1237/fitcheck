@@ -4,6 +4,7 @@ import './style.scss';
 import { useParams, useNavigate } from "react-router-dom";
 import axios from 'axios';
 import { User } from 'lucide-react';
+import Header from "../../components/header";
 import GymSearch from '../../components/GymSearch/GymSearch';
 
 /**
@@ -388,6 +389,7 @@ const UserProfile = () => {
 
   return (
     <div className="user-profile">
+      <Header />
       <div className="profile-info">
         <div className="profile-picture">
           {userData.profilePicture ? (

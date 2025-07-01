@@ -47,6 +47,10 @@
           align-items: center;
           justify-content: center; // Center-align text and icon
           gap: 0.5rem;
+
+          &:hover{
+            color: #f1c40f; 
+          }
   
           svg {
             color: #f1c40f; // Yellow icon color

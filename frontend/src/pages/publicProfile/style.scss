@@ -502,8 +502,8 @@ $text-gray: #bbbbbb;
 
     .posts-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-      gap: 12px;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
       padding: 16px;
       width: 100%;
       height: 100%;
@@ -725,14 +725,14 @@ $text-gray: #bbbbbb;
 
 .posts-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, 140px);
-  gap: 12px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
   padding: 16px;
   justify-content: start;
   align-content: start;
 
   .post-card {
-    width: 140px;
+    width: 100%;
     border: 1px solid rgba($light-gray, 0.2);
     border-radius: 6px;
     overflow: hidden;

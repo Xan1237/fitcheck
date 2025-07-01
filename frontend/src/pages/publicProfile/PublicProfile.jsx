@@ -1,7 +1,7 @@
 // UserProfile.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import './style.scss';
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import axios from 'axios';
 import { User } from 'lucide-react';
 import GymSearch from '../../components/GymSearch/GymSearch';
@@ -13,7 +13,8 @@ import GymSearch from '../../components/GymSearch/GymSearch';
 const UserProfile = () => {
   // Extract the name parameter from the URL
   const { name } = useParams();
-  
+  const navigate = useNavigate();
+
   // State management for user data with default values
   const [userData, setUserData] = useState({
     name: "Alex Johnson",
@@ -202,10 +203,9 @@ const UserProfile = () => {
       await getFollowingCount();
       await getPrCount();
       await getPostCount();
-      // Initialize with some mock data if needed
-      setUserGyms([
-        { id: 1, name: "24 Hour Fitness", address: "123 Main St, Seattle, WA" }
-      ]);
+      await fetchUserGyms();
+  
+      
     };
     fetchAll();
   }, [name]);
@@ -213,6 +213,34 @@ const UserProfile = () => {
   /**
    * Handles saving a new PR
    */
+
+  async function fetchUserGyms() {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get('/api/getUserGyms', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      if (response.data.gyms) {
+        console.log('User gyms fetched successfully:', response.data.gyms);
+        setUserGyms(response.data.gyms.map(gym => ({
+          id: gym.id,
+          name: gym.name,
+          address: gym.address
+        }))
+        );  
+      } else {
+        console.error('No gyms found for this user');
+        setUserGyms([]);
+      }
+    } catch (error) {
+      console.error('Error fetching user gyms:', error);
+      setUserGyms([]);
+    }
+  };
+          
+
   const handleSavePR = async () => {
     try {
       const token = localStorage.getItem('token');
@@ -335,10 +363,16 @@ const UserProfile = () => {
 
     try {
       const token = localStorage.getItem('token');
-      // In production, you would make an API call here
-      // await axios.post('/api/addUserGym', { gymId: gym.id }, {
-      //     headers: { Authorization: `Bearer ${token}` }
-      // });
+      axios.post('/api/addUserGym', {
+        gymId: gym.id,
+        username: userData.username,
+        gymName: gym.name,
+        gymAdress: gym.address
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
       
       setUserGyms(prev => [...prev, gym]);
       setShowGymSearch(false);
@@ -346,6 +380,10 @@ const UserProfile = () => {
       console.error('Error adding gym:', error);
       alert('Failed to add gym. Please try again.');
     }
+  };
+
+  const handleGymClick = (gymId) => {
+    navigate(`/gym/${gymId}`);
   };
 
   return (
@@ -481,7 +519,12 @@ const UserProfile = () => {
               )}
               <div className="gym-list horizontal">
                 {userGyms.map((gym) => (
-                  <div key={gym.id} className="gym-card">
+                  <div 
+                    key={gym.id} 
+                    className="gym-card"
+                    onClick={() => handleGymClick(gym.id)}
+                    style={{ cursor: 'pointer' }}
+                  >
                     <h3>{gym.name}</h3>
                     <p>{gym.address}</p>
                   </div>
@@ -504,7 +547,12 @@ const UserProfile = () => {
           {/* Nutrition Tab */}
           {activeTab === 'nutrition' && (
             <div className="nutrition-tab">
-              <div className="posts-grid">
+              <div className="posts-grid" style={{ 
+                display: 'grid',
+                gridTemplateColumns: 'repeat(3, 1fr)',
+                gap: '20px',
+                padding: '20px'
+              }}>
                 {posts.map((post) => (
                   <div key={post.id} className="post-card">
                     <img src={post.image_url} alt={post.title} className="post-image" />

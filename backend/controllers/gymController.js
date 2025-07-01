@@ -1,3 +1,7 @@
+import { supabase } from '../config/supabaseApp.js'
+
+
+
 /**
  * Calculates and updates popular tags for a gym based on review data
  * A tag is considered "popular" if it appears in at least 25% of reviews
@@ -123,7 +127,55 @@ const updateGymTags = async (gymId) => {
     }
   };
 
+  async function addUserGym(req, res){
+    const {gymId, username, gymName, gymAdress} = req.body;
+    const userId = req.user.id;
+
+    const { data, error } = await supabase
+      .from('gyms_frequented')
+      .insert({
+        uuid: userId,
+        gymId: gymId,
+        gymName: gymName,
+        username: username,
+        gymAddress: gymAdress
+      });
+    if (error) {
+      console.error("Error adding user gym:", error);
+      return res.status(400).json({ error: error.message });
+    }
+    console.log("User gym added successfully:", data);
+    return res.status(200).json({ message: "Gym added successfully"});
+  }
+
+  async function getUserGyms(req, res) {
+    const userId = req.user.id;
+    try {
+      const { data, error } = await supabase
+        .from('gyms_frequented')
+        .select('gymId, gymName, gymAddress')
+        .eq('uuid', userId);
+
+      if (error) {
+        console.error("Error fetching user gyms:", error);
+        return res.status(400).json({ error: error.message });
+      }
+
+      console.log("User gyms fetched successfully:", data);
+      const gyms = data.map(gym => ({
+        id: gym.gymId,
+        name: gym.gymName,
+        address: gym.gymAddress
+      }));
+
+      return res.status(200).json({ gyms });
+    } catch (error) {
+      console.error("Unexpected error fetching user gyms:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  }
 
 
 
-export { updateGymTags };
+
+export { updateGymTags, addUserGym, getUserGyms };

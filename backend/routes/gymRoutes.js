@@ -5,5 +5,5 @@ const router = express.Router();
 
 
 router.post("/api/addUserGym", verifyAuth, addUserGym);
-router.get("/api/getUserGyms", verifyAuth, getUserGyms);
+router.get("/api/getUserGyms/:name", verifyAuth, getUserGyms);
 export default router;

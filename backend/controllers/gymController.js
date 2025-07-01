@@ -149,12 +149,13 @@ const updateGymTags = async (gymId) => {
   }
 
   async function getUserGyms(req, res) {
-    const userId = req.user.id;
+    const {name} = req.params;
+    console.log("Fetching gyms for user:", name);
     try {
       const { data, error } = await supabase
         .from('gyms_frequented')
         .select('gymId, gymName, gymAddress')
-        .eq('uuid', userId);
+        .eq('username', name);
 
       if (error) {
         console.error("Error fetching user gyms:", error);

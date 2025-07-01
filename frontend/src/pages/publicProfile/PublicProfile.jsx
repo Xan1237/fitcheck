@@ -218,7 +218,7 @@ const UserProfile = () => {
   async function fetchUserGyms() {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('/api/getUserGyms', {
+      const response = await axios.get(`/api/getUserGyms/${name}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }

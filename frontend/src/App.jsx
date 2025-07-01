@@ -9,6 +9,7 @@ import ContactUs from "./pages/contactUs/contactUs";
 import SignIn from "./pages/userAuth";
 import Profile from "./pages/profile/profile";
 import PublicProfile from "./pages/publicProfile/PublicProfile"
+import Feed from "./pages/feed/index";
 import "./index.css";
 
 const App = () => {
@@ -22,6 +23,8 @@ const App = () => {
         <Route path="/profile/:name" element={<PublicProfile/>}/>
         <Route path="/addGym" element={<AddGym />} />
         <Route path="/contactUs" element={<ContactUs/>} />
+        <Route path="/" element={<Feed/>}/>
+
       </Routes>
     </Router>
   );

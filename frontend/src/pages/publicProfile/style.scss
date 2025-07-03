@@ -296,6 +296,7 @@ $text-gray: #bbbbbb;
     .tab-content {
       width: 100%;
       padding: 24px;
+      height: 60vh;
 
       h2 {
         font-size: 20px;
@@ -421,154 +422,183 @@ $text-gray: #bbbbbb;
       }
 
       .nutrition-tab {
-        display: flex;
-        justify-content: flex-start;
-        align-items: center;
-        height: 200px;
-        color: $text-gray;
         width: 100%;
-      }
-    }
-  }
+        box-sizing: border-box;
+        background-color: $black;
+        min-height: 100%;
+        height: 100%;
+        overflow-y: auto;
+        padding: 0;
+        position: relative;
 
-  .nutrition-tab {
-    width: 100%;
-    box-sizing: border-box;
-    background-color: $black;
-    min-height: 100%;
-    height: 100%;
-    overflow-y: auto;
-    padding: 0;
-    position: relative;
+        .add-post-btn {
+          position: fixed;
+          bottom: 24px;
+          right: 24px;
+          background-color: $orange;
+          color: $white;
+          border: none;
+          padding: 12px 20px;
+          border-radius: 50px;
+          font-size: 14px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+          z-index: 100;
+          display: flex;
+          align-items: center;
+          gap: 8px;
 
-    .add-post-btn {
-      position: fixed;
-      bottom: 24px;
-      right: 24px;
-      background-color: $orange;
-      color: $white;
-      border: none;
-      padding: 12px 20px;
-      border-radius: 50px;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-      z-index: 100;
-      display: flex;
-      align-items: center;
-      gap: 8px;
+          &:hover {
+            background-color: $orange-light;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+          }
 
-      &:hover {
-        background-color: $orange-light;
-        transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
-      }
-
-      &:active {
-        transform: translateY(0);
-      }
-    }
-
-    .add-post-btn {
-      background: linear-gradient(45deg, #ff6b6b, #ff8e53);
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 25px;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      transition: transform 0.2s, box-shadow 0.2s;
-      cursor: pointer;
-      margin-left: 10px;
-
-      &:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(255, 107, 107, 0.2);
-      }
-
-      .plus-icon {
-        font-size: 18px;
-        font-weight: bold;
-      }
-    }
-
-    .primary-btn {
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    }
-
-    .posts-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
-      padding: 16px;
-      width: 100%;
-      height: 100%;
-      justify-content: start;
-      align-content: start;
-
-      .post-card {
-        width: 100%;
-        border: 1px solid rgba($light-gray, 0.2);
-        border-radius: 6px;
-        overflow: hidden;
-        background-color: $medium-gray;
-        transition: transform 0.2s ease;
-
-        &:hover {
-          transform: translateY(-2px);
+          &:active {
+            transform: translateY(0);
+          }
         }
 
-        .post-image {
+        .posts-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 24px;
+          padding: 24px;
           width: 100%;
-          height: 90px;
-          object-fit: cover;
-        }
+          justify-content: start;
+          align-content: start;
 
-        .post-details {
-          padding: 8px;
-
-          .post-title {
-            font-size: 13px;
-            font-weight: 600;
-            color: $white;
-            margin-bottom: 4px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+          @media (max-width: 1200px) {
+            gap: 20px;
+            padding: 20px;
           }
 
-          .post-description {
-            font-size: 11px;
-            color: $text-gray;
-            margin-bottom: 4px;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
+          @media (max-width: 768px) {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            padding: 16px;
           }
 
-          .post-tags {
+          @media (max-width: 480px) {
+            grid-template-columns: 1fr;
+            gap: 16px;
+            padding: 12px;
+          }
+
+          .post-card {
+            width: 100%;
+            border: 1px solid rgba($light-gray, 0.2);
+            border-radius: 12px;
+            overflow: hidden;
+            background-color: $medium-gray;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
             display: flex;
-            flex-wrap: wrap;
-            gap: 3px;
+            flex-direction: column;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 
-            .tag {
-              font-size: 9px;
-              background-color: rgba($light-gray, 0.2);
-              color: $text-gray;
-              padding: 2px 4px;
-              border-radius: 3px;
+            &:hover {
+              transform: translateY(-4px);
+              box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
             }
-          }
 
-          .post-date {
-            font-size: 9px;
-            color: $text-gray;
-            margin-top: 4px;
+            .post-image {
+              width: 100%;
+              height: 240px;
+              object-fit: cover;
+              flex-shrink: 0;
+              background-color: $light-gray;
+
+              @media (max-width: 768px) {
+                height: 200px;
+              }
+
+              @media (max-width: 480px) {
+                height: 180px;
+              }
+            }
+
+            .post-details {
+              padding: 16px;
+              flex-grow: 1;
+              display: flex;
+              flex-direction: column;
+              min-height: 120px;
+
+              @media (max-width: 480px) {
+                padding: 12px;
+              }
+
+              .post-title {
+                font-size: 16px;
+                font-weight: 600;
+                color: $white;
+                margin-bottom: 8px;
+                line-height: 1.4;
+                overflow-wrap: break-word;
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+
+                @media (max-width: 480px) {
+                  font-size: 14px;
+                }
+              }
+
+              .post-description {
+                font-size: 13px;
+                color: $text-gray;
+                margin-bottom: 12px;
+                line-height: 1.5;
+                flex-grow: 1;
+                overflow-wrap: break-word;
+                display: -webkit-box;
+                -webkit-line-clamp: 3;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+
+                @media (max-width: 480px) {
+                  font-size: 12px;
+                  -webkit-line-clamp: 2;
+                }
+              }
+
+              .post-tags {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 6px;
+                margin-bottom: 12px;
+
+                .tag {
+                  font-size: 11px;
+                  background-color: rgba($orange, 0.2);
+                  color: $orange;
+                  padding: 4px 8px;
+                  border-radius: 12px;
+                  white-space: nowrap;
+                  border: 1px solid rgba($orange, 0.3);
+
+                  @media (max-width: 480px) {
+                    font-size: 10px;
+                    padding: 3px 6px;
+                  }
+                }
+              }
+
+              .post-date {
+                font-size: 11px;
+                color: rgba($text-gray, 0.8);
+                margin-top: auto;
+                align-self: flex-start;
+                font-weight: 500;
+
+                @media (max-width: 480px) {
+                  font-size: 10px;
+                }
+              }
+            }
           }
         }
       }
@@ -726,70 +756,138 @@ $text-gray: #bbbbbb;
 .posts-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-  padding: 16px;
+  gap: 24px;
+  padding: 24px;
   justify-content: start;
   align-content: start;
+
+  @media (max-width: 1200px) {
+    gap: 20px;
+    padding: 20px;
+  }
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    padding: 16px;
+  }
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    padding: 12px;
+  }
 
   .post-card {
     width: 100%;
     border: 1px solid rgba($light-gray, 0.2);
-    border-radius: 6px;
+    border-radius: 12px;
     overflow: hidden;
     background-color: $medium-gray;
-    transition: transform 0.2s ease;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 
     &:hover {
-      transform: translateY(-2px);
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
     }
 
     .post-image {
       width: 100%;
-      height: 90px;
+      height: 240px;
       object-fit: cover;
+      flex-shrink: 0;
+      background-color: $light-gray;
+
+      @media (max-width: 768px) {
+        height: 200px;
+      }
+
+      @media (max-width: 480px) {
+        height: 180px;
+      }
     }
 
     .post-details {
-      padding: 8px;
+      padding: 16px;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 120px;
 
-      .post-title {
-        font-size: 13px;
-        font-weight: 600;
-        color: $white;
-        margin-bottom: 4px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+      @media (max-width: 480px) {
+        padding: 12px;
       }
 
-      .post-description {
-        font-size: 11px;
-        color: $text-gray;
-        margin-bottom: 4px;
+      .post-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: $white;
+        margin-bottom: 8px;
+        line-height: 1.4;
+        overflow-wrap: break-word;
         display: -webkit-box;
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
+
+        @media (max-width: 480px) {
+          font-size: 14px;
+        }
+      }
+
+      .post-description {
+        font-size: 13px;
+        color: $text-gray;
+        margin-bottom: 12px;
+        line-height: 1.5;
+        flex-grow: 1;
+        overflow-wrap: break-word;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+
+        @media (max-width: 480px) {
+          font-size: 12px;
+          -webkit-line-clamp: 2;
+        }
       }
 
       .post-tags {
         display: flex;
         flex-wrap: wrap;
-        gap: 3px;
+        gap: 6px;
+        margin-bottom: 12px;
 
         .tag {
-          font-size: 9px;
-          background-color: rgba($light-gray, 0.2);
-          color: $text-gray;
-          padding: 2px 4px;
-          border-radius: 3px;
+          font-size: 11px;
+          background-color: rgba($orange, 0.2);
+          color: $orange;
+          padding: 4px 8px;
+          border-radius: 12px;
+          white-space: nowrap;
+          border: 1px solid rgba($orange, 0.3);
+
+          @media (max-width: 480px) {
+            font-size: 10px;
+            padding: 3px 6px;
+          }
         }
       }
 
       .post-date {
-        font-size: 9px;
-        color: $text-gray;
-        margin-top: 4px;
+        font-size: 11px;
+        color: rgba($text-gray, 0.8);
+        margin-top: auto;
+        align-self: flex-start;
+        font-weight: 500;
+
+        @media (max-width: 480px) {
+          font-size: 10px;
+        }
       }
     }
   }

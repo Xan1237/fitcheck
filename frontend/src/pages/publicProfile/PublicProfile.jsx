@@ -549,12 +549,7 @@ const UserProfile = () => {
           {/* Nutrition Tab */}
           {activeTab === 'nutrition' && (
             <div className="nutrition-tab">
-              <div className="posts-grid" style={{ 
-                display: 'grid',
-                gridTemplateColumns: 'repeat(3, 1fr)',
-                gap: '20px',
-                padding: '20px'
-              }}>
+              <div className="posts-grid">
                 {posts.map((post) => (
                   <div key={post.id} className="post-card">
                     <img src={post.image_url} alt={post.title} className="post-image" />

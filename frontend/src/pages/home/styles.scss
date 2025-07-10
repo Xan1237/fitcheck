@@ -6,6 +6,11 @@
   margin: 0 auto;
   background-color: #1a1a1a;
   overflow-x: hidden;
+  
+  // Add padding on mobile for bottom nav
+  @media (max-width: 768px) {
+    padding-bottom: 80px;
+  }
 }
 
 /* Add specific styling for the top search area */

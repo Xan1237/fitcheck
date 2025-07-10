@@ -2,10 +2,20 @@
   background-color: #242424;
   min-height: 100vh;
   color: #fff;
+  
+  // Add padding on mobile for bottom nav
+  @media (max-width: 768px) {
+    padding-bottom: 80px;
+  }
 
   .header, .footer {
     max-width: 1000px;
     margin: 0 auto;
+    
+    // Hide header and footer on mobile
+    @media (max-width: 768px) {
+      display: none;
+    }
   }
 }
 
@@ -24,6 +34,13 @@
   border-radius: 12px;
   position: relative;
   
+  // Mobile adjustments
+  @media (max-width: 768px) {
+    margin: 10px;
+    padding: 15px;
+    border-radius: 8px;
+  }
+  
   &::before {
     content: '';
     position: absolute;
@@ -34,6 +51,10 @@
     background: linear-gradient(145deg, rgba(255, 107, 53, 0.1), rgba(255, 140, 66, 0.05));
     border-radius: 12px;
     z-index: -1;
+    
+    @media (max-width: 768px) {
+      border-radius: 8px;
+    }
   }
 }
 

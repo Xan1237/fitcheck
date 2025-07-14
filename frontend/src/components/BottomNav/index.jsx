@@ -58,12 +58,12 @@ const BottomNav = () => {
       
       <Link to="/FindGym" className={`nav-item ${location.pathname === '/FindGym' ? 'active' : ''}`}>
         <FaSearch />
-        <span>Find Gym</span>
+        <span>Search</span>
       </Link>
       
       <Link to="/addGym" className={`nav-item ${location.pathname === '/addGym' ? 'active' : ''}`}>
         <FaPlus />
-        <span>Add Gym</span>
+        <span>Post</span>
       </Link>
       
       <Link to="/contactUs" className={`nav-item ${location.pathname === '/contactUs' ? 'active' : ''}`}>

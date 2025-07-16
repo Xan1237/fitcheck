@@ -23,9 +23,10 @@ const UserProfile = () => {
     bio: "Fitness enthusiast | Personal Trainer | Nutrition Coach",
     profilePicture: null,
     stats: {
-      workoutsCompleted: 128,
-      personalBests: 15,
-      following: 267
+      workoutsCompleted: '-',
+      personalBests: '-',
+      followers: '-',
+      following: '-'
     },
     gymStats: [
       

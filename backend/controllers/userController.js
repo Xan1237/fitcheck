@@ -423,6 +423,11 @@ const uploadProfilePicture = async (req, res) => {
       .update({ profile_picture_url: publicUrl })
       .eq('id', req.user.id);  // Use user ID instead of username
 
+    const { error: updateError2 } = await supabase
+      .from('public_profiles')
+      .update({ profile_picture_url: publicUrl })
+      .eq('username', username);  // Use username instead of user ID
+
     if (updateError) {
       console.error("Error updating profile:", updateError);
       return res.status(500).json({ 

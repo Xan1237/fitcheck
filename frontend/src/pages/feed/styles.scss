@@ -532,3 +532,136 @@
     }
   }
 }
+
+.post-comments-section {
+  background: #222;
+  border-radius: 8px;
+  margin: 10px 0;
+  padding: 10px;
+
+  .comments-list {
+    max-height: 150px;
+    overflow-y: auto;
+    margin-bottom: 8px;
+
+    .comment-item {
+      display: flex;
+      flex-direction: column;
+      background: #292929;
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-bottom: 8px;
+      font-size: 15px;
+      color: #eee;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+
+      .comment-user {
+        font-weight: 600;
+        color: #ff6b35;
+        font-size: 14px;
+        margin-bottom: 2px;
+      }
+      .comment-text {
+        color: #fff;
+        font-size: 15px;
+        margin-bottom: 2px;
+        word-break: break-word;
+      }
+      .comment-date {
+        color: #aaa;
+        font-size: 12px;
+        margin-top: 2px;
+        align-self: flex-end;
+      }
+    }
+  }
+
+  .comment-input-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+
+    .comment-input {
+      flex: 1;
+      padding: 10px 14px;
+      border-radius: 8px;
+      border: 1px solid #444;
+      background: #333;
+      color: #fff;
+      font-size: 16px;
+      transition: border-color 0.2s;
+      &:focus {
+        border-color: #ff6b35;
+        outline: none;
+      }
+    }
+
+    .add-comment-btn {
+      background: #ff6b35;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 18px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+      white-space: nowrap;
+      &:disabled {
+        background: #888;
+        cursor: not-allowed;
+      }
+      &:active {
+        background: #e64a19;
+      }
+    }
+  }
+}
+
+// Mobile improvements
+@media (max-width: 600px) {
+  .post-comments-section {
+    padding: 8px 4px;
+    border-radius: 12px;
+    .comments-list {
+      max-height: 120px;
+      .comment-item {
+        padding: 8px 10px;
+        font-size: 14px;
+        margin-bottom: 6px;
+        border-radius: 10px;
+      }
+      .comment-user {
+        font-size: 13px;
+      }
+      .comment-text {
+        font-size: 14px;
+      }
+      .comment-date {
+        font-size: 11px;
+      }
+    }
+    .comment-input-row {
+      gap: 6px;
+      margin-top: 8px;
+      flex-direction: column;
+      align-items: stretch;
+
+      .comment-input {
+        padding: 12px 10px;
+        font-size: 15px;
+        border-radius: 10px;
+        margin-bottom: 6px;
+        width: 100%;
+      }
+      .add-comment-btn {
+        padding: 12px 0;
+        font-size: 15px;
+        border-radius: 10px;
+        width: 100%;
+        margin: 0;
+        box-sizing: border-box;
+      }
+    }
+  }
+}

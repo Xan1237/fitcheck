@@ -20,6 +20,9 @@ const Feed = () => {
   const [posts, setPosts] = useState([]);
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [commentInputs, setCommentInputs] = useState({}); // { [postId]: string }
+  const [comments, setComments] = useState({}); // { [postId]: [comments] }
+  const [loadingComments, setLoadingComments] = useState({}); // { [postId]: bool }
 
   // Transform API post to UI post format
   const transformPostData = (apiPost) => {
@@ -27,7 +30,7 @@ const Feed = () => {
     const tags = typeof apiPost.tags === 'string' ? JSON.parse(apiPost.tags) : apiPost.tags || [];
     
     return {
-      id: apiPost.uuid,
+      id: apiPost.postId, // <-- Use the actual primary key field from your DB, not uuid
       user: {
         username: apiPost.username || 'anonymous',
         name: apiPost.username?.split('@')[0] || 'Anonymous User',
@@ -65,6 +68,42 @@ const Feed = () => {
       setPosts([]);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Fetch comments for a post
+  const fetchComments = async (postId) => {
+    setLoadingComments(prev => ({ ...prev, [postId]: true }));
+    try {
+      const response = await axios.get(`/api/post/${postId}/comments`);
+      setComments(prev => ({ ...prev, [postId]: response.data.data || [] }));
+    } catch (error) {
+      setComments(prev => ({ ...prev, [postId]: [] }));
+      console.error('Error fetching comments:', error);
+    } finally {
+      setLoadingComments(prev => ({ ...prev, [postId]: false }));
+    }
+  };
+
+  // Add a comment to a post
+  const handleAddComment = async (postId) => {
+    const text = commentInputs[postId];
+    if (!text || !text.trim()) return;
+    try {
+      const token = localStorage.getItem('token');
+      // Send all info in the body
+      await axios.post(`/api/post/${postId}/comment`, {
+        text,
+        created_at: new Date(),
+        username: userData?.username || undefined
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setCommentInputs(prev => ({ ...prev, [postId]: '' }));
+      await fetchComments(postId);
+    } catch (error) {
+      alert('Failed to add comment');
+      console.error('Failed to add comment:', error);
     }
   };
 
@@ -185,15 +224,55 @@ const Feed = () => {
                   {post.isLiked ? <FaHeart /> : <FaRegHeart />}
                   <span>{post.likes}</span>
                 </button>
-                <button className="action-btn comment-btn">
+                <button 
+                  className="action-btn comment-btn"
+                  onClick={() => fetchComments(post.id)}
+                >
                   <FaComment />
-                  <span>{post.comments}</span>
+                  <span>{comments[post.id]?.length || post.comments}</span>
                 </button>
                 <button className="action-btn share-btn">
                   <FaShare />
                   <span>{post.shares}</span>
                 </button>
               </div>
+
+              {/* Post Comments Section */}
+              {comments[post.id] && (
+                <div className="post-comments-section">
+                  <div className="comments-list">
+                    {loadingComments[post.id] ? (
+                      <div>Loading comments...</div>
+                    ) : comments[post.id].length === 0 ? (
+                      <div>No comments yet.</div>
+                    ) : (
+                      comments[post.id].map(comment => (
+                        <div key={comment.id} className="comment-item">
+                          <span className="comment-user">{comment.user_uuid?.slice(0, 8) || 'User'}:</span>
+                          <span className="comment-text">{comment.text}</span>
+                          <span className="comment-date">{new Date(comment.created_at).toLocaleDateString()}</span>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                  <div className="comment-input-row">
+                    <input
+                      type="text"
+                      placeholder="Add a comment..."
+                      value={commentInputs[post.id] || ''}
+                      onChange={e => setCommentInputs(prev => ({ ...prev, [post.id]: e.target.value }))}
+                      className="comment-input"
+                    />
+                    <button
+                      className="add-comment-btn"
+                      onClick={() => handleAddComment(post.id)}
+                      disabled={!commentInputs[post.id] || !commentInputs[post.id].trim()}
+                    >
+                      Post
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           ))}
         </div>

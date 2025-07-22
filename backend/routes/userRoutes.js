@@ -15,6 +15,7 @@ import { signUpUser } from "../middlewares/auth_signup_password.js";
 import { signInUser } from "../middlewares/auth_signin_password.js";
 import { verifyAuth } from "../middlewares/auth_verify.js";
 import { checkProfileOwnership } from "../middlewares/check_profile_ownership.js";
+import { addPostComment, getPostComments } from "../controllers/postController.js";
 
 const router = express.Router();
 
@@ -32,5 +33,7 @@ router.get("/api/checkProfileOwnership/:username", verifyAuth, checkProfileOwner
 router.post("/api/addPersonalRecord", verifyAuth, addPersonalRecord);
 router.post("/api/uploadProfilePicture", verifyAuth, uploadProfilePicture);
 router.post("/api/createPost", verifyAuth, createPost);
+router.post("/api/post/:postId/comment", verifyAuth, addPostComment);
+router.get("/api/post/:postId/comments", getPostComments);
 
 export default router;

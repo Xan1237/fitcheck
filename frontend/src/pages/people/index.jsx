@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { FaSearch, FaUser } from "react-icons/fa";
+import Header from "../../components/header";
 import "./styles.scss";
 
 const People = () => {
@@ -33,43 +34,45 @@ const People = () => {
   );
 
   return (
-    <div className="people-page">
-      <div className="people-header">
-        <h1>
-          <FaUser /> People
-        </h1>
-        <div className="people-search-bar">
-          <FaSearch />
-          <input
-            type="text"
-            placeholder="Search users..."
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-          />
+    <>
+      <Header />
+      <div className="people-page">
+        <div className="people-header">
+          <h1>
+            <FaUser /> People
+          </h1>
+          <div className="people-search-bar">
+            <FaSearch />
+            <input
+              type="text"
+              placeholder="Search users..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+            />
+          </div>
+        </div>
+        <div className="people-list">
+          {loading ? (
+            <div className="loading">Loading...</div>
+          ) : filteredUsers.length === 0 ? (
+            <div className="no-users">No users found.</div>
+          ) : (
+            filteredUsers.map(user => (
+              <Link
+                key={user.username}
+                to={`/profile/${user.username}`}
+                className="people-list-item"
+              >
+                <FaUser className="user-icon" />
+                <span className="user-name">{user.name || user.username}</span>
+                <span className="user-username">@{user.username}</span>
+              </Link>
+            ))
+          )}
         </div>
       </div>
-      <div className="people-list">
-        {loading ? (
-          <div className="loading">Loading...</div>
-        ) : filteredUsers.length === 0 ? (
-          <div className="no-users">No users found.</div>
-        ) : (
-          filteredUsers.map(user => (
-            <Link
-              key={user.username}
-              to={`/profile/${user.username}`}
-              className="people-list-item"
-            >
-              <FaUser className="user-icon" />
-              <span className="user-name">{user.name || user.username}</span>
-              <span className="user-username">@{user.username}</span>
-            </Link>
-          ))
-        )}
-      </div>
-    </div>
+    </>
   );
 };
-
 
 export default People;

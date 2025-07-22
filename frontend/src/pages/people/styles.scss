@@ -1,5 +1,5 @@
 .people-page {
-  max-width: 600px;
+  max-width: 800px; // Match feed page
   margin: 0 auto;
   padding: 24px 12px;
   background: #222;
@@ -8,6 +8,7 @@
 }
 
 .people-header {
+    
   display: flex;
   flex-direction: column;
   align-items: flex-start;

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { FaBars, FaTimes, FaDumbbell } from "react-icons/fa";
+import { FaBars, FaTimes, FaDumbbell, FaUser, FaSearch, FaPlus, FaHome } from "react-icons/fa";
 import "./style.scss";
 import axios from "axios";
 
@@ -91,16 +91,23 @@ const Header = () => {
         </div>
 
         <nav className={`nav-links ${menuOpen ? "open" : ""}`}>
-        <Link to="/" onClick={() => setMenuOpen(false)}>Home</Link>
-          <Link to="/" onClick={() => setMenuOpen(false)}>People</Link>
-          <Link to="/FindGym" onClick={() => setMenuOpen(false)}>Gyms</Link>
-          
-          
-          
+          <Link to="/" onClick={() => setMenuOpen(false)}>
+             Home
+          </Link>
+          <Link to="/people" onClick={() => setMenuOpen(false)}>
+            People
+          </Link>
+          <Link to="/FindGym" onClick={() => setMenuOpen(false)}>
+             Gyms
+          </Link>
+          <Link to="/createPost" onClick={() => setMenuOpen(false)}>
+           Post
+          </Link>
+          {/* Contact section not shown in mobile, so skip */}
           {isLoggedIn ? (
             <>
               <Link to={`/profile/${userName}`} onClick={() => setMenuOpen(false)}>
-                {loading ? "Loading..." : "Profile"}
+                {loading ? "Loading..." : <> Profile</>}
               </Link>
               <button 
                 className="cta-button" 

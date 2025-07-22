@@ -6,6 +6,9 @@
   color: #fff;
   font-family: "Poppins", sans-serif;
   position: relative;
+  max-width: 800px; // Match feed page
+  margin: 0 auto;
+    width: 100%;
 
   // Hide header on mobile devices
   @media (max-width: 768px) {

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
   FaHome, 
   FaSearch, 
@@ -10,11 +10,15 @@ import {
 } from 'react-icons/fa';
 import axios from 'axios';
 import './style.scss';
+import PublicProfile from '../../pages/publicProfile/PublicProfile'; // Import the profile page for modal logic
+
 
 const BottomNav = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState("");
+  const [showCreatePost, setShowCreatePost] = useState(false);
   
   // Check auth status and fetch username
   useEffect(() => {
@@ -62,10 +66,17 @@ const BottomNav = () => {
         <span>Gyms</span>
       </Link>
       
-      <Link to="/profile/createPost" className={`nav-item ${location.pathname === '/profile/createPost' ? 'active' : ''}`}>
+      <button
+        className={`nav-item${location.pathname === '/createPost' ? ' active' : ''}`}
+        style={{ background: 'none', border: 'none', padding: 0 }}
+        onClick={e => {
+          e.preventDefault();
+          navigate('/createPost');
+        }}
+      >
         <FaPlus />
         <span>Post</span>
-      </Link>
+      </button>
       
       <Link to="/people" className={`nav-item ${location.pathname === '/people' ? 'active' : ''}`}>
         <FaSearch />
@@ -82,6 +93,14 @@ const BottomNav = () => {
           <FaUser />
           <span>Login</span>
         </Link>
+      )}
+
+      {showCreatePost && (
+        <PublicProfile
+          showAddPostModal={true}
+          setShowAddPostModal={setShowCreatePost}
+          // Optionally pass other props if needed
+        />
       )}
     </div>
   );

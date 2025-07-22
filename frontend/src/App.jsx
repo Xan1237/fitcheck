@@ -10,6 +10,7 @@ import ContactUs from "./pages/contactUs/contactUs";
 import SignIn from "./pages/userAuth";
 import Profile from "./pages/profile/profile";
 import PublicProfile from "./pages/publicProfile/PublicProfile"
+import People from "./pages/people/index";
 import Feed from "./pages/feed/index";
 import "./index.css";
 
@@ -25,6 +26,7 @@ const App = () => {
         <Route path="/addGym" element={<AddGym />} />
         <Route path="/contactUs" element={<ContactUs/>} />
         <Route path="/" element={<Feed/>}/>
+        <Route path="/people" element={<People />} />
       </Routes>
       <BottomNav />
     </Router>

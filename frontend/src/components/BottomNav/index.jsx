@@ -55,19 +55,20 @@ const BottomNav = () => {
         <FaHome />
         <span>Home</span>
       </Link>
+
       
       <Link to="/FindGym" className={`nav-item ${location.pathname === '/FindGym' ? 'active' : ''}`}>
-        <FaSearch />
-        <span>Search</span>
+        <FaDumbbell />
+        <span>Gyms</span>
       </Link>
       
-      <Link to="/addGym" className={`nav-item ${location.pathname === '/addGym' ? 'active' : ''}`}>
+      <Link to="/profile/createPost" className={`nav-item ${location.pathname === '/profile/createPost' ? 'active' : ''}`}>
         <FaPlus />
         <span>Post</span>
       </Link>
       
-      <Link to="/contactUs" className={`nav-item ${location.pathname === '/contactUs' ? 'active' : ''}`}>
-        <FaEnvelope />
+      <Link to="/people" className={`nav-item ${location.pathname === '/people' ? 'active' : ''}`}>
+        <FaSearch />
         <span>Contact</span>
       </Link>
       

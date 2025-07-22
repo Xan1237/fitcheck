@@ -537,6 +537,22 @@ const createPost = async (req, res) => {
   }
 };
 
+// Get all users (for people search)
+const getAllUsers = async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('users')
+      .select('username');
+
+    if (error) {
+      return res.status(500).json({ success: false, error: error.message });
+    }
+    return res.status(200).json(data);
+  } catch (err) {
+    return res.status(500).json({ success: false, error: err.message });
+  }
+};
+
 // Export middleware and controllers
 export {// New middleware for authentication
   profile,
@@ -545,5 +561,6 @@ export {// New middleware for authentication
   getUserName,
   addPersonalRecord,
   uploadProfilePicture,
-  createPost
+  createPost,
+  getAllUsers
 };

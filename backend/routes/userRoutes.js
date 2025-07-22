@@ -6,7 +6,8 @@ import {
   getUserName,
   uploadProfilePicture,
   addPersonalRecord,
-  createPost
+  createPost,
+  getAllUsers
 } from "../controllers/userController.js"; // Updated import
 
 import { getAdress } from "../controllers/searchController.js";
@@ -35,5 +36,7 @@ router.post("/api/uploadProfilePicture", verifyAuth, uploadProfilePicture);
 router.post("/api/createPost", verifyAuth, createPost);
 router.post("/api/post/:postId/comment", verifyAuth, addPostComment);
 router.get("/api/post/:postId/comments", getPostComments);
+router.get("/api/getAllUsers", getAllUsers);
+
 
 export default router;

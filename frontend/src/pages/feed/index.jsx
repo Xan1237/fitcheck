@@ -174,13 +174,10 @@ const Feed = () => {
                       {post.user.verified && <span className="verified-badge">✓</span>}
                     </div>
                     <div className="user-meta">
-                      @{post.user.username} • {post.timestamp}
+                      @{post.user.username}  {post.timestamp}
                     </div>
                   </div>
                 </div>
-                <button className="post-menu-btn">
-                  <FaEllipsisV />
-                </button>
               </div>
 
               {post.workoutType && (
@@ -288,5 +285,7 @@ const Feed = () => {
     </div>
   );
 };
+
+
 
 export default Feed;

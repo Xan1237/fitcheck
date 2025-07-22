@@ -9,21 +9,15 @@ const People = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // Fetch users from backend (replace with your API endpoint)
+  // Fetch users from backend
   useEffect(() => {
     const fetchUsers = async () => {
       setLoading(true);
       try {
-        // Replace with your actual API endpoint for users
         const response = await axios.get("/api/getAllUsers");
         setUsers(response.data || []);
       } catch (error) {
-        // Fallback to mock data if API fails
-        setUsers([
-          { username: "alexfit", name: "Alex Johnson" },
-          { username: "jane_doe", name: "Jane Doe" },
-          { username: "johnny", name: "Johnny Bravo" }
-        ]);
+        setUsers([]);
       } finally {
         setLoading(false);
       }
@@ -76,5 +70,6 @@ const People = () => {
     </div>
   );
 };
+
 
 export default People;

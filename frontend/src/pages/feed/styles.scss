@@ -10,7 +10,7 @@
   }
 
   .header, .footer {
-    max-width: 800px;
+    // max-width: 800px;
     margin: 0 auto;
     width: 100%;
 
@@ -235,7 +235,7 @@
 
 // Loading indicator and empty state
 .loading-indicator, .empty-state {
-  max-width: 800px;
+  // max-width: 800px;
   margin: 40px auto;
   text-align: center;
   padding: 20px;
@@ -391,15 +391,9 @@
 
 // Responsive Design
 @media (max-width: 1024px) {
-  .feed-container {
-    max-width: 800px;
-  }
+  
 
-  .feed-page {
-    .header, .footer {
-      max-width: 800px;
-    }
-  }
+  
 
   .feed-content {
     height: auto;

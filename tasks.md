@@ -9,12 +9,16 @@
     7) split controllers into multiple files for better code clairity
     8) Create a system for recomending diffrent post/ pageanation for the results
     9) post likes
-    10) add person search page
     11) improve some mobile view stuff
-    
-
-
-    IDEAS
-
-    1) the home page should be diffrent and what the home page is not should be like a search page
+    12) for create profile, Gender should be a checkable box not a typing input box
    
+
+    
+Things that need fixing
+
+1. On mobile view users can't log in
+2. On mobile the contact tab breaks the UI(the bottom nav bar breaks and there is a white bar)
+
+IDEAS
+
+    1)  the home page should be diffrent and what the home page is not should be like a search page

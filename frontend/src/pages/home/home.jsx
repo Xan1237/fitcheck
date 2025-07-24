@@ -5,7 +5,7 @@ import Header from "../../components/header";
 import Footer from "../../components/footer";
 import Title from "../../components/title";
 import gymData from "../../data/gymData.js"; 
-import GymSidebar from "../../components/GymSidebar";
+import GymSidebar from "../../components/gymSidebar";
 import "./styles.scss";
 
 const Home = () => {
@@ -154,4 +154,4 @@ const Home = () => {
   );
 };
 
-export default Home; 
+export default Home;

@@ -11,7 +11,8 @@
     9) post likes
     11) improve some mobile view stuff
     12) for create profile, Gender should be a checkable box not a typing input box
-   
+    13) edit profile doest work cause username foreign key confict not a rly hard fix
+    14) pfp across wensite on comments ect.. just better support 
 
     
 Things that need fixing

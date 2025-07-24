@@ -134,7 +134,7 @@ const Feed = () => {
     // Only save token if Google sign-in (provider_token present or redirect from Google)
     if (token && (provider || window.location.search.includes('provider=google'))) {
       window.location.hash = '';
-      window.location.href = VITE_SITE_URL; // Redirect to feed page
+      window.location.href = "/"; // Redirect to feed page
        localStorage.setItem('token', token);
     }
   }, []);

@@ -5,7 +5,7 @@ import axios from 'axios';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-const REDIRECT_URL = 'https://www.fitcheck.fitness'; // Use current domain for redirect
+const REDIRECT_URL = '/'; // Use current domain for redirect
 
 const AuthPage = () => {
   const [email, setEmail] = useState('');
@@ -25,7 +25,7 @@ const AuthPage = () => {
     if (token && (provider || window.location.search.includes('provider=google'))) {
       localStorage.setItem('token', token);
       window.location.hash = '';
-      window.location.href = 'https://www.fitcheck.fitness'; // Redirect to home page
+      window.location.href = '/'; // Redirect to home page
     }
   }, []);
 
@@ -70,7 +70,7 @@ const AuthPage = () => {
 
       if (response.data.success) {
         localStorage.setItem('token', response.data.token);
-        window.location.href = "https://www.fitcheck.fitness"; // <-- Change to home page
+        window.location.href = "/"; // <-- Change to home page
       } else {
         throw new Error(response.data.message || 'Signup failed');
       }
@@ -103,7 +103,7 @@ const AuthPage = () => {
           localStorage.setItem('expiresAt', expiresAt.toISOString());
         }
         
-        window.location.href = "https://www.fitcheck.fitness"; // <-- Change to home page
+        window.location.href = "/"; // <-- Change to home page
       } else {
         throw new Error(response.data.message || 'Login failed');
       }

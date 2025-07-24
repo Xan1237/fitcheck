@@ -19,7 +19,7 @@ const BottomNav = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState("");
   const [showCreatePost, setShowCreatePost] = useState(false);
-  
+  const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   // Check auth status and fetch username
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -34,7 +34,7 @@ const BottomNav = () => {
   const fetchUsername = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.post('/api/getUserName', {}, {
+      const response = await axios.post(`${VITE_API_BASE_URL}/api/getUserName`, {}, {
         headers: {
           Authorization: `Bearer ${token}`
         }

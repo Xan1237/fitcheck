@@ -1,7 +1,7 @@
 import { supabase } from '../config/supabaseApp.js'
 import axios from "axios";
 import dotenv from "dotenv";
-import { userNameToUuid } from '../utils/usernameToUUID.js'
+import { userNameToUuid } from '../utils/usernameToUuid.js'
 
 dotenv.config();
 

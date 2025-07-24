@@ -13,6 +13,7 @@
     12) for create profile, Gender should be a checkable box not a typing input box
     13) edit profile doest work cause username foreign key confict not a rly hard fix
     14) pfp across wensite on comments ect.. just better support 
+    15) connect the contact us page to a button so users can access it
 
     
 Things that need fixing

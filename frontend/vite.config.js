@@ -6,12 +6,12 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://localhost:5175',  // Redirect /api requests to backend
+        target: 'https://fitcheck-kt9g.onrender.com',  // Redirect /api requests to backend
         changeOrigin: true,
         secure: false,
       },
       '/auth': {
-        target: 'http://localhost:5175',  // Redirect /auth requests to backend
+        target: 'https://fitcheck-kt9g.onrender.com',  // Redirect /auth requests to backend
         changeOrigin: true,
         secure: false,
       },

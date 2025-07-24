@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './SignIn.scss';
 import { FaDumbbell } from "react-icons/fa";
 import axios from 'axios';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const REDIRECT_URL =  '/feed'; // <-- Change to home page
 
 const AuthPage = () => {
   const [email, setEmail] = useState('');
@@ -13,6 +15,19 @@ const AuthPage = () => {
   const [isSignUp, setIsSignUp] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  // Extract and save token from hash if present (for Google sign-in)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.hash.replace('#', ''));
+    const token = params.get('access_token');
+    const provider = params.get('provider_token');
+    // Only save token if Google sign-in (provider_token present or redirect from Google)
+    if (token && (provider || window.location.search.includes('provider=google'))) {
+      localStorage.setItem('token', token);
+      window.location.hash = '';
+      window.location.href = '/'; // Redirect to home page
+    }
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -55,7 +70,7 @@ const AuthPage = () => {
 
       if (response.data.success) {
         localStorage.setItem('token', response.data.token);
-        window.location.href = "/profile";
+        window.location.href = "/"; // <-- Change to home page
       } else {
         throw new Error(response.data.message || 'Signup failed');
       }
@@ -88,7 +103,7 @@ const AuthPage = () => {
           localStorage.setItem('expiresAt', expiresAt.toISOString());
         }
         
-        window.location.href = "/";
+        window.location.href = "/"; // <-- Change to home page
       } else {
         throw new Error(response.data.message || 'Login failed');
       }
@@ -107,6 +122,22 @@ const AuthPage = () => {
     setPassword('');
     setConfirmPassword('');
     setRememberMe(false);
+  };
+
+  // Supabase docs: https://supabase.com/docs/guides/auth/social-login/auth-google
+  const handleGoogleAuth = () => {
+    if (!SUPABASE_URL || SUPABASE_URL === 'undefined') {
+      setError('Google sign-in is not configured. Please contact support.');
+      return;
+    }
+    window.location.href = `${SUPABASE_URL}/auth/v1/authorize?provider=google&redirect_to=${encodeURIComponent(REDIRECT_URL)}`;
+    // Extract access_token from hash and save to localStorage
+    const hashParams = new URLSearchParams(window.location.hash.replace('#', ''));
+    const accessToken = hashParams.get('access_token');
+    console.log('Access token from hash:', accessToken);
+    if (accessToken) {
+      localStorage.setItem('token', accessToken);
+    }
   };
 
   return (
@@ -131,6 +162,11 @@ const AuthPage = () => {
           {error && (
             <div className="error-message">
               {error}
+            </div>
+          )}
+          {(!error && !loading && localStorage.getItem('token') && localStorage.getItem('username')) && (
+            <div className="success-message">
+              Login successful! Redirecting to your profile...
             </div>
           )}
 
@@ -199,18 +235,17 @@ const AuthPage = () => {
               {loading ? 'Processing...' : isSignUp ? 'Sign Up' : 'Sign In'}
             </button>
 
-            {!isSignUp && (
-              <>
-                <div className="signin-divider">
-                  <span>OR</span>
-                </div>
-
-                <button type="button" className="social-signin-button">
-                  <i className="icon-google"></i>
-                  Continue with Google
-                </button>
-              </>
-            )}
+            <div className="signin-divider">
+              <span>OR</span>
+            </div>
+            <button 
+              type="button" 
+              className="social-signin-button"
+              onClick={handleGoogleAuth}
+            >
+              <i className="icon-google"></i>
+              Continue with Google
+            </button>
 
             <div className="auth-toggle-link">
               {isSignUp ? "Already have an account?" : "Don't have an account?"}{' '}

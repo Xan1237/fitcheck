@@ -343,7 +343,7 @@ const saveAllFormData = () => {
   )
   .then(response => {
     console.log("Profile updated successfully:", response.data);
-    // window.location.href = "/"; // Remove redirect
+     window.location.href = "/";
   })
   .catch(error => {
     console.error("Error updating profile:", error);

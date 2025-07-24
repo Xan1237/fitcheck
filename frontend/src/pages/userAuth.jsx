@@ -5,7 +5,7 @@ import axios from 'axios';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-const REDIRECT_URL =  '/'; // <-- Change to home page
+const REDIRECT_URL = window.location.origin + '/'; // Use current domain for redirect
 
 const AuthPage = () => {
   const [email, setEmail] = useState('');

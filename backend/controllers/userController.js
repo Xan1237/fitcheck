@@ -76,82 +76,50 @@ const getUserName = async (req, res) => {
 
 const profile = async (req, res) => {
   try {
+    console.log(req.body);
     console.log("Profile update request received");
     
     // Debug request body
     console.log("Request body:", JSON.stringify(req.body));
     
-    const { sendingdata } = req.body;
-    if (!sendingdata) {
-      console.log("Missing sendingdata in request body");
-      return res.status(400).json({ error: 'Missing data in request body' });
-    }
-    
-    // Debug auth header
-    console.log("Auth header present:", !!req.headers.authorization);
-    const authHeader = req.headers.authorization;
-    if (!authHeader?.startsWith('Bearer ')) {
-      console.log("Invalid auth header format");
-      return res.status(401).json({ error: 'Missing token' });
-    }
-    const token = authHeader.split(' ')[1];
-    
-    console.log("Verifying token with Supabase...");
-    const authResponse = await supabase.auth.getUser(token);
-    console.log("Auth response received:", !!authResponse);
-    
-    const { data: { user }, error: authErr } = authResponse;
-    
-    if (authErr) {
-      console.log("Auth error:", authErr.message);
-      return res.status(401).json({ error: authErr.message || 'Invalid token' });
-    }
-    
-    if (!user) {
-      console.log("No user found with provided token");
-      return res.status(401).json({ error: 'Invalid token' });
-    }
-    
-    console.log("User authenticated successfully. User ID:", user.id);
+    // Accept profile data directly from body
+    const sendingdata = req.body;
 
+    // Find the email from the users table using uuid
+    // Use Supabase Auth to get the email from the token
+    const authHeader = req.headers.authorization;
+    const token = authHeader?.startsWith('Bearer ') ? authHeader.split(' ')[1] : null;
+    const { data: { user: authUser }, error: authError } = await supabase.auth.getUser(token);
+
+    if (authError || !authUser) {
+      console.log("Error fetching user email from auth:", authError);
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Always set email from auth
+    sendingdata.email = authUser.email;
+
+    // Fallback for missing fields
     const profileData = {
-      id: user.id,
+      id: authUser.id,
       email: sendingdata.email,
-      username: sendingdata.username,
+      username: sendingdata.username || "",
       first_name: sendingdata.firstName || "",
       last_name: sendingdata.lastName || "",
       bio: sendingdata.bio || "",
       birthdate: sendingdata.birthdate || null,
       gender: sendingdata.gender || "",
       location: sendingdata.location || "",
-      bench_pr: sendingdata.benchPR || null,
-      deadlift_pr: sendingdata.deadliftPR || null,
-      squat_pr: sendingdata.squatPR || null,
-      overhead_press_pr: sendingdata.overheadPressPR || null,
-      pull_up_max: sendingdata.pullUpMax || null,
-      mile: sendingdata.mile || null,
-      gym_experience: sendingdata.gymExperience || "",
-      preferred_gym_type: sendingdata.preferredGymType || "",
-      training_frequency: sendingdata.trainingFrequency || "",
       updated_at: new Date(),
     };
 
     const profileData2 = {
-      username: sendingdata.username,
+      username: sendingdata.username || "",
       first_name: sendingdata.firstName || "",
       last_name: sendingdata.lastName || "",
       bio: sendingdata.bio || "",
       gender: sendingdata.gender || "",
       location: sendingdata.location || "",
-      bench_pr: sendingdata.benchPR || null,
-      deadlift_pr: sendingdata.deadliftPR || null,
-      squat_pr: sendingdata.squatPR || null,
-      overhead_press_pr: sendingdata.overheadPressPR || null,
-      pull_up_max: sendingdata.pullUpMax || null,
-      mile: sendingdata.mile || null,
-      gym_experience: sendingdata.gymExperience || "",
-      preferred_gym_type: sendingdata.preferredGymType || "",
-      training_frequency: sendingdata.trainingFrequency || "",
     };
     
     console.log("Prepared profile data. Attempting database upsert...");

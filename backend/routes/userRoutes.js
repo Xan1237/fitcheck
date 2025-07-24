@@ -26,7 +26,7 @@ router.post("/api/address", getAdress);
 router.get("/api/GetComments", getComments);
 router.post("/auth/signup", signUpUser);
 router.post("/auth/signin", signInUser);
-router.post("/api/profile", profile);
+router.post("/api/profile",verifyAuth, profile);
 router.get("/api/GetUserData", userInfo);
 router.get("/api/getGymData", getGymData);
 router.post("/api/getUserName", getUserName);

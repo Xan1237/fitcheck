@@ -16,6 +16,7 @@ import {
 import './styles.scss';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const VITE_SITE_URL = import.meta.env.VITE_SITE_URL;
 
 const Feed = () => {
   const navigate = useNavigate();
@@ -134,7 +135,7 @@ const Feed = () => {
     if (token && (provider || window.location.search.includes('provider=google'))) {
       localStorage.setItem('token', token);
       window.location.hash = '';
-      window.location.href = '/'; // Redirect to feed page
+      window.location.href = VITE_SITE_URL; // Redirect to feed page
     }
   }, []);
 

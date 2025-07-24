@@ -5,6 +5,8 @@ import { FaSearch, FaUser } from "react-icons/fa";
 import Header from "../../components/header";
 import "./styles.scss";
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 const People = () => {
   const [search, setSearch] = useState("");
   const [users, setUsers] = useState([]);
@@ -15,7 +17,7 @@ const People = () => {
     const fetchUsers = async () => {
       setLoading(true);
       try {
-        const response = await axios.get("/api/getAllUsers");
+        const response = await axios.get(`${API_BASE_URL}/api/getAllUsers`);
         setUsers(response.data || []);
       } catch (error) {
         setUsers([]);

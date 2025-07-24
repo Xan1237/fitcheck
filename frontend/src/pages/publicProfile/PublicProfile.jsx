@@ -52,6 +52,8 @@ const UserProfile = () => {
   const [userGyms, setUserGyms] = useState([]);
   const [showGymSearch, setShowGymSearch] = useState(false);
 
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
   /**
    * Checks if the current authenticated user owns this profile
    */
@@ -63,7 +65,7 @@ const UserProfile = () => {
         return;
       }
 
-      const response = await axios.get(`/api/checkProfileOwnership/${name}`, {
+      const response = await axios.get(`${API_BASE_URL}/api/checkProfileOwnership/${name}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -78,7 +80,7 @@ const UserProfile = () => {
 
   const getFollowerCount = async () => {
     const token = localStorage.getItem('token');
-    const response = await axios.get(`/api/getFollowerCount/${name}`,{
+    const response = await axios.get(`${API_BASE_URL}/api/getFollowerCount/${name}`,{
       headers: {
         Authorization: `Bearer ${token}`
       }
@@ -94,7 +96,7 @@ const UserProfile = () => {
 
   const getFollowingCount = async () => {
     const token = localStorage.getItem('token');
-    const response = await axios.get(`/api/getFollowingCount/${name}`,{
+    const response = await axios.get(`${API_BASE_URL}/api/getFollowingCount/${name}`,{
       headers: {
         Authorization: `Bearer ${token}`
       }
@@ -110,7 +112,7 @@ const UserProfile = () => {
 
   const getPostCount = async () => {
     const token = localStorage.getItem('token');
-    const response = await axios.get(`/api/getNumberPost/${name}`,{
+    const response = await axios.get(`${API_BASE_URL}/api/getNumberPost/${name}`,{
       headers: {
         Authorization: `Bearer ${token}`
       }
@@ -126,7 +128,7 @@ const UserProfile = () => {
 
   const getPrCount = async () => {
     const token = localStorage.getItem('token');
-    const response = await axios.get(`/api/getNumberPR/${name}`,{
+    const response = await axios.get(`${API_BASE_URL}/api/getNumberPR/${name}`,{
       headers: {
         Authorization: `Bearer ${token}`
       }
@@ -154,7 +156,7 @@ const UserProfile = () => {
       console.log(`Fetching data for user: ${name}`);
       
       const response = await fetch(
-        `/api/GetUserData/?userName=${encodeURIComponent(name)}`,
+        `${API_BASE_URL}/api/GetUserData/?userName=${encodeURIComponent(name)}`,
         { method: "GET" }
       );
       
@@ -219,7 +221,7 @@ const UserProfile = () => {
   async function fetchUserGyms() {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get(`/api/getUserGyms/${name}`, {
+      const response = await axios.get(`${API_BASE_URL}/api/getUserGyms/${name}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -246,7 +248,7 @@ const UserProfile = () => {
   const handleSavePR = async () => {
     try {
       const token = localStorage.getItem('token');
-      await axios.post('/api/addPersonalRecord', {
+      await axios.post(`${API_BASE_URL}/api/addPersonalRecord`, {
         newPR: newPR},
         {
         headers: {
@@ -282,7 +284,7 @@ const UserProfile = () => {
   const handleFollow = async () => {
     try {
       const token = localStorage.getItem('token');
-      await axios.post('/api/newFollower', {
+      await axios.post(`${API_BASE_URL}/api/newFollower`, {
         targetUserName: name
       }, {
         headers: {
@@ -320,7 +322,7 @@ const UserProfile = () => {
   const handleCreatePost = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.post('/api/createPost', 
+      const response = await axios.post(`${API_BASE_URL}/api/createPost`, 
         { 
           title: newPost.title,
           description: newPost.description,
@@ -365,7 +367,7 @@ const UserProfile = () => {
 
     try {
       const token = localStorage.getItem('token');
-      axios.post('/api/addUserGym', {
+      axios.post(`${API_BASE_URL}/api/addUserGym`, {
         gymId: gym.id,
         username: userData.username,
         gymName: gym.name,

@@ -3,6 +3,8 @@ import './SignIn.scss';
 import { FaDumbbell } from "react-icons/fa";
 import axios from 'axios';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 const AuthPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -46,7 +48,7 @@ const AuthPage = () => {
     }
 
     try {
-      const response = await axios.post('/auth/signup', {
+      const response = await axios.post(`${API_BASE_URL}/auth/signup`, {
         email,
         password
       });
@@ -71,7 +73,7 @@ const AuthPage = () => {
     }
 
     try {
-      const response = await axios.post('/auth/signin', {
+      const response = await axios.post(`${API_BASE_URL}/auth/signin`, {
         email,
         password
       });

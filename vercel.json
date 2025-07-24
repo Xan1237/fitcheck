@@ -10,7 +10,7 @@
     },
     {
       "source": "/:path*",
-      "destination": "https://fitcheck-kt9g.onrender.com/auth/:path*"
+      "destination": "/index.html"
     }
   ] 
 }

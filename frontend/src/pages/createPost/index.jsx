@@ -6,6 +6,8 @@ import Footer from "../../components/footer";
 import { FaImage, FaTag, FaArrowLeft } from "react-icons/fa";
 import "./styles.scss";
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 const CreatePost = () => {
   const navigate = useNavigate();
   const [title, setTitle] = useState("");
@@ -48,7 +50,7 @@ const CreatePost = () => {
     try {
       const token = localStorage.getItem("token");
       const response = await axios.post(
-        "/api/createPost",
+        `${API_BASE_URL}/api/createPost`,
         {
           title,
           description,

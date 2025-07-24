@@ -15,6 +15,8 @@ import {
 } from 'react-icons/fa';
 import './styles.scss';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 const Feed = () => {
   const navigate = useNavigate();
   const [posts, setPosts] = useState([]);
@@ -55,7 +57,7 @@ const Feed = () => {
     setLoading(true);
     try {
       // Replace with your actual API endpoint
-      const response = await axios.get('/api/getPosts');
+      const response = await axios.get(`${API_BASE_URL}/api/getPosts`);
       
       // Transform each API post to the required format
       const transformedPosts = response.data.map(transformPostData);
@@ -75,7 +77,7 @@ const Feed = () => {
   const fetchComments = async (postId) => {
     setLoadingComments(prev => ({ ...prev, [postId]: true }));
     try {
-      const response = await axios.get(`/api/post/${postId}/comments`);
+      const response = await axios.get(`${API_BASE_URL}/api/post/${postId}/comments`);
       setComments(prev => ({ ...prev, [postId]: response.data.data || [] }));
     } catch (error) {
       setComments(prev => ({ ...prev, [postId]: [] }));
@@ -92,7 +94,7 @@ const Feed = () => {
     try {
       const token = localStorage.getItem('token');
       // Send all info in the body
-      await axios.post(`/api/post/${postId}/comment`, {
+      await axios.post(`${API_BASE_URL}/api/post/${postId}/comment`, {
         text,
         created_at: new Date(),
         username: userData?.username || undefined

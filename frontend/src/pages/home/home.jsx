@@ -8,6 +8,8 @@ import gymData from "../../data/gymData.js";
 import GymSidebar from "../../components/gymSidebar";
 import "./styles.scss";
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 const Home = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [filter, setFilter] = useState("all");
@@ -21,7 +23,7 @@ const Home = () => {
     const fetchGymData = async () => {
       try {
         setIsLoading(true);
-        const response = await fetch("/api/getGymData");
+        const response = await fetch(`${API_BASE_URL}/api/getGymData`);
         
         if (!response.ok) {
           console.warn("API response not OK:", response.status);

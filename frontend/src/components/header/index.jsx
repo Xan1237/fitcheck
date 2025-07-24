@@ -4,6 +4,8 @@ import { FaBars, FaTimes, FaDumbbell, FaUser, FaSearch, FaPlus, FaHome } from "r
 import "./style.scss";
 import axios from "axios";
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 const Header = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -51,7 +53,7 @@ const Header = () => {
     setLoading(true);
     try {
       // Just call getUserName - it already handles token verification
-      const response = await axios.post('/api/getUserName', {}, {
+      const response = await axios.post(`${API_BASE_URL}/api/getUserName`, {}, {
         headers: {
           Authorization: `Bearer ${token}`
         }

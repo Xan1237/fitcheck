@@ -5,6 +5,8 @@ import axios from 'axios';
 import { getAuth } from "firebase/auth";
 import ImageCropper from '../../components/ImageCropper/ImageCropper';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 const ProfilePictureUpload = ({ onUploadSuccess }) => {
   const fileInputRef = useRef(null);
   const [uploading, setUploading] = useState(false);
@@ -45,7 +47,7 @@ const ProfilePictureUpload = ({ onUploadSuccess }) => {
       reader.onload = async (event) => {
         const base64File = event.target.result;
         
-        const uploadResponse = await fetch('/api/uploadProfilePicture', {
+        const uploadResponse = await fetch(`${API_BASE_URL}/api/uploadProfilePicture`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -329,7 +331,7 @@ const saveAllFormData = () => {
   };
   const token = localStorage.getItem('token');
   console.log("Sending data to backend:", sendingdata);
-  axios.post("/api/profile", 
+  axios.post(`${API_BASE_URL}/api/profile`, 
     sendingdata,
     {
       headers: {
@@ -341,7 +343,7 @@ const saveAllFormData = () => {
   )
   .then(response => {
     console.log("Profile updated successfully:", response.data);
-     window.location.href = "/"; 
+    // window.location.href = "/"; // Remove redirect
   })
   .catch(error => {
     console.error("Error updating profile:", error);

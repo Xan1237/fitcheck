@@ -1,25 +1,32 @@
+// Import Supabase client for database operations
 import { supabase } from '../config/supabaseApp.js'
+// Import axios for HTTP requests (not used in this file)
 import axios from "axios";
+// Import dotenv to load environment variables
 import dotenv from "dotenv";
 
+// Load environment variables from .env file
 dotenv.config();
 
 
 
-
+// Get the username for the authenticated user
 const getUserName = async (req, res) => {
   try {
+    // Extract and validate the Bearer token from the Authorization header
     const authHeader = req.headers.authorization;
     if (!authHeader?.startsWith('Bearer ')) {
       return res.status(401).json({ error: 'Missing token' });
     }
     const token = authHeader.split(' ')[1];
 
+    // Get user info from Supabase Auth using the token
     const { data: { user }, error: authErr } = await supabase.auth.getUser(token);
     if (authErr || !user) {
       return res.status(401).json({ error: authErr?.message || 'Invalid token' });
     }
 
+    // Query the users table for username and id
     const { data, error } = await supabase
       .from('users')
       .select('id, username')
@@ -29,11 +36,13 @@ const getUserName = async (req, res) => {
     console.log('Database query result:', data);
     console.log('Database query error:', error);
 
+    // Handle database error
     if (error) {
       console.error('Database error:', error);
       return res.status(500).json({ success: false, error: error.message });
     }
     
+    // If no user data found, create a default profile
     if (!data) {
       console.log('No user data found, creating default profile');
       // Create a default profile if missing
@@ -68,14 +77,17 @@ const getUserName = async (req, res) => {
     }
     
   } catch (error) {
+    // Handle unexpected errors
     console.error("Error fetching username:", error);
     return res.status(500).json({ success: false, error: "Internal server error" });
   }
 };
 
 
+// Update or create a user profile
 const profile = async (req, res) => {
   try {
+    // Log request body for debugging
     console.log(req.body);
     console.log("Profile update request received");
     
@@ -150,6 +162,7 @@ const profile = async (req, res) => {
       .status(200)
       .json({ success: true, message: "Profile saved successfully", data });
   } catch (error) {
+    // Handle unexpected errors
     console.error("Unexpected error in profile update:", error);
     return res
       .status(500)
@@ -158,8 +171,10 @@ const profile = async (req, res) => {
 };
 
 
+// Get public user info, PRs, and posts for a given username
 const userInfo = async (req, res) => {
   try {
+    // Extract username from query
     const { userName } = req.query;
     console.log("pinged");
 
@@ -221,8 +236,10 @@ const userInfo = async (req, res) => {
     if (userData.pull_up_max !== null) publicUserData.pullUpMax = userData.pull_up_max;
     if (userData.mile !== null) publicUserData.mile = userData.mile;
 
+    // Return user info
     return res.status(200).json({ success: true, user: publicUserData });
   } catch (error) {
+    // Handle unexpected errors
     console.error("Error fetching user information:", error);
     return res
       .status(500)
@@ -231,10 +248,10 @@ const userInfo = async (req, res) => {
 };
 
 
-
+// Get all gym data
 const getGymData = async (req, res) => {
   try {
-    // Get all gyms
+    // Query all gyms from the 'gyms' table
     const { data: gyms, error } = await supabase
       .from('gyms')
       .select('*');
@@ -246,7 +263,7 @@ const getGymData = async (req, res) => {
         .json({ success: false, error: "Internal Server Error" });
     }
 
-    // Format the response
+    // Format the response for frontend
     const formattedGyms = {};
     if (gyms && gyms.length > 0) {
       gyms.forEach((gym) => {
@@ -262,8 +279,10 @@ const getGymData = async (req, res) => {
       });
     }
 
+    // Return formatted gym data
     return res.status(200).json({ success: true, data: formattedGyms });
   } catch (error) {
+    // Handle unexpected errors
     console.error("Error retrieving gym data:", error);
     return res
       .status(500)
@@ -271,6 +290,7 @@ const getGymData = async (req, res) => {
   }
 };
 
+// Add or update a personal record for the authenticated user
 const addPersonalRecord = async (req, res) => {
   const { newPR } = req.body;
   // req.user comes directly from verifyAuth middleware
@@ -285,7 +305,7 @@ const addPersonalRecord = async (req, res) => {
   }
 
   try {
-    // First get the username
+    // Get the username for the authenticated user
     const { data: userData, error: userError } = await supabase
       .from('users')
       .select('username')
@@ -300,7 +320,7 @@ const addPersonalRecord = async (req, res) => {
       });
     }
 
-    // Then upsert the PR record
+    // Upsert the PR record in the 'pr' table
     const { data, error } = await supabase
       .from('pr')
       .upsert({
@@ -318,11 +338,13 @@ const addPersonalRecord = async (req, res) => {
       });
     }
 
+    // Handle errors and return success
     return res.status(200).json({ 
       success: true, 
       message: "Personal record updated successfully" 
     });
   } catch (error) {
+    // Handle unexpected errors
     console.error("Unexpected error in addPersonalRecord:", error);
     return res.status(500).json({ 
       success: false, 
@@ -331,8 +353,10 @@ const addPersonalRecord = async (req, res) => {
   }
 };
 
+// Upload a profile picture for the authenticated user
 const uploadProfilePicture = async (req, res) => {
   try {
+    // Extract file from request body
     const { file } = req.body;
     if (!file) {
       return res.status(400).json({ 
@@ -385,7 +409,7 @@ const uploadProfilePicture = async (req, res) => {
       .from(process.env.SUPABASE_STORAGE_BUCKET)
       .getPublicUrl(fileName);
 
-    // Update user profile with the new picture URL
+    // Update user profile with the new picture URL in both tables
     const { error: updateError } = await supabase
       .from('users')
       .update({ profile_picture_url: publicUrl })
@@ -404,11 +428,13 @@ const uploadProfilePicture = async (req, res) => {
       });
     }
 
+    // Handle errors and return success
     return res.status(200).json({ 
       success: true, 
       url: publicUrl 
     });
   } catch (error) {
+    // Handle unexpected errors
     console.error("Error in uploadProfilePicture:", error);
     return res.status(500).json({ 
       success: false, 
@@ -417,6 +443,7 @@ const uploadProfilePicture = async (req, res) => {
   }
 };
 
+// Create a new post for the authenticated user
 const createPost = async (req, res) => {
   const { title, description, imageFile, tags } = req.body;
 
@@ -442,12 +469,12 @@ const createPost = async (req, res) => {
 
     const username = userData.username;
 
-    // Convert base64 to buffer
+    // Convert base64 image to buffer and determine file extension
     const buffer = Buffer.from(imageFile.split(',')[1], 'base64');
     const fileExt = imageFile.split(';')[0].split('/')[1];
     const fileName = `${username}-${Date.now()}.${fileExt}`;
 
-    // Upload to Supabase Storage with owner field
+    // Upload post image to Supabase Storage
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from('post-images-f423yiufg348ygv3rhfvbf34yibv34gb')
       .upload(fileName, buffer, {
@@ -466,7 +493,7 @@ const createPost = async (req, res) => {
       });
     }
 
-    // Get the public URL
+    // Get the public URL for the uploaded image
     const { data: { publicUrl } } = supabase.storage
       .from('post-images-f423yiufg348ygv3rhfvbf34yibv34gb')
       .getPublicUrl(fileName);
@@ -494,6 +521,7 @@ const createPost = async (req, res) => {
       });
     }
 
+    // Handle errors and return success
     return res.status(200).json({ 
       success: true, 
       message: "Post created successfully",
@@ -501,6 +529,7 @@ const createPost = async (req, res) => {
     });
 
   } catch (error) {
+    // Handle unexpected errors
     console.error("Unexpected error in createPost:", error);
     return res.status(500).json({ 
       success: false, 
@@ -513,6 +542,7 @@ const createPost = async (req, res) => {
 // Get all users (for people search)
 const getAllUsers = async (req, res) => {
   try {
+    // Query all usernames from the 'users' table
     const { data, error } = await supabase
       .from('users')
       .select('username');
@@ -520,13 +550,15 @@ const getAllUsers = async (req, res) => {
     if (error) {
       return res.status(500).json({ success: false, error: error.message });
     }
+    // Handle errors and return user list
     return res.status(200).json(data);
   } catch (err) {
+    // Handle unexpected errors
     return res.status(500).json({ success: false, error: err.message });
   }
 };
 
-// Export middleware and controllers
+// Export middleware and controllers for use in routes
 export {// New middleware for authentication
   profile,
   userInfo,

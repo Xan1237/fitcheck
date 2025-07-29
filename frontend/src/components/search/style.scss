@@ -73,6 +73,45 @@
     }
   }
 
+  .filter-select option {
+  font-size: 1.05em;
+  padding: 0.9em 1.2em;
+  background-color: #fff;           // Bright, clean background
+  color: #212529;                   // Deep readable text
+  letter-spacing: 0.01em;
+  border: none;
+  transition: background 0.2s, color 0.2s;
+}
+
+// Highlight the hovered and selected option
+.filter-select option:checked,
+.filter-select option:focus,
+.filter-select option:hover {
+  background-color: #ffe2d2;        // Brand-tinted highlight
+  color: #e4572e;
+  font-weight: 600;
+  outline: none;
+}
+
+// For WebKit browsers: larger, smoother scrollbar in dropdown
+.filter-select::-webkit-scrollbar {
+  width: 10px;
+  background: #ffe7dd;
+}
+.filter-select::-webkit-scrollbar-thumb {
+  background: #FF6B35;
+  border-radius: 6px;
+  border: 2px solid #ffe7dd;
+}
+
+// Slightly increase tappable size on mobile
+@media (max-width: 700px) {
+  .filter-select option {
+    font-size: 1.13em;
+    padding: 1em 1.5em;
+  }
+}
+
   .search-button {
     padding: 0.8rem 1.5rem;
     border: none;

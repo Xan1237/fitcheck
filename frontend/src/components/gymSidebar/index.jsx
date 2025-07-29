@@ -27,7 +27,7 @@ const GymSidebar = ({ gyms, activeGym, setActiveGym, filter }) => {
       </div>
       <div className="gym-list">
         {gyms
-          .filter((gym) => filter === 'all' || gym.name === filter) // Only show gyms that match the filter
+          .filter((gym) => filter === 'all' || gym.province === filter) // Only show gyms that match the filter
           .map((gym) => (
             <div 
               key={gym.id} 

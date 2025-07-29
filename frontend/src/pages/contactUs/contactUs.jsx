@@ -4,6 +4,7 @@ import {
   FaUser,
   FaPhone,
   FaInfoCircle,
+  FaInstagram,
   FaMapMarkerAlt,
   FaQuestionCircle,
 } from "react-icons/fa";
@@ -82,36 +83,32 @@ const ContactUs = () => {
               Fill out the form below or use our contact information to get in touch.
             </p>
             
-            <div className="info-cards">
-              <div className="info-card">
-                <div className="card-icon">
-                  <FaMapMarkerAlt />
-                </div>
-                <h3>Our Location</h3>
-                <p>123 Fitness Street</p>
-                <p>Muscle City, CA 90210</p>
-              </div>
-              
+            <div className="info-cards">              
               <div className="info-card">
                 <div className="card-icon">
                   <FaEnvelope />
                 </div>
                 <h3>Email Us</h3>
                 <p>
-                  <a href="mailto:saulhafting@gmail.com">saulhafting@gmail.com</a>
+                  <a href="mailto:thefitcheckteam@gmail.com">thefitcheckteam@gmail.com</a>
                 </p>
                 <p>We typically respond within 24 hours</p>
               </div>
-              
               <div className="info-card">
                 <div className="card-icon">
-                  <FaPhone />
+                  <FaInstagram />
                 </div>
-                <h3>Call Us</h3>
+                <h3>Instagram</h3>
                 <p>
-                  <a href="tel:+15551234567">(555) 123-4567</a>
+                  <a
+                    href="https://instagram.com/fitcheckteam"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    @fitcheckteam
+                  </a>
                 </p>
-                <p>Mon-Fri: 9AM-5PM (PST)</p>
+                <p>DM us or tag us in your gym stories and posts!</p>
               </div>
             </div>
           </div>
@@ -261,7 +258,7 @@ const ContactUs = () => {
           <div className="faq-grid">
             <div className="faq-item">
               <h3><FaInfoCircle className="faq-icon" /> How do I add my gym to your database?</h3>
-              <p>You can submit your gym by visiting our <a href="/add-gym">Add Gym</a> page and completing the submission form with your gym's details.</p>
+              <p>You can submit your gym by visiting our <a href="/addGym">Add Gym</a> page and completing the submission form with your gym's details.</p>
             </div>
             
             <div className="faq-item">

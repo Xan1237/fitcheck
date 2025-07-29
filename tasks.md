@@ -13,13 +13,13 @@
     12) for create profile, Gender should be a checkable box not a typing input box
     13) edit profile doest work cause username foreign key confict not a rly hard fix
     14) pfp across wensite on comments ect.. just better support 
-    15) connect the contact us page to a button so users can access it
 
     
 Things that need fixing
 
 1. On mobile view users can't log in
 2. On mobile the contact tab breaks the UI(the bottom nav bar breaks and there is a white bar)
+3. advanced filter with tag is broken
 
 IDEAS
 

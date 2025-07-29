@@ -29,6 +29,7 @@ const GymSearch = ({ onGymSelect }) => {
                 link: gym.link || "",
                 address: gym.address || "",
                 name: gym.name || "",
+                province: gym.province || "",
             })));
         } catch (error) {
             console.error("Error fetching gyms:", error);

@@ -12,7 +12,7 @@ const Footer = () => {
 
         <div className="footer-section">
           <h3 className="footer-heading">Contact US</h3>
-          <p onClick={() => navigate("/addGym")}>Send Us A Message <FaEnvelope/> </p>
+          <p onClick={() => navigate("/contactUs")}>Send Us A Message <FaEnvelope/> </p>
         </div>
 
         <div className="footer-section">

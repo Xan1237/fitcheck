@@ -212,7 +212,7 @@ const AddGym = () => {
                 <FaInfoCircle className="info-icon" />
                 <p>
                   Remember to email your gym photos to{" "}
-                  <strong>saulhafting@gmail.com</strong> with your gym name
+                  <strong>thefitcheckteam@gmail.com</strong> with your gym name
                   as the subject.
                 </p>
               </div>
@@ -282,7 +282,7 @@ const AddGym = () => {
                 </div>
                 <p>
                   After submitting this form, please email your gym photos to{" "}
-                  <strong>saulhafting@gmail.com</strong>. Include your gym
+                  <strong>thefitcheckteam@gmail.com</strong>. Include your gym
                   name in the subject line so we can match your photos with this
                   submission.
                 </p>

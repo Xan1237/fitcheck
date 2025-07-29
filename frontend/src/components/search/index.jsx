@@ -120,8 +120,9 @@ const Search = ({ onSearchSubmit, gyms, searchQuery, setSearchQuery, filter, set
     console.log('Filtering gyms with rating threshold:', selectedRating);
     
     const filtered = gyms.filter(gym => {
-    // Filter by gym name
-    const matchesGymFilter = localFilter === 'all' || gym.name === localFilter;
+    // Filter by gym province
+    const matchesProvinceFilter = localFilter === 'all' || gym.province === localFilter;
+
     
     // Filter by selected tags
     const matchesTags = selectedTags.length === 0 || 
@@ -132,7 +133,7 @@ const Search = ({ onSearchSubmit, gyms, searchQuery, setSearchQuery, filter, set
     
     const matchesRating = selectedRating === 0 || gymRating >= selectedRating;
     
-    return matchesGymFilter && matchesTags && matchesRating;
+    return matchesProvinceFilter && matchesTags && matchesRating;
     });
     
     console.log(`Filtered gyms: ${filtered.length} of ${gyms.length} match criteria`);
@@ -214,13 +215,20 @@ const Search = ({ onSearchSubmit, gyms, searchQuery, setSearchQuery, filter, set
             onChange={handleFilterChange}
             className="filter-select"
           >
-            <option value="all">All Gyms</option>
-            <option value="Fit For Less">Fit For Less</option>
-            <option value="Goodlife">Goodlife</option>
-            <option value="Planet Fitness">Planet Fitness</option>
-            <option value="Fitness FX">FitnessFX</option>
-            <option value="Test Gym">Test Gym</option>
-            <option value="Anytime Fitness">Anytime Fitness</option>
+            <option value="all">All Provinces/Territories</option>
+            <option value="Alberta">Alberta</option>
+            <option value="British Columbia">British Columbia</option>
+            <option value="Manitoba">Manitoba</option>
+            <option value="New Brunswick">New Brunswick</option>
+            <option value="Newfoundland and Labrador">Newfoundland and Labrador</option>
+            <option value="Northwest Territories">Northwest Territories</option>
+            <option value="Nova Scotia">Nova Scotia</option>
+            <option value="Nunavut">Nunavut</option>
+            <option value="Ontario">Ontario</option>
+            <option value="Prince Edward Island">Prince Edward Island</option>
+            <option value="Quebec">Quebec</option>
+            <option value="Saskatchewan">Saskatchewan</option>
+            <option value="Yukon">Yukon</option>
           </select>
           <button 
             type="button" 

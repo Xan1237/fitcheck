@@ -206,14 +206,23 @@ const Gym = () => {
       <Header />
       <div className="gym-page">
         <div className="gym-header">
-          <h1 className="gym-name">{gymsData.name}</h1>
-          <div className="gym-rating-container">
-            <div className="gym-stars">{renderStars(averageRating)}</div>
-            <div className="gym-rating-text">
-              <span className="rating-number">{averageRating}</span>
-              <span className="total-reviews">({totalReviews} reviews)</span>
+          <div className="gym-header-row">
+            <h1 className="gym-name">{gymsData.name}</h1>
+            <div className="gym-rating-container desktop-rating">
+              <div className="gym-stars">{renderStars(averageRating)}</div>
+              <div className="gym-rating-text">
+                <span className="rating-number">{averageRating}</span>
+                <span className="total-reviews">({totalReviews} reviews)</span>
+              </div>
             </div>
           </div>
+          {gymTags.length > 0 && (
+            <div className="gym-tags-inline gym-tags-below desktop-tags">
+              {gymTags.slice(0, 10).map(({ tag }) => (
+                <span key={tag} className="gym-tag-inline">{tag}</span>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="gym-content">
@@ -286,23 +295,6 @@ const Gym = () => {
               </div>
             </div>
           </div>
-
-          {/* Gym Tags Section */}
-          {gymTags.length > 0 && (
-            <div className="gym-tags-container">
-              <h2 className="tags-title">
-                <FaTags className="tags-icon" /> Gym Features
-              </h2>
-              <div className="gym-tags-list">
-                {gymTags.slice(0, 10).map(({ tag, percentage }) => (
-                  <div key={tag} className="gym-tag">
-                    <span className="tag-name">{tag}</span>
-                    <span className="tag-percentage">{percentage}%</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
 
           {gymsData.location && (
             <div className="gym-map-container">

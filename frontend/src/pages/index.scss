@@ -58,6 +58,54 @@
     }
   }
 
+  .gym-tags-inline {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+    margin-left: 0;
+    align-items: center;
+    justify-content: flex-start;
+  }
+  .gym-tag-inline {
+    background: #1a1a1a;
+    color: #ff6b35;
+    border-radius: 12px;
+    padding: 2px 12px;
+    font-size: 0.95em;
+    font-weight: 500;
+    display: inline-block;
+    border: 1px solid #ff6b35;
+    transition: background 0.2s, color 0.2s;
+  }
+
+  .gym-tags-below {
+    margin-top: 12px;
+    margin-left: 0;
+    display: flex;
+  }
+
+  .gym-tags-desktop,
+  .gym-tags-mobile {
+    display: none !important;
+  }
+
+  @media (max-width: 600px) {
+    .gym-tags-inline {
+      gap: 4px;
+      margin-top: 4px;
+      margin-left: 0;
+    }
+    .gym-tag-inline {
+      font-size: 0.70em;
+      padding: 1px 7px;
+      border-radius: 8px;
+    }
+    .gym-tags-below {
+      margin-top: 4px;
+    }
+  }
+
   .gym-page {
     // max-width: 800px;
     margin: 0 auto;

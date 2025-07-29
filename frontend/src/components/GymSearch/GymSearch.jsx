@@ -30,6 +30,7 @@ const GymSearch = ({ onGymSelect }) => {
                 address: gym.address || "",
                 name: gym.name || "",
                 province: gym.province || "",
+                tags: gym.tags || [],
             })));
         } catch (error) {
             console.error("Error fetching gyms:", error);

@@ -9,133 +9,107 @@ import { supabase } from '../config/supabaseApp.js'
  * @returns {Promise<{tags: string[], rating: number}>} - Array of popular tags and average rating
  */
 const updateGymTags = async (gymId) => {
-    try {
-      // Ensure gymId is a string for consistency
-      const gymIdString = String(gymId);
-      console.log(`[updateGymTags] Processing gym ID: ${gymIdString}`);
-  
-      // 1. Get all comments for the gym from the 'comments' table
-      const { data: comments, error: commentsError } = await supabase
-        .from('comments')
-        .select('*')
-        .eq('gym_id', gymIdString);
-  
-      // Handle error when fetching comments
-      if (commentsError) {
-        console.error(`[updateGymTags] Error fetching comments:`, commentsError);
-        throw commentsError;
-      }
-  
-      // If no comments found, update gym with empty tags and zero rating
-      if (!comments || comments.length === 0) {
-        console.log(`[updateGymTags] No comments found for gym ${gymIdString}`);
-        // Create/update the gym document with empty tags and zero rating
-        const { error: updateError } = await supabase
-          .from('gyms')
-          .upsert({
-            id: gymIdString,
-            tags: [],
-            rating: 0,
-            rating_count: 0,
-            updated_at: new Date()
-          });
-          
-        if (updateError) {
-          throw updateError;
-        }
-        
-        return { tags: [], rating: 0 };
-      }
-  
-      // Total number of comments for the gym
-      const totalComments = comments.length;
-      console.log(`[updateGymTags] Found ${totalComments} comments for gym ${gymIdString}`);
-  
+  try {
+    // Ensure gymId is a string for consistency
+    const gymIdString = String(gymId);
+    console.log(`[updateGymTags] Processing gym ID: ${gymIdString}`);
+
+    // First, fetch the gym's full row so we can reuse all required columns
+    const { data: gymRows, error: gymFetchError } = await supabase
+      .from('gyms')
+      .select('*')
+      .eq('id', gymIdString);
+
+    if (gymFetchError || !gymRows || gymRows.length === 0) {
+      throw gymFetchError || new Error('Gym not found');
+    }
+
+    const gymData = gymRows[0];
+
+    // 1. Get all comments for the gym from the 'comments' table
+    const { data: comments, error: commentsError } = await supabase
+      .from('comments')
+      .select('*')
+      .eq('gym_id', gymIdString);
+
+    if (commentsError) {
+      console.error(`[updateGymTags] Error fetching comments:`, commentsError);
+      throw commentsError;
+    }
+
+    // Prepare default values
+    let tags = [];
+    let rating = 0;
+    let rating_count = 0;
+
+    // If comments exist, calculate tags and rating
+    if (comments && comments.length > 0) {
       // 2. Count tag occurrences and accumulate ratings
-      const tagCounts = {}; // Object to store tag frequencies
-      let totalRating = 0;  // Sum of all ratings
-      let ratingCount = 0;  // Number of ratings counted
-  
+      const tagCounts = {};
+      let totalRating = 0;
+
       comments.forEach((comment) => {
-        // Process tags for each comment
         if (comment.tags && Array.isArray(comment.tags)) {
-          // Filter out empty tags and normalize whitespace
           const validTags = comment.tags.filter(
             (tag) => tag && typeof tag === "string" && tag.trim() !== ""
           ).map((tag) => tag.trim());
-  
-          // Count each valid tag
           validTags.forEach((tag) => {
             tagCounts[tag] = (tagCounts[tag] || 0) + 1;
           });
         }
-  
+
         // Process rating for each comment
         if (comment.rating !== undefined && comment.rating !== null) {
           const numericRating = Number(comment.rating);
           if (!isNaN(numericRating)) {
             totalRating += numericRating;
-            ratingCount++;
+            rating_count++;
           }
         }
       });
-  
-      console.log(`[updateGymTags] Calculated ratings: total=${totalRating}, count=${ratingCount}`);
-  
+
+      const totalComments = comments.length;
       // Calculate average rating, rounded to 1 decimal place
-      const averageRating = ratingCount > 0 ? totalRating / ratingCount : 0;
-      const roundedRating = Math.round(averageRating * 10) / 10;
-      console.log(`[updateGymTags] Final average rating: ${roundedRating}`);
-  
-      // 3. Calculate which tags appear in at least 25% of comments
-      // Threshold is at least 25% of comments, minimum 1
+      rating = rating_count > 0 ? Math.round((totalRating / rating_count) * 10) / 10 : 0;
+
+      // Tags appearing in at least 25% of comments (minimum 1)
       const threshold = Math.max(1, Math.ceil(totalComments * 0.25));
-  
-      // Filter tags that meet the popularity threshold
-      const popularTags = Object.keys(tagCounts)
-        .filter((tag) => tag.trim() !== "") // Extra safety check for empty strings
+      tags = Object.keys(tagCounts)
+        .filter((tag) => tag.trim() !== "")
         .filter((tag) => tagCounts[tag] >= threshold);
-  
-      console.log(`[updateGymTags] Popular tags: ${popularTags.join(', ')}`);
-  
-      // 4. Update the gym record with the popular tags and rating
-      try {
-        console.log(`[updateGymTags] Updating gym with rating=${roundedRating} and ${popularTags.length} tags`);
-        
-        // Upsert gym data with new tags and rating
-        const { error: updateError } = await supabase
-          .from('gyms')
-          .upsert({
-            id: gymIdString,
-            tags: popularTags,
-            rating: roundedRating,
-            rating_count: ratingCount,
-            updated_at: new Date()
-          });
-          
-        if (updateError) {
-          console.error(`[updateGymTags] Error updating gym:`, updateError);
-          throw updateError;
-        }
-        
-        console.log(`[updateGymTags] Successfully updated gym data`);
-      } catch (writeError) {
-        // Handle error when writing to gym table
-        console.error(`[updateGymTags] Error writing to gym:`, writeError);
-        throw writeError;
-      }
-  
-      // Return the popular tags and average rating
-      return { 
-        tags: popularTags,
-        rating: roundedRating 
-      };
-    } catch (error) {
-      // Catch-all error handler for the function
-      console.error(`[updateGymTags] Error processing gym ${gymId}:`, error);
-      throw error;
+
+      console.log(`[updateGymTags] Popular tags: ${tags.join(', ')}`);
     }
-  };
+
+    // 3. Upsert the gym row with all required fields (overwrite tags/rating fields)
+    const { error: updateError } = await supabase
+      .from('gyms')
+      .upsert({
+        id: gymIdString,
+        name: gymData.name,
+        address: gymData.address,
+        province: gymData.province,
+        link: gymData.link,
+        // ...add other NOT NULL or important fields here if needed
+        tags: tags,
+        rating: rating,
+        rating_count: rating_count,
+        updated_at: new Date()
+      });
+
+    if (updateError) {
+      console.error(`[updateGymTags] Error updating gym:`, updateError);
+      throw updateError;
+    }
+
+    console.log(`[updateGymTags] Successfully updated gym data for ${gymIdString}`);
+    return { tags, rating };
+
+  } catch (error) {
+    console.error(`[updateGymTags] Error processing gym ${gymId}:`, error);
+    throw error;
+  }
+};
 
   /**
    * Adds a gym to the list of gyms frequented by a user.

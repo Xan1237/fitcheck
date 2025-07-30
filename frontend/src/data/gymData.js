@@ -8,6 +8,7 @@ import IMG_6 from "./gymPics/6.jpeg";
 import IMG_7 from "./gymPics/7.jpg";
 import IMG_8 from "./gymPics/8.jpg";
 import IMG_9 from "./gymPics/9.jpg";
+import IMG_12 from "./gymPics/12.jpg";
 
 const gymData = {
   1: {
@@ -113,13 +114,13 @@ const gymData = {
     link: "/gym/6",
     website: "https://www.anytimefitness.ca/gyms/4575/halifax-ns-b3j-2k9/#about-club",
     gymHours: {
-      Monday: "10:00 AM - 9:00 PM",
-      Tuesday: "10:00 AM - 9:00 PM",
-      Wednesday: "11:00 AM - 7:00 PM",
-      Thursday: "11:00 AM - 7:00 PM",
-      Friday: "11:00 AM - 7:00 PM",
-      Saturday: "10:00 AM - 4:00 PM",
-      Sunday: "10:00 AM - 4:00 PM",
+      Monday: "24 Hours",
+      Tuesday: "24 Hours",
+      Wednesday: "24 Hours",
+      Thursday: "24 Hours",
+      Friday: "24 Hours",
+      Saturday: "24 Hours",
+      Sunday: "24 Hours",
     },
   },
   7: {
@@ -179,50 +180,15 @@ const gymData = {
       Sunday: "5:00 AM - 12:00 AM",
     },
   },
-  10: {
-    id: 10,
-    name: "Fit4Less Sackville",
-    img: "",
-    location: "776 Sackville Drive, B005, Sackville, NS B4E 3A4",
-    province: "Nova Scotia",
-    position: [44.770071541264976, -63.69235791689083],
-    link: "/gym/10",
-    gymHours: {
-      Monday: "24 Hours",
-      Tuesday: "24 Hours",
-      Wednesday: "24 Hours",
-      Thursday: "24 Hours",
-      Friday: "24 Hours",
-      Saturday: "24 Hours",
-      Sunday: "24 Hours"
-    }
-  },
-  11: {
-    id: 11,
-    name: "Fit4Less Bedford",
-    img: "",
-    location: "1658 Bedford Highway, Unit 190, Bedford, NS B4A 2X9",
-    province: "Nova Scotia",
-    position: [44.73702325831465, -63.65622245922029],
-    link: "/gym/11",
-    gymHours: {
-      Monday: "24 Hours",
-      Tuesday: "24 Hours",
-      Wednesday: "24 Hours",
-      Thursday: "24 Hours",
-      Friday: "24 Hours",
-      Saturday: "24 Hours",
-      Sunday: "24 Hours"
-    }
-  },
   12: {
     id: 12,
     name: "Fit4Less Halifax",
-    img: "",
+    img: IMG_12,
     location: "1535 Dresden Row, Halifax, NS B3J 3T1",
     province: "Nova Scotia",
-    position: [44.643869869786315, -63.57786099946789],
+    position: [44.643863217881076, -63.577809679343694],
     link: "/gym/12",
+    website: "https://www.fit4less.ca/locations/provinces/nova-scotia/halifax/city-centre-atlantic?utm_source=G&utm_medium=lpm&utm_campaign=fit4less",
     gymHours: {
       Monday: "24 Hours",
       Tuesday: "24 Hours",
@@ -1510,7 +1476,7 @@ const gymData = {
       Saturday: "24 Hours",
       Sunday: "24 Hours"
     }
-  }
+  },
 };
 
 export default gymData;

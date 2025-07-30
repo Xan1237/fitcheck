@@ -67,7 +67,12 @@ const People = () => {
               >
                 <FaUser className="user-icon" />
                 <span className="user-name">{user.name || user.username}</span>
-                <span className="user-username">@{user.username}</span>
+                <span
+                  className="user-username truncate"
+                  title={user.username}
+                >
+                  @{user.username}
+                </span>
               </Link>
             ))
           )}

@@ -91,3 +91,12 @@
     padding: 24px 0;
   }
 }
+
+.user-username.truncate {
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: inline-block;
+  vertical-align: bottom;
+}

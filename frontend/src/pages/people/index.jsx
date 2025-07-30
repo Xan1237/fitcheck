@@ -65,9 +65,22 @@ const People = () => {
                 to={`/profile/${user.username}`}
                 className="people-list-item"
               >
-                <FaUser className="user-icon" />
+                {user.profile_picture_url ? (
+                  <img
+                    src={user.profile_picture_url}
+                    alt={user.name || user.username}
+                    className="profile-img"
+                  />
+                ) : (
+                  <FaUser className="user-icon" />
+                )}
                 <span className="user-name">{user.name || user.username}</span>
-                <span className="user-username">@{user.username}</span>
+                <span
+                  className="user-username truncate"
+                  title={user.username}
+                >
+                  @{user.username}
+                </span>
               </Link>
             ))
           )}

@@ -73,7 +73,20 @@
     .user-icon {
       color: #ff6b35;
       font-size: 1.5rem;
+      flex-shrink: 0;
     }
+
+    .profile-img {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-right: 10px;
+      flex-shrink: 0;
+      background: #444;
+      border: 2px solid #333;
+    }
+
     .user-name {
       font-weight: 600;
       font-size: 1.1rem;
@@ -90,4 +103,13 @@
     text-align: center;
     padding: 24px 0;
   }
+}
+
+.user-username.truncate {
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: inline-block;
+  vertical-align: bottom;
 }

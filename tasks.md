@@ -9,6 +9,7 @@
     12) for create profile, Gender should be a checkable box not a typing input box
     13) edit profile doest work cause username foreign key confict not a rly hard fix
     14) pfp across wensite on comments ect.. just better support 
+    15)length of username causing problems
 
     
 Things that need fixing

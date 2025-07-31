@@ -14,6 +14,9 @@
     
 Things that need fixing
 
+1. Since there are 600+ gyms now its is really slow. I think what can fix this is by default
+   only load gyms withing a 50km radius so there isnt so much lag
+
 IDEAS
 
     1)  the home page should be diffrent and what the home page is not should be like a search page

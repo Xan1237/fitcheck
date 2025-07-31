@@ -52,3 +52,9 @@
       }
     }
   }
+
+  @media (max-width: 768px) {
+    .map-container {
+      height: 400px; /* Adjust height for smaller screens */
+    }
+  }

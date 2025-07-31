@@ -13,6 +13,7 @@ import PublicProfile from "./pages/publicProfile/PublicProfile"
 import People from "./pages/people/index";
 import Feed from "./pages/feed/index";
 import CreatePost from "./pages/createPost";
+import Messages from "./pages/messages/index";
 import "./index.css";
 
 const App = () => {
@@ -29,6 +30,7 @@ const App = () => {
         <Route path="/" element={<Feed/>}/>
         <Route path="/people" element={<People />} />
         <Route path="/createPost" element={<CreatePost />} />
+        <Route path="/messages" element={<Messages />} />
       </Routes>
       <BottomNav />
     </Router>

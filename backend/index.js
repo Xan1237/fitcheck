@@ -8,13 +8,20 @@ import postRouter from './routes/postRoutes.js'; // Adjust path
 import gymRouter from './routes/gymRoutes.js';
 import messageRoutes from './routes/messageRoutes.js'; // Adjust path
 import { initializeStorage } from './config/supabaseStorage.js';
+import { createServer } from 'http';
+import { initializeSocket } from './websocket/messages.js';
+
 // Load environment variables
 dotenv.config();
 
 const app = express();
+const server = createServer(app);
 
 // Initialize storage bucket and policies
 initializeStorage().catch(console.error);
+
+// Initialize socket
+initializeSocket(server);
 
 // Middleware
 app.use(cors());
@@ -30,6 +37,6 @@ app.use(messageRoutes);
 
 // Start Server
 const PORT = process.env.PORT || 5175;
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

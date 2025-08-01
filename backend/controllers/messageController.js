@@ -41,8 +41,8 @@ async function newMessage(req, res) {
             .from('messages')
             .insert([{
                 chat_id: chatId,
-                message,
-                owner_uuid: ownerUUID
+                text: message,
+                ownerUUID: ownerUUID
             }]);
 
         if (error) {

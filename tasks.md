@@ -10,6 +10,7 @@
     13) edit profile doest work cause username foreign key confict not a rly hard fix
     14) pfp across wensite on comments ect.. just better support 
     15)length of username causing problems
+    16) figure out rls in soupabase
 
     
 Things that need fixing
@@ -19,4 +20,4 @@ Things that need fixing
 
 IDEAS
 
-    1)  the home page should be diffrent and what the home page is not should be like a search page
+    

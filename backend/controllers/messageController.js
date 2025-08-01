@@ -64,4 +64,58 @@ async function newMessage(req, res) {
 }
 }
 
-export { newChat, newMessage };
+async function getUserChats(req, res) {
+    const userId = req.user.id;
+
+    try {
+        const { data, error } = await supabase
+            .from('chats')
+            .select('*')
+            .or(`uuid1.eq.${userId},uuid2.eq.${userId}`);
+
+        if (error) {
+            return res.status(400).json({
+                success: false,
+                error: error.message
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            chats: data
+        });
+    } catch (err) {
+        res.status(500).json({
+            success: false,
+            error: "Failed to retrieve user chats"
+        });
+    }
+}
+
+async function getChatMessages(req, res) {
+    const { chatId } = req.body;
+    try {
+        const { data, error } = await supabase
+            .from('messages')
+            .select('*')
+            .eq('chat_id', chatId)
+            .order('created_at', { ascending: true });
+        if (error) {
+            return res.status(400).json({
+                success: false,
+                error: error.message
+            });
+        }   
+        res.status(200).json({
+            success: true,
+            messages: data
+        });
+    } catch (err) {
+        res.status(500).json({
+            success: false,
+            error: "Failed to retrieve chat messages"
+        });
+    }
+}
+
+export { newChat, newMessage, getUserChats, getChatMessages };

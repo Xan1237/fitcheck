@@ -6,6 +6,7 @@ import commentRouter  from './routes/userRoutes.js'; // Adjust path
 import profileRouter from './routes/profileRoutes.js';
 import postRouter from './routes/postRoutes.js'; // Adjust path
 import gymRouter from './routes/gymRoutes.js';
+import messageRoutes from './routes/messageRoutes.js'; // Adjust path
 import { initializeStorage } from './config/supabaseStorage.js';
 // Load environment variables
 dotenv.config();
@@ -24,6 +25,7 @@ app.use(commentRouter);
 app.use(profileRouter);
 app.use(postRouter); // Ensure this is after profileRouter if it depends on user data
 app.use(gymRouter);
+app.use(messageRoutes);
 
 
 // Start Server

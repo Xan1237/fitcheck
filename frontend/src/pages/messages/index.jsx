@@ -58,15 +58,7 @@ const mockMessages = [
 
 const Messages = () => {
   const [activeChat, setActiveChat] = useState(null);
-  const [messageInput, setMessageInput] = useState('');
   const [mobileView, setMobileView] = useState('list'); // 'list' or 'chat'
-
-  const handleSendMessage = (e) => {
-    e.preventDefault();
-    if (!messageInput.trim()) return;
-    // Handle sending message here
-    setMessageInput('');
-  };
 
   const renderAvatar = (user) => {
     if (user.avatar) {
@@ -79,52 +71,63 @@ const Messages = () => {
     );
   };
 
-  const ChatView = ({ conversation }) => (
-    <div className="chat-view">
-      <div className="chat-header">
-        <button 
-          className="back-button"
-          onClick={() => setMobileView('list')}
-        >
-          <ArrowLeft size={24} />
-        </button>
-        <div className="chat-user-info">
-          {renderAvatar(conversation.user)}
-          <div className="user-details">
-            <h2>{conversation.user.name}</h2>
-            <span className="last-active">{conversation.user.lastActive}</span>
-          </div>
-        </div>
-        <button className="more-options">
-          <MoreVertical size={24} />
-        </button>
-      </div>
+  const ChatView = ({ conversation }) => {
+    const [messageInput, setMessageInput] = useState('');
+    
+    const handleSendMessage = (e) => {
+      e.preventDefault();
+      if (!messageInput.trim()) return;
+      // Handle sending message here
+      setMessageInput('');
+    };
 
-      <div className="messages-container">
-        {mockMessages.map((message) => (
-          <div 
-            key={message.id} 
-            className={`message-bubble ${message.sender}`}
+    return (
+      <div className="chat-view">
+        <div className="chat-header">
+          <button 
+            className="back-button"
+            onClick={() => setMobileView('list')}
           >
-            <p>{message.text}</p>
-            <span className="timestamp">{message.timestamp}</span>
+            <ArrowLeft size={24} />
+          </button>
+          <div className="chat-user-info">
+            {renderAvatar(conversation.user)}
+            <div className="user-details">
+              <h2>{conversation.user.name}</h2>
+              <span className="last-active">{conversation.user.lastActive}</span>
+            </div>
           </div>
-        ))}
-      </div>
+          <button className="more-options">
+            <MoreVertical size={24} />
+          </button>
+        </div>
 
-      <form className="message-input-container" onSubmit={handleSendMessage}>
-        <input
-          type="text"
-          placeholder="Type a message..."
-          value={messageInput}
-          onChange={(e) => setMessageInput(e.target.value)}
-        />
-        <button type="submit">
-          <Send size={24} />
-        </button>
-      </form>
-    </div>
-  );
+        <div className="messages-container">
+          {mockMessages.map((message) => (
+            <div 
+              key={message.id} 
+              className={`message-bubble ${message.sender}`}
+            >
+              <p>{message.text}</p>
+              <span className="timestamp">{message.timestamp}</span>
+            </div>
+          ))}
+        </div>
+
+        <form className="message-input-container" onSubmit={handleSendMessage}>
+          <input
+            type="text"
+            placeholder="Type a message..."
+            value={messageInput}
+            onChange={(e) => setMessageInput(e.target.value)}
+          />
+          <button type="submit">
+            <Send size={24} />
+          </button>
+        </form>
+      </div>
+    );
+  };
 
   return (
     <div className="messages-page">

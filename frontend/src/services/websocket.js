@@ -34,7 +34,13 @@ export const sendMessage = (chatId, message, senderId) => {
 export const subscribeToMessages = (callback) => {
   if (socket) {
     socket.on('newMessage', (message) => {
-      callback(message);
+      const formattedMessage = {
+        id: message.message_id,
+        text: message.message,
+        created_at: message.created_at,
+        ownerUUID: message.sender_uuid
+      };
+      callback(formattedMessage);
     });
   }
 };

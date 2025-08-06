@@ -63,18 +63,32 @@ const Messages = () => {
     fetchUserChats();
   }, []);
 
-  const loadMessages = async () => {
+  useEffect(() => {
+    if (activeChat) {
+      loadMessages(activeChat.id);
+    }
+  }, [activeChat]);
+
+  const loadMessages = async (selectedChatId) => {
     try {
-      const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/getChatMessages`, {
-        chatId
-      }, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_BASE_URL}/api/getChatMessages`,
+        { chatId: selectedChatId },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+          }
         }
-      });
+      );
       
       if (response.data.success) {
-        setMessages(response.data.messages);
+        const formattedMessages = response.data.messages.map(msg => ({
+          id: msg.uuid,
+          text: msg.text,
+          created_at: msg.created_at,
+          ownerUUID: msg.sender_uuid
+        }));
+        setMessages(formattedMessages);
       }
     } catch (error) {
       console.error('Error loading messages:', error);
@@ -207,7 +221,6 @@ const Messages = () => {
               key={conversation.id}
               className={`conversation-item ${activeChat?.id === conversation.id ? 'active' : ''}`}
               onClick={() => {
-                console.log('Setting active chat:', conversation); // Debug log
                 setActiveChat(conversation);
                 setMobileView('chat');
               }}

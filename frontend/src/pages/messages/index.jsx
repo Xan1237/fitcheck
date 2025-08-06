@@ -42,7 +42,7 @@ const Messages = () => {
           const formattedChats = response.data.chats.map((chat) => {
             console.log('Processing chat:', chat); // Debug log
             return {
-              chat_id: chat.id,
+              id: chat.chat_id,
               uuid1: chat.uuid1,
               uuid2: chat.uuid2,
               user: {

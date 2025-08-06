@@ -1,9 +1,10 @@
 .message {
-  background: #f9f9f9;
-  padding: 15px;
-  margin: 10px 0;
-  border-radius: 8px;
-  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+  background: #2a2a2a;
+  padding: 20px;
+  margin-bottom: 16px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  border: 1px solid #333;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -15,55 +16,47 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 14px;
-  color: #666;
+  margin-bottom: 12px;
 
   .username {
-    font-weight: bold;
-    font-size: 16px;
-    color: #333;
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: #ff6b35;
+  }
+
+  .stars {
+    color: #ffc107;
+    font-size: 1.2rem;
+    letter-spacing: 2px;
+  }
+
+  .timeStamp {
+    font-size: 0.9rem;
+    color: #888;
   }
 }
 
-
-.stars {
-  font-size: 18px;
-  color: #ffcc00; // Yellow stars
-}
-
-.timeStamp {
-  font-size: 12px;
-  color: gray;
-}
-
-// Comment Content
 .messageContent {
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-  white-space: pre-wrap; /* Keeps newlines but wraps long words */
-  max-width: 100%; /* Ensures content does not exceed container width */
-  display: block;
-  font-size: 16px;
-  color: #333;
-  line-height: 1.5;
+  color: #fff;
+  font-size: 1rem;
+  line-height: 1.6;
+  margin-bottom: 16px;
+  white-space: pre-wrap;
 }
 
 // Gym Features (Lifting Chalk & Calibrated Plates)
 .gymFeatures {
   display: flex;
-  gap: 15px;
-  font-size: 14px;
-  color: #444;
-  font-weight: 500;
   flex-wrap: wrap;
+  gap: 8px;
 
   span {
-    background: #e6f7ff;
-    padding: 5px 10px;
-    border-radius: 6px;
-    display: flex;
-    align-items: center;
-    gap: 5px;
+    background: rgba(255, 107, 53, 0.1);
+    color: #ff6b35;
+    padding: 6px 12px;
+    border-radius: 16px;
+    font-size: 0.9rem;
+    border: 1px solid rgba(255, 107, 53, 0.2);
   }
 }
 
@@ -74,6 +67,13 @@
     gap: 8px;
   }
   
+  .tag {
+    background: #ffdd57;
+    color: #333;
+    padding: 4px 8px;
+    border-radius: 5px;
+    font-size: 12px;
+  }
   .tag {
     background: #ffdd57;
     color: #333;

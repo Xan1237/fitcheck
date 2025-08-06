@@ -5,24 +5,23 @@ const Message = ({ messageContent, timeStamp, rating, tags, username }) => {
   return (
     <div className="message">
       <div className="messageHeader">
-        <span className="stars">
+        <div className="username">{username}</div>
+        <div className="stars">
           {"★".repeat(rating)}
           {"☆".repeat(5 - rating)}
-        </span>
-        <span className="timeStamp">{timeStamp}
-        <p>{username}</p>
-        </span>
+        </div>
+        <div className="timeStamp">{timeStamp}</div>
       </div>
 
-      <p className="messageContent">{messageContent}</p>
+      <div className="messageContent">{messageContent}</div>
 
-      <div className="gymFeatures">
-        {tags && tags.length > 0 ? (
-          tags.map((tag, index) => <span key={index}>{tag}</span>)
-        ) : (
-          <span>No additional features listed.</span>
-        )}
-      </div>
+      {tags && tags.length > 0 && (
+        <div className="gymFeatures">
+          {tags.map((tag, index) => (
+            <span key={index}>{tag}</span>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

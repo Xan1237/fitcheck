@@ -1,64 +1,94 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, memo, useRef } from 'react';
 import { Search, MoreVertical, Send, ArrowLeft, User } from 'lucide-react';
+import { joinChat, sendMessage, subscribeToMessages } from '../../services/websocket';
+import { useParams } from 'react-router-dom';
+import axios from 'axios';
 import './styles.scss';
 import Header from '../../components/header';
 
-const mockConversations = [
-  {
-    id: 1,
-    user: {
-      name: 'John Smith',
-      avatar: null,
-      username: 'johnsmith',
-      lastActive: 'Just now'
-    },
-    lastMessage: {
-      text: 'Hey, want to hit the gym tomorrow?',
-      timestamp: '2:30 PM',
-      unread: true
-    }
-  },
-  {
-    id: 2,
-    user: {
-      name: 'Sarah Wilson',
-      avatar: 'https://randomuser.me/api/portraits/women/12.jpg',
-      username: 'sarahw',
-      lastActive: '2 hours ago'
-    },
-    lastMessage: {
-      text: 'Great workout session today!',
-      timestamp: 'Yesterday',
-      unread: false
-    }
-  },
-  // Add more mock conversations as needed
-];
-
-const mockMessages = [
-  {
-    id: 1,
-    sender: 'them',
-    text: 'Hey, want to hit the gym tomorrow?',
-    timestamp: '2:30 PM'
-  },
-  {
-    id: 2,
-    sender: 'me',
-    text: 'Sure! What time were you thinking?',
-    timestamp: '2:31 PM'
-  },
-  {
-    id: 3,
-    sender: 'them',
-    text: 'How about 9am? We can work on that new routine.',
-    timestamp: '2:32 PM'
-  }
-];
-
 const Messages = () => {
   const [activeChat, setActiveChat] = useState(null);
-  const [mobileView, setMobileView] = useState('list'); // 'list' or 'chat'
+  const [mobileView, setMobileView] = useState('list');
+  const [messages, setMessages] = useState([]);
+  const [conversations, setConversations] = useState([]);
+  const { chatId } = useParams();
+
+  useEffect(() => {
+    if (chatId) {
+      // Join the chat room
+      joinChat(chatId);
+      
+      // Load existing messages
+      loadMessages();
+      
+      // Subscribe to new messages
+      subscribeToMessages((message) => {
+        setMessages(prev => [...prev, message]);
+      });
+    }
+  }, [chatId]);
+
+  useEffect(() => {
+    const fetchUserChats = async () => {
+      try {
+        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/getUserChats`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+        
+        if (response.data.success) {
+          const chats = response.data.chats;
+          // Transform the chat data into the format your component expects
+          const formattedChats = await Promise.all(chats.map(async (chat) => {
+            // Get the other user's ID (not the current user)
+            const otherUserId = chat.uuid1 === localStorage.getItem('userId') ? chat.uuid2 : chat.uuid1;
+            
+            // Fetch other user's details if needed
+            // You might need to create a new endpoint for this
+            return {
+              id: chat.id,
+              user: {
+                name: otherUserId, // You might want to fetch the actual name
+                avatar: null,
+                username: otherUserId,
+                lastActive: 'Online' // You might want to track this
+              },
+              lastMessage: {
+                text: 'Click to view messages',
+                timestamp: new Date(chat.created_at).toLocaleString(),
+                unread: false
+              }
+            };
+          }));
+          
+          setConversations(formattedChats);
+        }
+      } catch (error) {
+        console.error('Error fetching user chats:', error);
+      }
+    };
+
+    fetchUserChats();
+  }, []);
+
+  const loadMessages = async () => {
+    try {
+      const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/getChatMessages`, {
+        chatId
+      }, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      
+      if (response.data.success) {
+        setMessages(response.data.messages);
+      }
+    } catch (error) {
+      console.error('Error loading messages:', error);
+    }
+  };
 
   const renderAvatar = (user) => {
     if (user.avatar) {
@@ -71,14 +101,62 @@ const Messages = () => {
     );
   };
 
-  const ChatView = ({ conversation }) => {
+  const ChatView = memo(({ conversation, messages }) => {
     const [messageInput, setMessageInput] = useState('');
-    
-    const handleSendMessage = (e) => {
+    const messagesEndRef = useRef(null);
+
+    const scrollToBottom = () => {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    };
+
+    useEffect(() => {
+      scrollToBottom();
+    }, [messages]);
+
+    const handleSendMessage = async (e) => {
       e.preventDefault();
       if (!messageInput.trim()) return;
-      // Handle sending message here
-      setMessageInput('');
+
+      const userId = localStorage.getItem('userId');
+      
+      try {
+        const response = await axios.post(
+          `${import.meta.env.VITE_API_BASE_URL}/api/newMessage`,
+          {
+            chatId: conversation.id,
+            message: messageInput,
+            ownerUUID: userId
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('token')}`
+            }
+          }
+        );
+
+        if (response.data.success) {
+          // Send via WebSocket
+          sendMessage({
+            chatId: conversation.id,
+            text: messageInput,
+            ownerUUID: userId,
+            created_at: new Date().toISOString()
+          });
+          
+          // Update local messages state
+          setMessages(prev => [...prev, {
+            chat_id: conversation.id,
+            text: messageInput,
+            ownerUUID: userId,
+            created_at: new Date().toISOString()
+          }]);
+          
+          setMessageInput('');
+        }
+      } catch (error) {
+        console.error('Error sending message:', error);
+        alert('Failed to send message. Please try again.');
+      }
     };
 
     return (
@@ -103,15 +181,18 @@ const Messages = () => {
         </div>
 
         <div className="messages-container">
-          {mockMessages.map((message) => (
+          {messages.map((message, index) => (
             <div 
-              key={message.id} 
-              className={`message-bubble ${message.sender}`}
+              key={message.id || `${message.created_at}-${index}`}
+              className={`message-bubble ${message.ownerUUID === localStorage.getItem('userId') ? 'me' : 'them'}`}
             >
-              <p>{message.text}</p>
-              <span className="timestamp">{message.timestamp}</span>
+              <p>{message.text || message.message}</p>
+              <span className="timestamp">
+                {new Date(message.created_at).toLocaleTimeString()}
+              </span>
             </div>
           ))}
+          <div ref={messagesEndRef} />
         </div>
 
         <form className="message-input-container" onSubmit={handleSendMessage}>
@@ -127,7 +208,7 @@ const Messages = () => {
         </form>
       </div>
     );
-  };
+  });
 
   return (
     <div className="messages-page">
@@ -139,7 +220,7 @@ const Messages = () => {
             <input type="text" placeholder="Search messages..." />
           </div>
 
-          {mockConversations.map((conversation) => (
+          {conversations.map((conversation) => (
             <div
               key={conversation.id}
               className={`conversation-item ${activeChat?.id === conversation.id ? 'active' : ''}`}
@@ -163,7 +244,10 @@ const Messages = () => {
 
         <div className={`chat-container ${mobileView === 'list' ? 'hidden' : ''}`}>
           {activeChat ? (
-            <ChatView conversation={activeChat} />
+            <ChatView 
+              conversation={activeChat} 
+              messages={messages}
+            />
           ) : (
             <div className="no-chat-selected">
               <p>Select a conversation to start messaging</p>
@@ -176,3 +260,4 @@ const Messages = () => {
 };
 
 export default Messages;
+

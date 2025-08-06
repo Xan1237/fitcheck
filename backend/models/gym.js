@@ -8,4 +8,4 @@ class Gym {
         this.updated_at = updated_at;
     }
 }
-export default Gym;
+export default Gym; 

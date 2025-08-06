@@ -15,7 +15,7 @@ const Search = ({ onSearchSubmit, gyms, searchQuery, setSearchQuery, filter, set
   const [filteredGyms, setFilteredGyms] = useState([]);
   const [selectedRating, setSelectedRating] = useState(0);
   const [isClosing, setIsClosing] = useState(false); // New state for animation
-  
+   
   const advancedFiltersRef = useRef(null);
 
   // Debug: Log gyms on component mount or when gyms change
@@ -215,7 +215,7 @@ const Search = ({ onSearchSubmit, gyms, searchQuery, setSearchQuery, filter, set
             onChange={handleFilterChange}
             className="filter-select"
           >
-            <option value="all">All Provinces/Territories</option>
+            {/* REMOVE the "All Provinces/Territories" option */}
             <option value="Alberta">Alberta</option>
             <option value="British Columbia">British Columbia</option>
             <option value="Manitoba">Manitoba</option>

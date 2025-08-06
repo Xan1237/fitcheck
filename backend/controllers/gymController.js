@@ -180,5 +180,27 @@ const updateGymTags = async (gymId) => {
     }
   }
 
+  /**
+   * Retrieves gyms by province.
+   * Expects province in req.params.
+   * Returns an array of gyms in the specified province.
+   */
+  async function getGymsByProvince(req, res) {
+    const { province } = req.params;
+    try {
+      const { data, error } = await supabase
+        .from('gyms')
+        .select('*')
+        .eq('province', province);
+
+      if (error) {
+        return res.status(400).json({ error: error.message });
+      }
+      return res.status(200).json({ gyms: data });
+    } catch (error) {
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  }
+
 // Export controller functions for use in routes
-export { updateGymTags, addUserGym, getUserGyms };
+export { updateGymTags, addUserGym, getUserGyms, getGymsByProvince };

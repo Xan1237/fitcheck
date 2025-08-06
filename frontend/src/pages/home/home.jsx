@@ -12,7 +12,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const Home = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [filter, setFilter] = useState("all");
+  const [filter, setFilter] = useState("Nova Scotia"); // <-- Default to Nova Scotia
   const [activeGym, setActiveGym] = useState(null);
   const [filteredGyms, setFilteredGyms] = useState([]);
   const [gyms, setGyms] = useState([]);
@@ -87,18 +87,29 @@ const Home = () => {
     fetchGymData();
   }, []);
 
-  const handleSearchSubmit = (query, filter, filtered) => {
+  // Filter gyms by province whenever gyms or filter changes
+  useEffect(() => {
+    if (gyms && gyms.length > 0) {
+      const provinceGyms = gyms.filter(gym => gym.province === filter);
+      setFilteredGyms(provinceGyms);
+    }
+  }, [gyms, filter]);
+
+  const handleSearchSubmit = (query, newFilter, filtered) => {
     setSearchQuery(query);
-    setFilter(filter);
-    
+    setFilter(newFilter);
+
     // Update filtered gyms if provided
     if (filtered && Array.isArray(filtered)) {
       setFilteredGyms(filtered);
+    } else if (gyms.length > 0) {
+      // Always filter by province if no filtered gyms provided
+      setFilteredGyms(gyms.filter(gym => gym.province === newFilter));
     }
-    
+
     // Set active gym if a specific gym is selected in filter
-    if (filter !== "all" && gyms.length > 0) {
-      const filteredGym = gyms.find((gym) => gym.name === filter);
+    if (newFilter && gyms.length > 0) {
+      const filteredGym = gyms.find((gym) => gym.name === newFilter);
       if (filteredGym) {
         setActiveGym(filteredGym.id);
       }

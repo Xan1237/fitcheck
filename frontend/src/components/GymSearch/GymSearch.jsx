@@ -7,40 +7,20 @@ const GymSearch = ({ onGymSelect }) => {
     const [searchResults, setSearchResults] = useState([]);
     const [isSearching, setIsSearching] = useState(false);
     const [gyms, setGyms] = useState([]);
+    const [province, setProvince] = useState("Nova Scotia");
 
-    async function fetchGyms() {
+    async function fetchGymsByProvince(selectedProvince) {
         try {
-            const response = await axios.get('/api/getGymData', {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                }
-            });
-            console.log("Raw response:", response.data);
-            
-            // Convert object to array if necessary
-            const gymsData = response.data.data || response.data;
-            const gymsArray = Object.values(gymsData);
-            
-            console.log("Converted to array:", gymsArray);
-            
-            setGyms(gymsArray.map(gym => ({
-                id: gym.id,
-                link: gym.link || "",
-                address: gym.address || "",
-                name: gym.name || "",
-                province: gym.province || "",
-                tags: gym.tags || [],
-            })));
+            const response = await axios.get(`/api/getGymsByProvince/${encodeURIComponent(selectedProvince)}`);
+            setGyms(response.data.gyms || []);
         } catch (error) {
-            console.error("Error fetching gyms:", error);
             setGyms([]);
         }
     }
 
     useEffect(() => {
-        fetchGyms();
-    }, []);
+        fetchGymsByProvince(province);
+    }, [province]);
 
     const handleSearch = async (e) => {
         e.preventDefault();
@@ -70,6 +50,21 @@ const GymSearch = ({ onGymSelect }) => {
                     Search
                 </button>
             </form>
+
+            <div className="province-selector">
+                <label htmlFor="province">Select Province:</label>
+                <select 
+                    id="province" 
+                    value={province} 
+                    onChange={e => setProvince(e.target.value)}
+                    className="province-dropdown"
+                >
+                    <option value="Nova Scotia">Nova Scotia</option>
+                    <option value="Alberta">Alberta</option>
+                    <option value="British Columbia">British Columbia</option>
+                    {/* ...other provinces/territories... */}
+                </select>
+            </div>
 
             <div className="search-results">
                 {isSearching && (

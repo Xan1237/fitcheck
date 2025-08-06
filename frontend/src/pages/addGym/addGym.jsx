@@ -582,7 +582,7 @@ const AddGym = () => {
                     onChange={handleChange}
                     placeholder="e.g., 6:00 AM - 10:00 PM"
                   />
-                </div>
+                </div> 
               </div>
 
               <div className="form-group">

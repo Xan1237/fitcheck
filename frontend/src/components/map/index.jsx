@@ -11,7 +11,7 @@ const markerShadow =
 // Component to handle map position updates with smooth animation
 const ChangeView = ({ center, zoom }) => {
   const map = useMap();
-
+ 
   useEffect(() => {
     // Project LatLng to screen coordinates at given zoom
     const targetPoint = map.project(center, zoom);

@@ -29,7 +29,7 @@ const GymSidebar = ({ gyms, activeGym, setActiveGym, filter }) => {
         {gyms
           .filter((gym) => filter === 'all' || gym.province === filter) // Only show gyms that match the filter
           .map((gym) => (
-            <div 
+            <div  
               key={gym.id} 
               className={`gym-card ${activeGym === gym.id ? 'active' : ''}`}
               onClick={() => setActiveGym(gym.id)}

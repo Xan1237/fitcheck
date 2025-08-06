@@ -29,26 +29,24 @@ const Feed = () => {
 
   // Transform API post to UI post format
   const transformPostData = (apiPost) => {
-    // Parse tags if it's a string
     const tags = typeof apiPost.tags === 'string' ? JSON.parse(apiPost.tags) : apiPost.tags || [];
-    
     return {
-      id: apiPost.postId, // <-- Use the actual primary key field from your DB, not uuid
+      id: apiPost.postId,
       user: {
         username: apiPost.username || 'anonymous',
         name: apiPost.username?.split('@')[0] || 'Anonymous User',
-        avatar: null,
-        verified: false
+        avatar: apiPost.profilePictureUrl || apiPost.profile_picture_url || null,
+        verified: apiPost.verified || false
       },
       content: apiPost.description || apiPost.title,
       image: apiPost.image_url,
-      workoutType: 'General',
-      gym: null,
+      workoutType: apiPost.workoutType || 'General',
+      gym: apiPost.gym || null,
       timestamp: new Date(apiPost.created_at).toLocaleDateString(),
-      likes: 0,
-      comments: apiPost.comment_id || 0,
-      shares: 0,
-      isLiked: false,
+      likes: apiPost.total_likes || 0,
+      comments: apiPost.total_comments || 0, // <-- Use total_comments
+      shares: apiPost.shares || 0,
+      isLiked: apiPost.isLiked || false,
       tags: tags.map(tag => `#${tag}`)
     };
   };
@@ -94,7 +92,6 @@ const Feed = () => {
     if (!text || !text.trim()) return;
     try {
       const token = localStorage.getItem('token');
-      // Send all info in the body
       await axios.post(`${API_BASE_URL}/api/post/${postId}/comment`, {
         text,
         created_at: new Date(),
@@ -104,6 +101,7 @@ const Feed = () => {
       });
       setCommentInputs(prev => ({ ...prev, [postId]: '' }));
       await fetchComments(postId);
+      await getPosts(); // <-- Refresh posts to update comment count
     } catch (error) {
       alert('Failed to add comment');
       console.error('Failed to add comment:', error);
@@ -242,7 +240,7 @@ const Feed = () => {
                   onClick={() => fetchComments(post.id)}
                 >
                   <FaComment />
-                  <span>{comments[post.id]?.length || post.comments}</span>
+                  <span>{post.comments}</span>
                 </button>
                 <button className="action-btn share-btn">
                   <FaShare />

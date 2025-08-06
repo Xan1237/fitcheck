@@ -28,38 +28,52 @@ function getPosts(req, res) {
  */
 async function addPostComment(req, res) {
     const postId = req.params.postId;
-    // Accept all info from body
-    const { text, created_at, username } = req.body;
-    // Check if user is authenticated
-    if (!req.user || !req.user.id) {
-        return res.status(401).json({ success: false, error: "User not authenticated" });
-    }
-    // Validate required fields
+    const { text, created_at } = req.body;
     if (!postId || !text) {
         return res.status(400).json({ success: false, error: "Missing postId or text" });
     }
-    console.log("Adding comment to post:", postId, "Text:", text, "User ID:", req.user.id);
     try {
-        // Insert new comment into postMessages table
+        // Insert new comment
         const { data, error } = await supabase
             .from('postMessages')
             .insert({
                 postId,
                 text,
-                user_uuid: req.user.id,
-                likes: 0
+                user_uuid: req.user?.id,
+                likes: 0,
+                created_at: created_at || new Date()
             })
-            .select(); // Return inserted row
-        // Handle error during insertion
+            .select();
+
         if (error) {
-            console.log("Error adding comment:", error.message);
             return res.status(500).json({ success: false, error: error.message });
         }
-        // Success response
+
+        // Get current total_comments
+        const { data: postData, error: postError } = await supabase
+            .from('posts')
+            .select('total_comments')
+            .eq('postId', postId)
+            .single();
+
+        if (postError || !postData) {
+            return res.status(500).json({ success: false, error: postError?.message || "Post not found" });
+        }
+
+        const newTotal = (postData.total_comments || 0) + 1;
+
+        // Update total_comments
+        const { error: updateError } = await supabase
+            .from('posts')
+            .update({ total_comments: newTotal })
+            .eq('postId', postId);
+
+        if (updateError) {
+            return res.status(500).json({ success: false, error: updateError.message });
+        }
+
         return res.status(201).json({ success: true, message: "Comment added", data });
     } catch (err) {
-        // Handle unexpected errors
-        console.log("Error adding comment:", err);
         return res.status(500).json({ success: false, error: err.message });
     }
 }

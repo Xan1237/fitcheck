@@ -15,8 +15,7 @@
     
 Things that need fixing
 
-1. Since there are 600+ gyms now its is really slow. I think what can fix this is by default
-   only load gyms withing a 50km radius so there isnt so much lag
+1. The filter / gym side bar is not loading some of the gyms reviews. They are in the DB but not loading on the frontend right sometimes
 
 IDEAS
 

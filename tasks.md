@@ -11,6 +11,8 @@
     14) pfp across wensite on comments ect.. just better support 
     15)length of username causing problems
     16) figure out rls in soupabase
+    17) Make fild gym make the map travel to the province the user is filtering
+        1)  I think we should get rid of the search bar in find gym. I have literaly never used it. I think province filter plus the map zooming in on the province is better
 
     
 Things that need fixing

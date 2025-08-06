@@ -33,8 +33,9 @@ async function newChat(req, res) {
 }
 
 async function newMessage(req, res) {
-    const { chatId, message, ownerUUID } = req.body;
-
+    const { chatId, message } = req.body;
+    const ownerUUID = req.user.id;
+    console.log("New message received", chatId, message, ownerUUID);
     // Validate required fields
     if (!chatId || !message || !ownerUUID) {
         return res.status(400).json({

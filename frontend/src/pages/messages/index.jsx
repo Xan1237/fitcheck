@@ -38,30 +38,21 @@ const Messages = () => {
         });
         
         if (response.data.success) {
-          const chats = response.data.chats;
-          // Transform the chat data into the format your component expects
-          const formattedChats = await Promise.all(chats.map(async (chat) => {
-            // Get the other user's ID (not the current user)
-            const otherUserId = chat.uuid1 === localStorage.getItem('userId') ? chat.uuid2 : chat.uuid1;
-            
-            // Fetch other user's details if needed
-            // You might need to create a new endpoint for this
+          console.log('Raw chats data:', response.data.chats); // Debug log
+          const formattedChats = response.data.chats.map((chat) => {
+            console.log('Processing chat:', chat); // Debug log
             return {
-              id: chat.id,
+              chat_id: chat.id,
+              uuid1: chat.uuid1,
+              uuid2: chat.uuid2,
               user: {
-                name: otherUserId, // You might want to fetch the actual name
+                name: `User ${chat.uuid2.slice(0, 8)}`,
                 avatar: null,
-                username: otherUserId,
-                lastActive: 'Online' // You might want to track this
-              },
-              lastMessage: {
-                text: 'Click to view messages',
-                timestamp: new Date(chat.created_at).toLocaleString(),
-                unread: false
+                lastActive: 'Online'
               }
             };
-          }));
-          
+          });
+          console.log('Formatted chats:', formattedChats); // Debug log
           setConversations(formattedChats);
         }
       } catch (error) {
@@ -116,8 +107,6 @@ const Messages = () => {
     const handleSendMessage = async (e) => {
       e.preventDefault();
       if (!messageInput.trim()) return;
-
-      const userId = localStorage.getItem('userId');
       
       try {
         const response = await axios.post(
@@ -125,7 +114,6 @@ const Messages = () => {
           {
             chatId: conversation.id,
             message: messageInput,
-            ownerUUID: userId
           },
           {
             headers: {
@@ -135,20 +123,14 @@ const Messages = () => {
         );
 
         if (response.data.success) {
-          // Send via WebSocket
           sendMessage({
             chatId: conversation.id,
-            text: messageInput,
-            ownerUUID: userId,
-            created_at: new Date().toISOString()
+            text: messageInput
           });
           
-          // Update local messages state
           setMessages(prev => [...prev, {
             chat_id: conversation.id,
-            text: messageInput,
-            ownerUUID: userId,
-            created_at: new Date().toISOString()
+            text: messageInput
           }]);
           
           setMessageInput('');
@@ -225,6 +207,7 @@ const Messages = () => {
               key={conversation.id}
               className={`conversation-item ${activeChat?.id === conversation.id ? 'active' : ''}`}
               onClick={() => {
+                console.log('Setting active chat:', conversation); // Debug log
                 setActiveChat(conversation);
                 setMobileView('chat');
               }}
@@ -233,11 +216,8 @@ const Messages = () => {
               <div className="conversation-content">
                 <div className="conversation-header">
                   <h3>{conversation.user.name}</h3>
-                  <span className="timestamp">{conversation.lastMessage.timestamp}</span>
                 </div>
-                <p className="last-message">{conversation.lastMessage.text}</p>
               </div>
-              {conversation.lastMessage.unread && <div className="unread-indicator" />}
             </div>
           ))}
         </div>
@@ -259,5 +239,11 @@ const Messages = () => {
   );
 };
 
+
+
+
+
+
 export default Messages;
+
 

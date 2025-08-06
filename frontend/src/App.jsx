@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Header from "./components/header";
 import Footer from "./components/footer";
@@ -14,9 +14,20 @@ import People from "./pages/people/index";
 import Feed from "./pages/feed/index";
 import CreatePost from "./pages/createPost";
 import Messages from "./pages/messages/index";
+import { initializeSocket, disconnectSocket } from "./services/websocket";
 import "./index.css";
 
 const App = () => {
+  useEffect(() => {
+    // Initialize socket connection when app loads
+    initializeSocket();
+
+    // Cleanup on unmount
+    return () => {
+      disconnectSocket();
+    };
+  }, []);
+
   return (
     <Router>
       <Routes>

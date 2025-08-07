@@ -560,20 +560,25 @@ const UserProfile = () => {
                       <h3 className="post-title">{post.title}</h3>
                       <p className="post-description">{post.description}</p>
                       <div className="post-tags">
-                        {Array.isArray(post.tags) ? 
-                          post.tags.map((tag, index) => (
+                        {(() => {
+                          let tags = [];
+                          
+                          if (Array.isArray(post.tags)) {
+                            tags = post.tags;
+                          } else if (typeof post.tags === 'string') {
+                            try {
+                              // Try to parse as JSON first (for strings like '["tag1", "tag2"]')
+                              tags = JSON.parse(post.tags);
+                            } catch {
+                              // If JSON parsing fails, treat as comma-separated string
+                              tags = post.tags.split(',').map(tag => tag.trim()).filter(tag => tag !== '');
+                            }
+                          }
+                          
+                          return tags.map((tag, index) => (
                             <span key={index} className="tag">#{tag}</span>
-                          ))
-                          :
-                          (typeof post.tags === 'string' ? 
-                            post.tags.split(',')
-                              .map(tag => tag.trim())
-                              .filter(tag => tag !== '')
-                              .map((tag, index) => (
-                                <span key={index} className="tag">#{tag}</span>
-                              ))
-                            : null)
-                        }
+                          ));
+                        })()}
                       </div>
                       <span className="post-date">
                         {new Date(post.created_at).toLocaleDateString()}

@@ -1,1034 +1,130 @@
-// UserProfile.scss
-
-// Variables
-$black: #000000;
-$dark-gray: #111111;
-$medium-gray: #222222;
-$light-gray: #444444;
-$orange: #ff6600;
-$orange-light: #ff8833;
+$orange: #ff7a00; // brand accent
+$orange-600: #ff6a00;
+$orange-700: #e25f00;
+$black: #0d0d0d;
+$bg: #101010;
+$panel: #151515;
+$muted: #c7ccd1;
+$text: #ffffff;
 $white: #ffffff;
-$text-gray: #bbbbbb;
+$border: rgba(255,255,255,0.12);
+$shadow: 0 6px 24px rgba(0,0,0,0.35);
 
+:root { color-scheme: dark; }
 
+* { box-sizing: border-box; }
 
-.user-profile {
-  // max-width: 800px;
-  margin: 0 auto;
-  background-color: $black;
-  color: $white;
-  border-radius: 0;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-  font-family: 'Roboto', Arial, sans-serif;
-  min-height: 100vh;
-  padding: 0;
-  overflow-y: auto;
+body { background: $bg; color: $text; }
 
-  @media (max-width: 768px) {
-    margin: 0;
-    padding: 0;
-  }
+.container { width: 100%; max-width: 1100px; margin: 0 auto; padding: 0 14px; }
 
-  @media (max-width: 480px) {
-    margin: 0;
-    padding: 0;
-  }
+.profile-page { display: block; }
 
-  // Cover Photo
-  .cover-photo {
-    height: 160px;
-    width: 100%;
-    position: relative;
-    border-radius: 8px 8px 0 0;
-
-    img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      border-radius: 8px 8px 0 0;
-    }
-  }
-
-  // Profile Info Section
-  .profile-info {
-    position: relative;
-    padding: 32px 24px;
-    background-color: $medium-gray;
-    border-radius: 0;
-    margin: 0;
-
-    @media (max-width: 768px) {
-      padding: 24px 20px;
-    }
-
-    @media (max-width: 480px) {
-      padding: 20px 16px;
-    }
-
-    // Profile Picture
-    .profile-picture {
-      width: 120px;
-      height: 120px;
-      margin: 0 auto 24px;
-      border-radius: 50%;
-      overflow: hidden;
-      border: 3px solid $orange;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-      background-color: $medium-gray;
-
-      img {
-        width: 100%;
-        height: 100%;
-        border-radius: 50%;
-        object-fit: cover;
-      }
-
-      .profile-picture-placeholder {
-        width: 100%;
-        height: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background-color: $medium-gray;
-        color: $white;
-        font-size: 2.5rem;
-        font-weight: bold;
-      }
-
-      @media (max-width: 768px) {
-        width: 100px;
-        height: 100px;
-        margin-bottom: 20px;
-
-        .profile-picture-placeholder {
-          font-size: 2rem;
-        }
-      }
-
-      @media (max-width: 480px) {
-        width: 80px;
-        height: 80px;
-        margin-bottom: 16px;
-
-        .profile-picture-placeholder {
-          font-size: 1.8rem;
-        }
-      }
-    }
-
-    // User Info
-    .user-info {
-      text-align: center;
-      margin: 0;
-
-      #userName {
-        font-size: 32px;
-        margin: 0 0 8px 0;
-
-        @media (max-width: 768px) {
-          font-size: 28px;
-        }
-
-        @media (max-width: 480px) {
-          font-size: 24px;
-        }
-      }
-
-      h1 {
-        font-size: 24px;
-        font-weight: 700;
-        margin: 0 0 4px 0;
-
-        @media (max-width: 480px) {
-          font-size: 20px;
-        }
-      }
-
-      .username {
-        color: $orange;
-        margin: 0 0 12px 0;
-        font-weight: 500;
-        font-size: 16px;
-      }
-
-      .bio {
-        color: $text-gray;
-        margin: 12px 0;
-        line-height: 1.6;
-        font-size: 14px;
-        max-width: 600px;
-        margin-left: auto;
-        margin-right: auto;
-      }
-
-      .edit-profile-btn, .add-post-btn {
-        margin-top: 0.5rem;
-        padding: 8px 24px;
-        background-color: $orange;
-        color: $white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 14px;
-        font-weight: 600;
-        transition: all 0.2s ease;
-
-        &:hover {
-          background-color: $orange-light;
-          transform: translateY(-2px);
-        }
-      }
-
-      .add-post-btn {
-        margin-left: 12px;
-
-        .plus-icon {
-          margin-right: 4px;
-        }
-      }
-    }
-
-    // Quick Stats
-    .quick-stats {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 16px;
-      margin-top: 24px;
-      padding-top: 24px;
-      border-top: 1px solid $light-gray;
-
-      @media (max-width: 768px) {
-        grid-template-columns: repeat(2, 1fr);
-      }
-
-      .stat-item {
-        padding: 12px;
-        background-color: rgba($black, 0.2);
-        border-radius: 8px;
-        transition: transform 0.2s ease;
-        text-align: center;
-
-        &:hover {
-          transform: translateY(-2px);
-        }
-
-        .stat-value {
-          font-size: 24px;
-          font-weight: 700;
-          color: $orange;
-          margin: 0 0 4px 0;
-        }
-
-        .stat-label {
-          font-size: 12px;
-          color: $text-gray;
-          margin: 0;
-        }
-      }
-
-      .follow-btn {
-        margin: 16px 0 0 0;
-        padding: 0.5rem 1rem;
-        background-color: #3498db;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 0.9rem;
-        transition: all 0.2s ease;
-        grid-column: 1 / -1;
-        width: fit-content;
-        justify-self: start;
-
-        &:hover {
-          background-color: #2980b9;
-          transform: translateY(-2px);
-        }
-      }
-    }
-  }
-
-  // Tabs Section
-  .profile-tabs {
-    width: 100%;
-    background-color: $black;
-
-    .tabs-header {
-      display: flex;
-      border-bottom: 1px solid $light-gray;
-      position: sticky;
-      top: 0;
-      background-color: $black;
-      z-index: 10;
-      width: 100%;
-      overflow-x: auto;
-      scrollbar-width: none;
-      -ms-overflow-style: none;
-
-      &::-webkit-scrollbar {
-        display: none;
-      }
-
-      button {
-        flex: 1;
-        min-width: 0;
-        padding: 12px 16px;
-        background: none;
-        border: none;
-        color: $text-gray;
-        font-size: 14px;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        position: relative;
-        text-align: center;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-
-        @media (max-width: 768px) {
-          padding: 12px 8px;
-          font-size: 13px;
-        }
-
-        @media (max-width: 480px) {
-          padding: 12px 4px;
-          font-size: 12px;
-        }
-
-        &:hover {
-          color: $orange;
-        }
-
-        &.active {
-          color: $orange;
-          font-weight: 500;
-
-          &:after {
-            content: '';
-            position: absolute;
-            bottom: -1px;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background-color: $orange;
-          }
-        }
-      }
-    }
-
-    .tab-content {
-      width: 100%;
-      padding: 24px;
-      height: 60vh;
-
-      h2 {
-        font-size: 20px;
-        font-weight: 600;
-        margin: 0 0 16px 0;
-      }
-
-      .stats-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 16px;
-
-        h2 {
-          margin: 0;
-        }
-
-        .add-pr-btn {
-          background-color: $orange;
-          color: $white;
-          border: none;
-          border-radius: 4px;
-          padding: 8px 16px;
-          font-size: 14px;
-          font-weight: 500;
-          cursor: pointer;
-          transition: background-color 0.2s;
-
-          &:hover {
-            background-color: $orange-light;
-          }
-        }
-      }
-
-      .gym-stats {
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-
-        .stat-card {
-          background-color: $medium-gray;
-          border-radius: 8px;
-          padding: 16px;
-
-          .stat-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-
-            .exercise-name {
-              font-size: 16px;
-              font-weight: 500;
-            }
-
-            .exercise-weight {
-              color: $orange;
-              font-weight: 700;
-            }
-          }
-
-          .stat-details {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 8px;
-
-            .detail-label {
-              color: $text-gray;
-            }
-
-            .detail-value {
-              color: $white;
-            }
-          }
-        }
-      }
-
-      .progress-tab {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        margin: 20px 0;
-        width: 100%;
-
-        .add-gym-btn.orange-btn {
-          background-color: $orange;
-          color: $white;
-          border: none;
-          padding: 8px 16px;
-          border-radius: 4px;
-          margin-bottom: 20px;
-          cursor: pointer;
-          transition: all 0.2s ease;
-
-          &:hover {
-            background-color: $orange-light;
-            transform: translateY(-2px);
-          }
-        }
-
-        .gym-list.horizontal {
-          display: flex;
-          flex-wrap: wrap;
-          width: 100%;
-
-          .gym-card {
-            flex: 0 0 calc(33.333% - 20px);
-            min-width: 250px;
-            background-color: $medium-gray;
-            border-radius: 8px;
-
-            h3 {
-              color: $white;
-              margin: 0 0 8px 0;
-            }
-
-            p {
-              color: $text-gray;
-              margin: 0;
-              font-size: 14px;
-            }
-          }
-        }
-      }
-
-      .nutrition-tab {
-        width: 100%;
-        box-sizing: border-box;
-        background-color: $black;
-        min-height: 100%;
-        height: 100%;
-        overflow-y: auto;
-        padding: 0;
-        position: relative;
-
-        .add-post-btn {
-          position: fixed;
-          bottom: 24px;
-          right: 24px;
-          background-color: $orange;
-          color: $white;
-          border: none;
-          padding: 12px 20px;
-          border-radius: 50px;
-          font-size: 14px;
-          font-weight: 600;
-          cursor: pointer;
-          transition: all 0.3s ease;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-          z-index: 100;
-          display: flex;
-          align-items: center;
-          gap: 8px;
-
-          &:hover {
-            background-color: $orange-light;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
-          }
-
-          &:active {
-            transform: translateY(0);
-          }
-        }
-
-        .posts-grid {
-          display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          gap: 24px;
-          padding: 24px;
-          width: 100%;
-          justify-content: start;
-          align-content: start;
-
-          @media (max-width: 1200px) {
-            gap: 20px;
-            padding: 20px;
-          }
-
-          @media (max-width: 768px) {
-            grid-template-columns: repeat(2, 1fr);
-            gap: 16px;
-            padding: 16px;
-          }
-
-          @media (max-width: 480px) {
-            grid-template-columns: 1fr;
-            gap: 16px;
-            padding: 12px;
-          }
-
-          .post-card {
-            width: 100%;
-            border: 1px solid rgba($light-gray, 0.2);
-            border-radius: 12px;
-            overflow: hidden;
-            background-color: $medium-gray;
-            // transition: transform 0.2s ease, box-shadow 0.2s ease;
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-
-            // &:hover {
-            //   transform: translateY(-4px);
-            //   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-            // }
-
-            .post-image {
-              width: 100%;
-              height: 240px;
-              object-fit: cover;
-              flex-shrink: 0;
-              background-color: $light-gray;
-
-              @media (max-width: 768px) {
-                height: 200px;
-              }
-
-              @media (max-width: 480px) {
-                height: 180px;
-              }
-            }
-
-            .post-details {
-              padding: 16px;
-              flex-grow: 1;
-              display: flex;
-              flex-direction: column;
-              min-height: 120px;
-
-              @media (max-width: 480px) {
-                padding: 12px;
-              }
-
-              .post-title {
-                font-size: 16px;
-                font-weight: 600;
-                color: $white;
-                margin-bottom: 8px;
-                line-height: 1.4;
-                overflow-wrap: break-word;
-                display: -webkit-box;
-                -webkit-line-clamp: 2;
-                -webkit-box-orient: vertical;
-                overflow: hidden;
-
-                @media (max-width: 480px) {
-                  font-size: 14px;
-                }
-              }
-
-              .post-description {
-                font-size: 13px;
-                color: $text-gray;
-                margin-bottom: 12px;
-                line-height: 1.5;
-                flex-grow: 1;
-                overflow-wrap: break-word;
-                display: -webkit-box;
-                -webkit-line-clamp: 3;
-                -webkit-box-orient: vertical;
-                overflow: hidden;
-
-                @media (max-width: 480px) {
-                  font-size: 12px;
-                  -webkit-line-clamp: 2;
-                }
-              }
-
-              .post-tags {
-                display: flex;
-                flex-wrap: wrap;
-                gap: 6px;
-                margin-bottom: 12px;
-
-                .tag {
-                  font-size: 11px;
-                  background-color: rgba($orange, 0.2);
-                  color: $orange;
-                  padding: 4px 8px;
-                  border-radius: 12px;
-                  white-space: nowrap;
-                  border: 1px solid rgba($orange, 0.3);
-
-                  @media (max-width: 480px) {
-                    font-size: 10px;
-                    padding: 3px 6px;
-                  }
-                }
-              }
-
-              .post-date {
-                font-size: 11px;
-                color: rgba($text-gray, 0.8);
-                margin-top: auto;
-                align-self: flex-start;
-                font-weight: 500;
-
-                @media (max-width: 480px) {
-                  font-size: 10px;
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  }
+/* Hero */
+.profile-hero {
+  background: $black;
+  border-bottom: 1px solid $border;
+  .hero-inner { display: grid; gap: 16px; padding: 18px 0 14px; }
+}
+.profile-hero.no-gradient { /* ensures any old gradient is suppressed */
+  background-image: none !important;
 }
 
-// Media Queries for Responsiveness
-@media (max-width: 600px) {
-  .user-profile {
-    border-radius: 0;
+.avatar-wrap { display: flex; align-items: center; }
+.avatar {
+  width: 84px; height: 84px; border-radius: 50%; object-fit: cover; border: 2px solid rgba($white,0.08);
+  box-shadow: $shadow;
+}
+.avatar.placeholder { width: 84px; height: 84px; border-radius: 50%; display: grid; place-items: center; background: #1a1a1a; color: $muted; border: 1px dashed $border; }
 
-    .profile-info {
-      .quick-stats {
-        grid-template-columns: repeat(2, 1fr);
-      }
-    }
-  }
+.identity { display: grid; gap: 6px; }
+.display { font-size: 1.4rem; line-height: 1.15; font-weight: 700; color: $text; }
+.username { color: $muted; font-size: .95rem; }
+.bio { color: #cfd3d8; font-size: .95rem; }
+
+.actions { display: flex; gap: 10px; margin-top: 6px; }
+.btn { display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 999px; background: #1b1b1b; color: $text; border: 1px solid $border; font-weight: 600; }
+.btn:hover { background: #202020; }
+.btn.primary { background: $orange; color: $black; border-color: transparent; }
+.btn.primary:hover { background: $orange-600; }
+.btn.subtle { background: transparent; border-color: $border; color: $text; }
+.icon-btn { background: transparent; border: none; color: $text; padding: 6px; border-radius: 8px; }
+.icon-btn:hover { background: rgba(255,255,255,0.06); }
+
+.quick-stats { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; }
+.stat { background: #141414; border: 1px solid $border; border-radius: 14px; padding: 10px; text-align: center; }
+.stat .value { font-size: 1.05rem; font-weight: 800; color: $text;}
+.stat .label { font-size: .7rem; color: $muted; }
+
+/* Tabs – segmented control */
+.tabs { position: sticky; top: 0; z-index: 10; margin: 14px 0; }
+.tabs--segmented { display: grid; grid-auto-flow: column; gap: 6px; background: #141414; border: 1px solid $border; border-radius: 12px; padding: 6px; }
+.tab { appearance: none; border: 0; background: transparent; color: $muted; padding: 8px 10px; border-radius: 10px; font-weight: 700; font-size: .95rem; }
+.tab.active { background: $orange; color: $black; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.12); }
+.tab:not(.active):hover { background: rgba(255,255,255,0.04); color: $text; }
+
+/* Panels */
+.panel { background: $panel; border: 1px solid $border; border-radius: 16px; padding: 14px; box-shadow: $shadow; }
+.panel + .panel { margin-top: 12px; }
+.panel-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+.panel-head h2 { font-size: 1.05rem; }
+
+/* PR grid */
+.pr-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
+.card { background: #121212; border: 1px solid $border; border-radius: 14px; padding: 12px; }
+.pr-card .row { display: flex; align-items: center; justify-content: space-between; }
+.pr-card .exercise { font-weight: 700; color: $text;}
+.pr-card .weight { color: $orange; font-weight: 800; }
+.pr-card .meta { margin-top: 8px; display: flex; gap: 8px; color: $muted; }
+
+/* Gym strip */
+.gym-strip { display: grid; grid-auto-flow: row; gap: 10px; }
+.gym-card { cursor: pointer; padding: 12px; transition: transform .12s ease; }
+.gym-card:hover { transform: translateY(-2px); }
+.gym-title { font-weight: 700; }
+.gym-sub { margin-top: 4px; color: $muted; display: flex; align-items: center; gap: 6px; font-size: .9rem; }
+
+/* Posts */
+.post-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
+.post-card { overflow: hidden; padding: 0; }
+.post-img { display: block; width: 100%; height: 240px; object-fit: cover; }
+.post-body { padding: 12px; }
+.post-title { font-size: 1rem; font-weight: 800; color: $text;}
+.post-desc { margin-top: 6px; color: #d9dde2; }
+.tags { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 6px; }
+.tag { display: inline-block; padding: 4px 8px; font-size: .8rem; background: #ff7a00 !important; border: 1px solid $border; border-radius: 999px; }
+.date { display: block; margin-top: 8px; color: $muted; font-size: .8rem; }
+
+/* Empty */
+.empty { text-align: center; color: $muted; padding: 26px 10px; border: 1px dashed $border; border-radius: 12px; background: rgba(0,0,0,0.2); }
+
+/* Modal */
+.modal { position: fixed; inset: 0; display: grid; place-items: center; background: rgba(0,0,0,0.55); padding: 18px; z-index: 50; }
+.modal-box { width: 100%; max-width: 540px; background: $panel; border: 1px solid $border; border-radius: 16px; box-shadow: $shadow; overflow: hidden; }
+.modal-head { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; border-bottom: 1px solid $border; }
+.modal-body { padding: 14px; }
+.modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 12px; }
+.form-grid { display: grid; gap: 10px; }
+.field { display: grid; gap: 6px; }
+.field span { font-size: .9rem; color: $muted; }
+.field input, .field textarea { width: 100%; background: #0f0f0f; color: $text; border: 1px solid $border; border-radius: 10px; padding: 10px; }
+.preview { width: 100%; height: 220px; object-fit: cover; border-radius: 10px; border: 1px solid $border; margin-top: 8px; }
+
+/* Responsive */
+@media (min-width: 560px) {
+  .display { font-size: 1.6rem; color: $text;}
+  .post-img { height: 280px; }
+  .pr-grid { grid-template-columns: repeat(2, 1fr); }
+  .gym-strip { grid-template-columns: repeat(2, 1fr); }
 }
 
-@media (max-width: 400px) {
-  .user-profile {
-    .profile-info {
-      .profile-picture {
-        img {
-          width: 80px;
-          height: 80px;
-        }
-      }
-
-      .user-info {
-        margin-top: 48px;
-
-        h1 {
-          font-size: 20px;
-        }
-      }
-    }
-  }
-}
-
-// Modal Styles
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.7);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
-
-.modal-content {
-  background-color: $dark-gray;
-  padding: 24px;
-  border-radius: 8px;
-  width: 90%;
-  max-width: 400px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-
-  h3 {
-    color: $white;
-    margin: 0 0 20px 0;
-    font-size: 20px;
-    font-weight: 600;
-  }
-
-  .modal-form {
-    .form-group {
-      margin-bottom: 16px;
-
-      label {
-        display: block;
-        color: $text-gray;
-        margin-bottom: 8px;
-        font-size: 14px;
-      }
-
-      input {
-        width: 100%;
-        padding: 8px 12px;
-        background-color: $medium-gray;
-        border: 1px solid $light-gray;
-        border-radius: 4px;
-        color: $white;
-        font-size: 14px;
-
-        &:focus {
-          outline: none;
-          border-color: $orange;
-        }
-
-        &::placeholder {
-          color: $text-gray;
-        }
-      }
-    }
-
-    .modal-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 12px;
-      margin-top: 24px;
-
-      button {
-        padding: 8px 16px;
-        border-radius: 4px;
-        font-size: 14px;
-        font-weight: 500;
-        cursor: pointer;
-        transition: background-color 0.2s;
-
-        &.cancel-btn {
-          background-color: transparent;
-          border: 1px solid $light-gray;
-          color: $text-gray;
-
-          &:hover {
-            background-color: $medium-gray;
-          }
-        }
-
-        &.save-btn {
-          background-color: $orange;
-          border: none;
-          color: $white;
-
-          &:hover {
-            background-color: $orange-light;
-          }
-        }
-      }
-    }
-  }
-}
-
-// Posts Section
-.posts-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-  padding: 0 16px;
-
-  h2 {
-    font-size: 24px;
-    color: $white;
-    margin: 0;
-  }
-}
-
-.posts-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
-  padding: 24px;
-  justify-content: start;
-  align-content: start;
-
-  @media (max-width: 1200px) {
-    gap: 20px;
-    padding: 20px;
-  }
-
-  @media (max-width: 768px) {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
-    padding: 16px;
-  }
-
-  @media (max-width: 480px) {
-    grid-template-columns: 1fr;
-    gap: 16px;
-    padding: 12px;
-  }
-
-  .post-card {
-    width: 100%;
-    border: 1px solid rgba($light-gray, 0.2);
-    border-radius: 12px;
-    overflow: hidden;
-    background-color: $medium-gray;
-            /* Removed hover effect */
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-
-    .post-image {
-      width: 100%;
-      height: 240px;
-      object-fit: cover;
-      flex-shrink: 0;
-      background-color: $light-gray;
-
-      @media (max-width: 768px) {
-        height: 200px;
-      }
-
-      @media (max-width: 480px) {
-        height: 180px;
-      }
-    }
-
-    .post-details {
-      padding: 16px;
-      flex-grow: 1;
-      display: flex;
-      flex-direction: column;
-      min-height: 120px;
-
-      @media (max-width: 480px) {
-        padding: 12px;
-      }
-
-      .post-title {
-        font-size: 16px;
-        font-weight: 600;
-        color: $white;
-        margin-bottom: 8px;
-        line-height: 1.4;
-        overflow-wrap: break-word;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-
-        @media (max-width: 480px) {
-          font-size: 14px;
-        }
-      }
-
-      .post-description {
-        font-size: 13px;
-        color: $text-gray;
-        margin-bottom: 12px;
-        line-height: 1.5;
-        flex-grow: 1;
-        overflow-wrap: break-word;
-        display: -webkit-box;
-        -webkit-line-clamp: 3;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-
-        @media (max-width: 480px) {
-          font-size: 12px;
-          -webkit-line-clamp: 2;
-        }
-      }
-
-      .post-tags {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 6px;
-        margin-bottom: 12px;
-
-        .tag {
-          font-size: 11px;
-          background-color: rgba($orange, 0.2);
-          color: $orange;
-          padding: 4px 8px;
-          border-radius: 12px;
-          white-space: nowrap;
-          border: 1px solid rgba($orange, 0.3);
-
-          @media (max-width: 480px) {
-            font-size: 10px;
-            padding: 3px 6px;
-          }
-        }
-      }
-
-      .post-date {
-        font-size: 11px;
-        color: rgba($text-gray, 0.8);
-        margin-top: auto;
-        align-self: flex-start;
-        font-weight: 500;
-
-        @media (max-width: 480px) {
-          font-size: 10px;
-        }
-      }
-    }
-  }
-}
-
-// Modal Form Styles
-.modal-form {
-  .form-group {
-    margin-bottom: 20px;
-
-    label {
-      display: block;
-      color: $text-gray;
-      margin-bottom: 8px;
-      font-size: 14px;
-      font-weight: 500;
-    }
-
-    input[type="text"],
-    input[type="file"],
-    textarea {
-      width: 100%;
-      padding: 12px;
-      background-color: $medium-gray;
-      border: 1px solid $light-gray;
-      border-radius: 6px;
-      color: $white;
-      font-size: 14px;
-      transition: all 0.2s ease;
-
-      &:focus {
-        outline: none;
-        border-color: $orange;
-        box-shadow: 0 0 0 2px rgba($orange, 0.1);
-      }
-
-      &::placeholder {
-        color: rgba($text-gray, 0.6);
-      }
-    }
-
-    textarea {
-      resize: vertical;
-      min-height: 100px;
-    }
-
-    input[type="file"] {
-      padding: 10px;
-      cursor: pointer;
-
-      &::-webkit-file-upload-button {
-        background-color: $orange;
-        color: $white;
-        border: none;
-        padding: 8px 16px;
-        border-radius: 4px;
-        cursor: pointer;
-        margin-right: 12px;
-        font-size: 14px;
-        transition: background-color 0.2s;
-
-        &:hover {
-          background-color: darken($orange, 10%);
-        }
-      }
-    }
-  }
-
-  .modal-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 12px;
-    margin-top: 24px;
-    padding-top: 20px;
-    border-top: 1px solid $light-gray;
-
-    button {
-      padding: 10px 24px;
-      border-radius: 6px;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s ease;
-
-      &:first-child {
-        background-color: transparent;
-        border: 1px solid $light-gray;
-        color: $text-gray;
-
-        &:hover {
-          background-color: rgba($light-gray, 0.1);
-        }
-      }
-
-      &:last-child {
-        background-color: $orange;
-        border: none;
-        color: $white;
-
-        &:hover:not(:disabled) {
-          background-color: darken($orange, 10%);
-          transform: translateY(-1px);
-        }
-
-        &:disabled {
-          opacity: 0.6;
-          cursor: not-allowed;
-        }
-      }
-    }
-  }
-}
-
-// Your Posts section
-.your-posts {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin-bottom: 24px;
-
-  h2 {
-    font-size: 20px;
-    color: $white;
-    margin: 0;
-  }
+@media (min-width: 880px) {
+  .profile-hero .hero-inner { grid-template-columns: auto 1fr auto; align-items: center; }
+  .avatar, .avatar.placeholder { width: 96px; height: 96px; }
+  .display { font-size: 1.9rem; color : $text;}
+  .quick-stats { max-width: 520px; margin-left: auto; }
+  .tabs--segmented { width: max-content; margin: 16px 0; }
+  .post-grid { grid-template-columns: repeat(3, 1fr); }
+  .pr-grid { grid-template-columns: repeat(3, 1fr); }
+  .gym-strip { grid-template-columns: repeat(3, 1fr); }
 }

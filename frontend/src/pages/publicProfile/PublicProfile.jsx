@@ -1,646 +1,436 @@
-// UserProfile.jsx
 import React, { useState, useEffect, useRef } from 'react';
-import './style.scss';
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { User } from 'lucide-react';
-import Header from "../../components/header";
+import { User, Plus, PencilLine, UserPlus, MapPin, X } from 'lucide-react';
+import Header from '../../components/header';
 import GymSearch from '../../components/GymSearch/GymSearch';
+import './style.scss';
 
-/**
- * UserProfile Component
- * Displays a user's profile information, stats, and various data tabs
- */
+const TABS = [
+  { id: 'stats', label: 'PRs' },
+  { id: 'progress', label: 'Gyms' },
+  { id: 'nutrition', label: 'Posts' },
+];
+
 const UserProfile = () => {
-  // Extract the name parameter from the URL
   const { name } = useParams();
   const navigate = useNavigate();
 
-  // State management for user data with default values
   const [userData, setUserData] = useState({
-    name: "Alex Johnson",
-    username: "@alexfit",
-    bio: "Fitness enthusiast | Personal Trainer | Nutrition Coach",
+    name: 'Alex Johnson',
+    username: '@alexfit',
+    bio: 'Fitness enthusiast | Personal Trainer | Nutrition Coach',
     profilePicture: null,
-    stats: {
-      workoutsCompleted: '-',
-      personalBests: '-',
-      followers: '-',
-      following: '-'
-    },
-    gymStats: [
-      
-    ]
+    stats: { workoutsCompleted: '-', personalBests: '-', followers: '-', following: '-' },
+    gymStats: []
   });
 
-  // Track which content tab is currently active
   const [activeTab, setActiveTab] = useState('stats');
-  // Track if the current user owns this profile
   const [isOwnProfile, setIsOwnProfile] = useState(false);
-  // State for managing the Add PR modal
+
   const [showAddPRModal, setShowAddPRModal] = useState(false);
   const [newPR, setNewPR] = useState({ exercise: '', weight: '', reps: '' });
+
   const [showAddPostModal, setShowAddPostModal] = useState(false);
-  const [newPost, setNewPost] = useState({ 
-    title: '',
-    description: '',
-    imageFile: null,
-    tags: ''  // Will be split into array before sending
-  });
-  const [posts, setPosts] = useState([]);
+  const [newPost, setNewPost] = useState({ title: '', description: '', imageFile: null, tags: '' });
   const fileInputRef = useRef(null);
+
+  const [posts, setPosts] = useState([]);
   const [userGyms, setUserGyms] = useState([]);
   const [showGymSearch, setShowGymSearch] = useState(false);
 
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-  /**
-   * Checks if the current authenticated user owns this profile
-   */
+  // Ownership check
   const checkProfileOwnership = async () => {
     try {
       const token = localStorage.getItem('token');
-      if (!token) {
-        setIsOwnProfile(false);
-        return;
-      }
-
-      const response = await axios.get(`${API_BASE_URL}/api/checkProfileOwnership/${name}`, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
-
-      setIsOwnProfile(response.data.isOwner);
-    } catch (error) {
-      console.error('Error checking profile ownership:', error);
+      if (!token) return setIsOwnProfile(false);
+      const res = await axios.get(`${API_BASE_URL}/api/checkProfileOwnership/${name}`, { headers: { Authorization: `Bearer ${token}` } });
+      setIsOwnProfile(!!res.data.isOwner);
+    } catch (e) {
+      console.error('Error checking profile ownership:', e);
       setIsOwnProfile(false);
     }
   };
 
   const getFollowerCount = async () => {
-    const token = localStorage.getItem('token');
-    const response = await axios.get(`${API_BASE_URL}/api/getFollowerCount/${name}`,{
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    })
-    setUserData(prevData => ({
-      ...prevData,
-      stats: {
-        ...prevData.stats,
-        followers: response.data.follower_count 
-      }
-    }))
-  }
+    try {
+      const token = localStorage.getItem('token');
+      const res = await axios.get(`${API_BASE_URL}/api/getFollowerCount/${name}`, { headers: { Authorization: `Bearer ${token}` } });
+      setUserData(prev => ({ ...prev, stats: { ...prev.stats, followers: res.data.follower_count } }));
+    } catch (e) { console.error(e); }
+  };
 
   const getFollowingCount = async () => {
-    const token = localStorage.getItem('token');
-    const response = await axios.get(`${API_BASE_URL}/api/getFollowingCount/${name}`,{
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    })
-    setUserData(prevData => ({
-      ...prevData,
-      stats: {
-        ...prevData.stats,
-        following: response.data.following_count 
-      }
-    }))
-  }
+    try {
+      const token = localStorage.getItem('token');
+      const res = await axios.get(`${API_BASE_URL}/api/getFollowingCount/${name}`, { headers: { Authorization: `Bearer ${token}` } });
+      setUserData(prev => ({ ...prev, stats: { ...prev.stats, following: res.data.following_count } }));
+    } catch (e) { console.error(e); }
+  };
 
   const getPostCount = async () => {
-    const token = localStorage.getItem('token');
-    const response = await axios.get(`${API_BASE_URL}/api/getNumberPost/${name}`,{
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    })
-    setUserData(prevData => ({
-      ...prevData,
-      stats: {
-        ...prevData.stats,
-        workoutsCompleted: response.data.post_count
-      }
-    }))
-  }
+    try {
+      const token = localStorage.getItem('token');
+      const res = await axios.get(`${API_BASE_URL}/api/getNumberPost/${name}`, { headers: { Authorization: `Bearer ${token}` } });
+      setUserData(prev => ({ ...prev, stats: { ...prev.stats, workoutsCompleted: res.data.post_count } }));
+    } catch (e) { console.error(e); }
+  };
 
   const getPrCount = async () => {
-    const token = localStorage.getItem('token');
-    const response = await axios.get(`${API_BASE_URL}/api/getNumberPR/${name}`,{
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    })
-    setUserData(prevData => ({
-      ...prevData,
-      stats: {
-        ...prevData.stats,
-        personalBests: response.data.pr_count
-      }
-    }))
-  }
+    try {
+      const token = localStorage.getItem('token');
+      const res = await axios.get(`${API_BASE_URL}/api/getNumberPR/${name}`, { headers: { Authorization: `Bearer ${token}` } });
+      setUserData(prev => ({ ...prev, stats: { ...prev.stats, personalBests: res.data.pr_count } }));
+    } catch (e) { console.error(e); }
+  };
 
-    /**
-   * Fetches user data from the API
-   * @returns {Promise} The data returned from the API
-   */
   const getData = async () => {
     try {
-      if (!name) {
-        console.error("Error: No username provided in URL parameters");
-        throw new Error("Username parameter is required");
-      }
-      
-      console.log(`Fetching data for user: ${name}`);
-      
-      const response = await fetch(
-        `${API_BASE_URL}/api/GetUserData/?userName=${encodeURIComponent(name)}`,
-        { method: "GET" }
-      );
-      
+      if (!name) throw new Error('Username parameter is required');
+      const response = await fetch(`${API_BASE_URL}/api/GetUserData/?userName=${encodeURIComponent(name)}`);
       if (!response.ok) {
+        if (response.status === 404) return; // graceful 404
         const errorData = await response.json();
-        if (response.status === 404) {
-          console.error(`User not found: ${name}`);
-          return;
-        }
         throw new Error(errorData.error || `API request failed with status ${response.status}`);
       }
-      
       const result = await response.json();
-      if (!result.success) {
-        throw new Error(result.error || "Failed to fetch user data");
-      }
-      
-      setUserData({
-        ...userData,
-        name: result.user.firstName + " "+ result.user.lastName,
+      if (!result.success) throw new Error(result.error || 'Failed to fetch user data');
+
+      setUserData(prev => ({
+        ...prev,
+        name: `${result.user.firstName} ${result.user.lastName}`,
         username: result.user.username,
         bio: result.user.bio,
         profilePicture: result.user.profilePictureUrl,
-        gymStats: [
-          ...result.user.pr.map(pr => ({
-            exercise: pr.exercise_name,
-            weight: pr.weight + " lbs",
-            reps: pr.reps
-          }))
-        ]
-      });
+        gymStats: result.user.pr.map(pr => ({ exercise: pr.exercise_name, weight: `${pr.weight} lbs`, reps: pr.reps }))
+      }));
 
-      // Set posts data
       setPosts(result.user.posts || []);
-      
-    } catch (error) {
-      console.error("Error fetching user data:", error.message);
-      throw error;
+    } catch (e) {
+      console.error('Error fetching user data:', e);
     }
   };
-  
-  // Fetch user data when component mounts or name parameter changes
-  useEffect(() => {
-    const fetchAll = async () => {
-      await checkProfileOwnership();
-      await getData();
-      await getFollowerCount();
-      await getFollowingCount();
-      await getPrCount();
-      await getPostCount();
-      await fetchUserGyms();
-  
-      
-    };
-    fetchAll();
-  }, [name]);
 
-  /**
-   * Handles saving a new PR
-   */
-
-  async function fetchUserGyms() {
+  const fetchUserGyms = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get(`${API_BASE_URL}/api/getUserGyms/${name}`, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
-      if (response.data.gyms) {
-        console.log('User gyms fetched successfully:', response.data.gyms);
-        setUserGyms(response.data.gyms.map(gym => ({
-          id: gym.id,
-          name: gym.name,
-          address: gym.address
-        }))
-        );  
-      } else {
-        console.error('No gyms found for this user');
-        setUserGyms([]);
-      }
-    } catch (error) {
-      console.error('Error fetching user gyms:', error);
+      const res = await axios.get(`${API_BASE_URL}/api/getUserGyms/${name}`, { headers: { Authorization: `Bearer ${token}` } });
+      const gyms = res?.data?.gyms || [];
+      setUserGyms(gyms.map(gym => ({ id: gym.id, name: gym.name, address: gym.address })));
+    } catch (e) {
+      console.error('Error fetching user gyms:', e);
       setUserGyms([]);
     }
   };
-          
+
+  useEffect(() => {
+    const init = async () => {
+      await checkProfileOwnership();
+      await getData();
+      await Promise.all([getFollowerCount(), getFollowingCount(), getPrCount(), getPostCount(), fetchUserGyms()]);
+    };
+    init();
+  }, [name]);
 
   const handleSavePR = async () => {
     try {
       const token = localStorage.getItem('token');
-      await axios.post(`${API_BASE_URL}/api/addPersonalRecord`, {
-        newPR: newPR},
-        {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
-      
-      // Update the local state with the new PR
-      setUserData(prevData => ({
-        ...prevData,
-        stats: {
-          ...prevData.stats,
-          personalBests: prevData.stats.personalBests + 1
-        },
-        gymStats: [
-          ...prevData.gymStats,
-          {
-            exercise: newPR.exercise,
-            weight: `${newPR.weight} lbs`,
-            reps: newPR.reps
-          }
-        ]
+      await axios.post(`${API_BASE_URL}/api/addPersonalRecord`, { newPR }, { headers: { Authorization: `Bearer ${token}` } });
+      setUserData(prev => ({
+        ...prev,
+        stats: { ...prev.stats, personalBests: Number(prev.stats.personalBests) + 1 },
+        gymStats: [...prev.gymStats, { exercise: newPR.exercise, weight: `${newPR.weight} lbs`, reps: newPR.reps }]
       }));
-
-      // Close modal and reset form
       setShowAddPRModal(false);
       setNewPR({ exercise: '', weight: '', reps: '' });
-    } catch (error) {
-      console.error('Error saving PR:', error);
-    }
+    } catch (e) { console.error('Error saving PR:', e); }
   };
 
   const handleFollow = async () => {
     try {
       const token = localStorage.getItem('token');
-      await axios.post(`${API_BASE_URL}/api/newFollower`, {
-        targetUserName: name
-      }, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
-    } catch (error) {
-      console.error('Error following user:', error);
-    }
-    getFollowerCount()
+      await axios.post(`${API_BASE_URL}/api/newFollower`, { targetUserName: name }, { headers: { Authorization: `Bearer ${token}` } });
+      getFollowerCount();
+    } catch (e) { console.error('Error following user:', e); }
   };
 
-  const handleFileSelect = (e) => {
-    const file = e.target.files[0];
+  const handleFileSelect = e => {
+    const file = e.target.files?.[0];
     if (!file) return;
-
-    if (!file.type.startsWith('image/')) {
-      alert('Please upload an image file');
-      return;
-    }
-
-    const maxSize = 5 * 1024 * 1024; // 5MB
-    if (file.size > maxSize) {
-      alert('File size must be less than 5MB');
-      return;
-    }
-
+    if (!file.type.startsWith('image/')) return alert('Please upload an image file');
+    const maxSize = 5 * 1024 * 1024;
+    if (file.size > maxSize) return alert('File size must be less than 5MB');
     const reader = new FileReader();
-    reader.onload = (event) => {
-      setNewPost(prev => ({ ...prev, imageFile: event.target.result }));
-    };
+    reader.onload = ev => setNewPost(prev => ({ ...prev, imageFile: ev.target?.result }));
     reader.readAsDataURL(file);
   };
 
   const handleCreatePost = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.post(`${API_BASE_URL}/api/createPost`, 
-        { 
+      const payload = {
+        title: newPost.title,
+        description: newPost.description,
+        imageFile: newPost.imageFile,
+        tags: newPost.tags.split(',').map(t => t.trim()).filter(Boolean)
+      };
+      const res = await axios.post(`${API_BASE_URL}/api/createPost`, payload, { headers: { Authorization: `Bearer ${token}` } });
+      if (res.data.success) {
+        setPosts(prev => [{
+          id: res.data.data[0].id,
           title: newPost.title,
           description: newPost.description,
-          imageFile: newPost.imageFile,
-          tags: newPost.tags.split(',').map(tag => tag.trim()).filter(tag => tag !== '') // Convert comma-separated string to array
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
-      );
-
-      if (response.data.success) {
-        // Add the new post to the posts array
-        setPosts(prevPosts => [{
-          id: response.data.data[0].id,
-          title: newPost.title,
-          description: newPost.description,
-          image_url: response.data.data[0].image_url,
-          tags: newPost.tags.split(',').map(tag => tag.trim()).filter(tag => tag !== ''),
+          image_url: res.data.data[0].image_url,
+          tags: payload.tags,
           created_at: new Date(),
           username: userData.username
-        }, ...prevPosts]);
-
-        // Close modal and reset form
+        }, ...prev]);
         setShowAddPostModal(false);
         setNewPost({ title: '', description: '', imageFile: null, tags: '' });
       }
-    } catch (error) {
-      console.error('Error creating post:', error);
+    } catch (e) {
+      console.error('Error creating post:', e);
       alert('Failed to create post. Please try again.');
     }
   };
 
-  const handleGymSelect = async (gym) => {
-    // Prevent adding duplicate gyms
-    if (userGyms.some(g => g.id === gym.id)) {
-      alert('This gym is already in your profile!');
-      return;
-    }
-
+  const handleGymSelect = async gym => {
+    if (userGyms.some(g => g.id === gym.id)) return alert('This gym is already in your profile');
     try {
       const token = localStorage.getItem('token');
-      axios.post(`${API_BASE_URL}/api/addUserGym`, {
-        gymId: gym.id,
-        username: userData.username,
-        gymName: gym.name,
-        gymAdress: gym.address
-      }, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
-      
+      await axios.post(`${API_BASE_URL}/api/addUserGym`, { gymId: gym.id, username: userData.username, gymName: gym.name, gymAdress: gym.address }, { headers: { Authorization: `Bearer ${token}` } });
       setUserGyms(prev => [...prev, gym]);
       setShowGymSearch(false);
-    } catch (error) {
-      console.error('Error adding gym:', error);
+    } catch (e) {
+      console.error('Error adding gym:', e);
       alert('Failed to add gym. Please try again.');
     }
   };
 
-  const handleGymClick = (gymId) => {
-    navigate(`/gym/${gymId}`);
+  const handleGymClick = id => navigate(`/gym/${id}`);
+
+  const parseTags = tagsVal => {
+    try {
+      if (Array.isArray(tagsVal)) return tagsVal;
+      if (typeof tagsVal === 'string') {
+        try { return JSON.parse(tagsVal); } catch { return tagsVal.split(',').map(t => t.trim()).filter(Boolean); }
+      }
+      return [];
+    } catch { return []; }
   };
 
   return (
-    <div className="user-profile">
+    <div className="profile-page">
       <Header />
-      <div className="profile-info">
-        <div className="profile-picture">
-          {userData.profilePicture ? (
-            <img 
-              src={userData.profilePicture} 
-              alt={`${userData.name}'s profile`} 
-            />
-          ) : (
-            <div className="profile-picture-placeholder">
-              <User size={72} />
-            </div>
-          )}
-        </div>
 
-        <div className="user-info">
-          <h1 id="userName">{userData.name}</h1>
-          <p className="username">{"@"+userData.username}</p>
-          <p className="bio">{userData.bio}</p>
-          {isOwnProfile && (
-            <><button
-              className="edit-profile-btn"
-              onClick={() => window.location.href = '/profile'}
-            >
-              Edit Profile
-            </button>
-            <button
-              className="add-post-btn"
-              onClick={() => [setShowAddPostModal(true), setActiveTab("nutrition")]}
-            >
-              <span className="plus-icon">+</span>
-              New Post
-            </button></>
-          )}
-        </div>
+      {/* Hero */}
+      <section className="profile-hero no-gradient">
+        <div className="hero-inner container">
+          <div className="avatar-wrap">
+            {userData.profilePicture ? (
+              <img src={userData.profilePicture} alt={`${userData.name}'s profile`} className="avatar" />
+            ) : (
+              <div className="avatar placeholder" aria-label="No profile photo">
+                <User size={48} />
+              </div>
+            )}
+          </div>
 
-        {/* User Statistics Summary */}
-        <div className="quick-stats">
-          <div className="stat-item">
-            <p className="stat-value">{userData.stats.workoutsCompleted}</p>
-            <p className="stat-label">Posts</p>
-          </div>
-          <div className="stat-item">
-            <p className="stat-value">{userData.stats.personalBests}</p>
-            <p className="stat-label">PRs</p>
-          </div>
-          <div className="stat-item">
-            <p className="stat-value">{userData.stats.followers}</p>
-            <p className="stat-label">Followers</p>
-          </div>
-          <div className="stat-item">
-            <p className="stat-value">{userData.stats.following}</p>
-            <p className="stat-label">Following</p>
-          </div>
-          {!isOwnProfile && (
-            <button className="follow-btn" onClick={handleFollow}>
-              Follow
-            </button>
-          )}
-        </div>
-      </div>
-      
-      {/* Content Tabs Section */}
-      <div className="profile-tabs">
-        {/* Tab Navigation */}
-        <div className="tabs-header">
-          <button 
-            className={activeTab === 'stats' ? 'active' : ''}
-            onClick={() => setActiveTab('stats')}
-          >
-            Gym Stats
-          </button>
-          <button 
-            className={activeTab === 'progress' ? 'active' : ''}
-            onClick={() => setActiveTab('progress')}
-          >
-            Gym Frequented
-          </button>
-          <button 
-            className={activeTab === 'nutrition' ? 'active' : ''}
-            onClick={() => setActiveTab('nutrition')}
-          >
-            Posts
-          </button>
-        </div>
-        
-        {/* Tab Content */}
-        <div className="tab-content">
-          {/* Gym Stats Tab */}
-          {activeTab === 'stats' && (
-            <div className="stats-tab">
-              <div className="stats-header">
-                <h2>Personal Records</h2>
-                {isOwnProfile && (
-                  <button 
-                    className="add-pr-btn"
-                    onClick={() => setShowAddPRModal(true)}
-                  >
-                    + Add PR
+          <div className="identity">
+            <h1 id="userName" className="display">{userData.name}</h1>
+            <p className="username">@{userData.username}</p>
+            <p className="bio">{userData.bio}</p>
+
+            <div className="actions">
+              {isOwnProfile ? (
+                <>
+                  <button className="btn" onClick={() => (window.location.href = '/profile')}>
+                    <PencilLine size={16} />
+                    <span>Edit profile</span>
                   </button>
-                )}
-              </div>
-              <div className="gym-stats">
-                {userData.gymStats.map((stat, index) => (
-                  <div key={index} className="stat-card">
-                    <div className="stat-header">
-                      <span className="exercise-name">{stat.exercise}</span>
-                      <span className="exercise-weight">{stat.weight}</span>
-                    </div>
-                    <div className="stat-details">
-                      <span className="detail-label">Reps</span>
-                      <span className="detail-value">{stat.reps}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-          
-          {/* Progress Tab */}
-          {activeTab === 'progress' && (
-            <div className="progress-tab">
-              {isOwnProfile && (
-                <button 
-                  className="add-gym-btn orange-btn"
-                  onClick={() => setShowGymSearch(true)}
-                >
-                  + Add Gym
+                  <button className="btn primary" onClick={() => { setShowAddPostModal(true); setActiveTab('nutrition'); }}>
+                    <Plus size={16} />
+                    <span>New post</span>
+                  </button>
+                </>
+              ) : (
+                <button className="btn primary" onClick={handleFollow}>
+                  <UserPlus size={16} />
+                  <span>Follow</span>
                 </button>
               )}
-              <div className="gym-list horizontal">
-                {userGyms.map((gym) => (
-                  <div 
-                    key={gym.id} 
-                    className="gym-card"
-                    onClick={() => handleGymClick(gym.id)}
-                    style={{ cursor: 'pointer' }}
-                  >
-                    <h3>{gym.name}</h3>
-                    <p>{gym.address}</p>
-                  </div>
+            </div>
+          </div>
+
+          <div className="quick-stats">
+            <div className="stat">
+              <div className="value">{userData.stats.workoutsCompleted}</div>
+              <div className="label">Posts</div>
+            </div>
+            <div className="stat">
+              <div className="value">{userData.stats.personalBests}</div>
+              <div className="label">PRs</div>
+            </div>
+            <div className="stat">
+              <div className="value">{userData.stats.followers}</div>
+              <div className="label">Followers</div>
+            </div>
+            <div className="stat">
+              <div className="value">{userData.stats.following}</div>
+              <div className="label">Following</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Tabs */}
+      <div className="container">
+        <nav className="tabs tabs--segmented" role="tablist" aria-label="Profile sections">
+          {TABS.map(t => (
+            <button
+              key={t.id}
+              role="tab"
+              aria-selected={activeTab === t.id}
+              className={`tab ${activeTab === t.id ? 'active' : ''}`}
+              onClick={() => setActiveTab(t.id)}
+            >
+              {t.label}
+            </button>
+          ))}
+        </nav>
+
+        {/* PRs */}
+        {activeTab === 'stats' && (
+          <section className="panel" role="tabpanel">
+            <header className="panel-head">
+              <h2>Personal Records</h2>
+              {isOwnProfile && (
+                <button className="btn subtle" onClick={() => setShowAddPRModal(true)}>
+                  <Plus size={16} />
+                  <span>Add PR</span>
+                </button>
+              )}
+            </header>
+            {userData.gymStats?.length ? (
+              <div className="pr-grid">
+                {userData.gymStats.map((stat, i) => (
+                  <article key={`${stat.exercise}-${i}`} className="card pr-card">
+                    <div className="row between">
+                      <span className="exercise">{stat.exercise}</span>
+                      <span className="weight">{stat.weight}</span>
+                    </div>
+                    <div className="meta"><span>Reps</span><strong>{stat.reps}</strong></div>
+                  </article>
                 ))}
               </div>
-              {showGymSearch && (
-                <div className="modal-overlay">
-                  <div className="modal-content gym-search-modal">
-                    <div className="modal-header">
-                      <h3>Search Gyms</h3>
-                      <button className="close-btn" onClick={() => setShowGymSearch(false)}>×</button>
-                    </div>
+            ) : (
+              <div className="empty">No PRs yet</div>
+            )}
+          </section>
+        )}
+
+        {/* Gyms */}
+        {activeTab === 'progress' && (
+          <section className="panel" role="tabpanel">
+            <header className="panel-head">
+              <h2>Gyms</h2>
+              {isOwnProfile && (
+                <button className="btn subtle" onClick={() => setShowGymSearch(true)}>
+                  <Plus size={16} />
+                  <span>Add gym</span>
+                </button>
+              )}
+            </header>
+
+            {userGyms?.length ? (
+              <div className="gym-strip" role="list">
+                {userGyms.map(gym => (
+                  <article key={gym.id} role="listitem" className="card gym-card" onClick={() => handleGymClick(gym.id)}>
+                    <div className="gym-title">{gym.name}</div>
+                    <div className="gym-sub"><MapPin size={14} /> {gym.address}</div>
+                  </article>
+                ))}
+              </div>
+            ) : (
+              <div className="empty">No gyms added</div>
+            )}
+
+            {showGymSearch && (
+              <div className="modal" role="dialog" aria-modal="true">
+                <div className="modal-box">
+                  <header className="modal-head">
+                    <h3>Search gyms</h3>
+                    <button className="icon-btn" aria-label="Close" onClick={() => setShowGymSearch(false)}>
+                      <X size={18} />
+                    </button>
+                  </header>
+                  <div className="modal-body gym-search-body">
                     <GymSearch onGymSelect={handleGymSelect} />
                   </div>
                 </div>
-              )}
-            </div>
-          )}
-          
-          {/* Nutrition Tab */}
-          {activeTab === 'nutrition' && (
-            <div className="nutrition-tab">
-              <div className="posts-grid">
-                {posts.map((post) => (
-                  <div key={post.id} className="post-card">
-                    <img src={post.image_url} alt={post.title} className="post-image" />
-                    <div className="post-details">
+              </div>
+            )}
+          </section>
+        )}
+
+        {/* Posts */}
+        {activeTab === 'nutrition' && (
+          <section className="panel" role="tabpanel">
+            {posts?.length ? (
+              <div className="post-grid">
+                {posts.map(post => (
+                  <article key={post.id} className="card post-card">
+                    <img src={post.image_url} alt={post.title} className="post-img" loading="lazy" />
+                    <div className="post-body">
                       <h3 className="post-title">{post.title}</h3>
-                      <p className="post-description">{post.description}</p>
-                      <div className="post-tags">
-                        {(() => {
-                          let tags = [];
-                          
-                          if (Array.isArray(post.tags)) {
-                            tags = post.tags;
-                          } else if (typeof post.tags === 'string') {
-                            try {
-                              // Try to parse as JSON first (for strings like '["tag1", "tag2"]')
-                              tags = JSON.parse(post.tags);
-                            } catch {
-                              // If JSON parsing fails, treat as comma-separated string
-                              tags = post.tags.split(',').map(tag => tag.trim()).filter(tag => tag !== '');
-                            }
-                          }
-                          
-                          return tags.map((tag, index) => (
-                            <span key={index} className="tag">#{tag}</span>
-                          ));
-                        })()}
+                      <p className="post-desc">{post.description}</p>
+                      <div className="tags">
+                        {parseTags(post.tags).map((tag, idx) => (
+                          <span key={`${post.id}-tag-${idx}`} className="tag">#{tag}</span>
+                        ))}
                       </div>
-                      <span className="post-date">
-                        {new Date(post.created_at).toLocaleDateString()}
-                      </span>
+                      <time className="date">{new Date(post.created_at).toLocaleDateString()}</time>
                     </div>
-                  </div>
+                  </article>
                 ))}
               </div>
-            </div>
-          )}
-        </div>
+            ) : (
+              <div className="empty">No posts yet</div>
+            )}
+          </section>
+        )}
       </div>
 
       {/* Add PR Modal */}
       {showAddPRModal && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <h3>Add New Personal Record</h3>
-            <div className="modal-form">
-              <div className="form-group">
-                <label>Exercise</label>
-                <input
-                  type="text"
-                  value={newPR.exercise}
-                  onChange={(e) => setNewPR({...newPR, exercise: e.target.value})}
-                  placeholder="e.g., Bench Press"
-                />
-              </div>
-              <div className="form-group">
-                <label>Weight (lbs)</label>
-                <input
-                  type="number"
-                  value={newPR.weight}
-                  onChange={(e) => setNewPR({...newPR, weight: e.target.value})}
-                  placeholder="e.g., 225"
-                />
-              </div>
-              <div className="form-group">
-                <label>Reps</label>
-                <input
-                  type="number"
-                  value={newPR.reps}
-                  onChange={(e) => setNewPR({...newPR, reps: e.target.value})}
-                  placeholder="e.g., 5"
-                />
+        <div className="modal" role="dialog" aria-modal="true">
+          <div className="modal-box">
+            <header className="modal-head">
+              <h3>Add personal record</h3>
+              <button className="icon-btn" aria-label="Close" onClick={() => setShowAddPRModal(false)}>
+                <X size={18} />
+              </button>
+            </header>
+            <div className="modal-body">
+              <div className="form-grid">
+                <label className="field">
+                  <span>Exercise</span>
+                  <input type="text" value={newPR.exercise} onChange={e => setNewPR({ ...newPR, exercise: e.target.value })} placeholder="Bench Press" />
+                </label>
+                <label className="field">
+                  <span>Weight (lbs)</span>
+                  <input type="number" value={newPR.weight} onChange={e => setNewPR({ ...newPR, weight: e.target.value })} placeholder="225" />
+                </label>
+                <label className="field">
+                  <span>Reps</span>
+                  <input type="number" value={newPR.reps} onChange={e => setNewPR({ ...newPR, reps: e.target.value })} placeholder="5" />
+                </label>
               </div>
               <div className="modal-actions">
-                <button 
-                  className="cancel-btn"
-                  onClick={() => {
-                    setShowAddPRModal(false);
-                    setNewPR({ exercise: '', weight: '', reps: '' });
-                  }}
-                >
-                  Cancel
-                </button>
-                <button 
-                  className="save-btn"
-                  onClick={handleSavePR}
-                >
-                  Save PR
-                </button>
+                <button className="btn" onClick={() => setShowAddPRModal(false)}>Cancel</button>
+                <button className="btn primary" onClick={handleSavePR}>Save PR</button>
               </div>
             </div>
           </div>
@@ -649,74 +439,39 @@ const UserProfile = () => {
 
       {/* Add Post Modal */}
       {showAddPostModal && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <h3>Create New Post</h3>
-            <div className="modal-form">
-              <div className="form-group">
-                <label>Title</label>
-                <input
-                  type="text"
-                  value={newPost.title}
-                  onChange={(e) => setNewPost(prev => ({ ...prev, title: e.target.value }))}
-                  placeholder="Enter a title for your post..."
-                />
-              </div>
-              <div className="form-group">
-                <label>Image</label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileSelect}
-                  ref={fileInputRef}
-                />
-                {newPost.imageFile && (
-                  <img 
-                    src={newPost.imageFile} 
-                    alt="Selected" 
-                    style={{ 
-                      width: '100%', 
-                      height: '200px', 
-                      objectFit: 'cover',
-                      marginTop: '10px',
-                      borderRadius: '4px'
-                    }} 
-                  />
-                )}
-              </div>
-              <div className="form-group">
-                <label>Description</label>
-                <textarea
-                  value={newPost.description}
-                  onChange={(e) => setNewPost(prev => ({ ...prev, description: e.target.value }))}
-                  placeholder="Write a description..."
-                  rows={4}
-                />
-              </div>
-              <div className="form-group">
-                <label>Tags (comma-separated)</label>
-                <input
-                  type="text"
-                  value={newPost.tags}
-                  onChange={(e) => setNewPost(prev => ({ ...prev, tags: e.target.value }))}
-                  placeholder="e.g., workout, fitness, gym"
-                />
+        <div className="modal" role="dialog" aria-modal="true">
+          <div className="modal-box">
+            <header className="modal-head">
+              <h3>Create new post</h3>
+              <button className="icon-btn" aria-label="Close" onClick={() => setShowAddPostModal(false)}>
+                <X size={18} />
+              </button>
+            </header>
+            <div className="modal-body">
+              <div className="form-grid">
+                <label className="field">
+                  <span>Title</span>
+                  <input type="text" value={newPost.title} onChange={e => setNewPost(prev => ({ ...prev, title: e.target.value }))} placeholder="Give your post a title" />
+                </label>
+                <label className="field">
+                  <span>Image</span>
+                  <input type="file" accept="image/*" onChange={handleFileSelect} ref={fileInputRef} />
+                  {newPost.imageFile && (
+                    <img src={newPost.imageFile} alt="Selected" className="preview" />
+                  )}
+                </label>
+                <label className="field">
+                  <span>Description</span>
+                  <textarea rows={4} value={newPost.description} onChange={e => setNewPost(prev => ({ ...prev, description: e.target.value }))} placeholder="Write a description" />
+                </label>
+                <label className="field">
+                  <span>Tags (comma separated)</span>
+                  <input type="text" value={newPost.tags} onChange={e => setNewPost(prev => ({ ...prev, tags: e.target.value }))} placeholder="workout, fitness, gym" />
+                </label>
               </div>
               <div className="modal-actions">
-                <button 
-                  onClick={() => {
-                    setShowAddPostModal(false);
-                    setNewPost({ title: '', description: '', imageFile: null, tags: '' });
-                  }}
-                >
-                  Cancel
-                </button>
-                <button 
-                  onClick={handleCreatePost}
-                  disabled={!newPost.imageFile || !newPost.title || !newPost.description}
-                >
-                  Post
-                </button>
+                <button className="btn" onClick={() => setShowAddPostModal(false)}>Cancel</button>
+                <button className="btn primary" onClick={handleCreatePost} disabled={!newPost.imageFile || !newPost.title || !newPost.description}>Post</button>
               </div>
             </div>
           </div>
@@ -724,6 +479,6 @@ const UserProfile = () => {
       )}
     </div>
   );
-}
+};
 
 export default UserProfile;

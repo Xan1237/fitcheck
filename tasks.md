@@ -18,6 +18,7 @@
 Things that need fixing
 
 1. The filter / gym side bar is not loading some of the gyms reviews. They are in the DB but not loading on the frontend right sometimes
+2. cant remove gyms from public profiles
 
 IDEAS
 

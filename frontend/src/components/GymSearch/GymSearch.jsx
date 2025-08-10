@@ -1,37 +1,26 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import './GymSearch.scss';
-import axios from 'axios';
 
-const GymSearch = ({ onGymSelect }) => {
+const GymSearch = ({ gyms = [], onGymSelect }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [isSearching, setIsSearching] = useState(false);
-    const [gyms, setGyms] = useState([]);
-    const [province, setProvince] = useState("Nova Scotia");
+    const [hasSearched, setHasSearched] = useState(false); // <-- NEW
 
-    async function fetchGymsByProvince(selectedProvince) {
-        try {
-            const response = await axios.get(`/api/getGymsByProvince/${encodeURIComponent(selectedProvince)}`);
-            setGyms(response.data.gyms || []);
-        } catch (error) {
-            setGyms([]);
-        }
-    }
-
-    useEffect(() => {
-        fetchGymsByProvince(province);
-    }, [province]);
-
-    const handleSearch = async (e) => {
+    const handleSearch = (e) => {
         e.preventDefault();
         setIsSearching(true);
-        
-        // Search through fetched gyms instead of mock data
-        const results = gyms.filter(gym => 
-            gym.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            gym.address.toLowerCase().includes(searchTerm.toLowerCase())
-        );
-        setSearchResults(results);
+        setHasSearched(true); // <-- Mark that a search has been performed
+
+        if (searchTerm.trim()) {
+            const results = gyms.filter(gym =>
+                gym.name &&
+                gym.name.trim().toLowerCase().includes(searchTerm.trim().toLowerCase())
+            );
+            setSearchResults(results);
+        } else {
+            setSearchResults([]);
+        }
         setIsSearching(false);
     };
 
@@ -42,7 +31,7 @@ const GymSearch = ({ onGymSelect }) => {
                     type="text"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    placeholder="Search by gym name or location..."
+                    placeholder="Search by gym name..."
                     className="search-input"
                     autoFocus
                 />
@@ -51,32 +40,18 @@ const GymSearch = ({ onGymSelect }) => {
                 </button>
             </form>
 
-            <div className="province-selector">
-                <label htmlFor="province">Select Province:</label>
-                <select 
-                    id="province" 
-                    value={province} 
-                    onChange={e => setProvince(e.target.value)}
-                    className="province-dropdown"
-                >
-                    <option value="Nova Scotia">Nova Scotia</option>
-                    <option value="Alberta">Alberta</option>
-                    <option value="British Columbia">British Columbia</option>
-                    {/* ...other provinces/territories... */}
-                </select>
-            </div>
-
             <div className="search-results">
                 {isSearching && (
                     <div className="searching-indicator">Searching...</div>
                 )}
-                {!isSearching && searchResults.length === 0 && searchTerm && (
+                {/* Only show "No gyms found" after a search is performed */}
+                {hasSearched && !isSearching && searchResults.length === 0 && (
                     <div className="no-results">No gyms found</div>
                 )}
-                {searchResults.map((gym) => (
+                {hasSearched && searchResults.map((gym) => (
                     <div key={gym.id} className="gym-result" onClick={() => onGymSelect(gym)}>
                         <h3>{gym.name}</h3>
-                        <p>{gym.address}</p>
+                        <p>{gym.address || gym.location || ''}</p>
                     </div>
                 ))}
             </div>

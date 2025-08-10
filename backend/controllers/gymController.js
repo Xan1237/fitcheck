@@ -201,6 +201,7 @@ const updateGymTags = async (gymId) => {
       return res.status(500).json({ error: "Internal server error" });
     }
   }
+  
 
 // Export controller functions for use in routes
 export { updateGymTags, addUserGym, getUserGyms, getGymsByProvince };

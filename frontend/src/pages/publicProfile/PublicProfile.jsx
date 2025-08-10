@@ -5,6 +5,7 @@ import { User, Plus, PencilLine, UserPlus, MapPin, X } from 'lucide-react';
 import Header from '../../components/header';
 import GymSearch from '../../components/GymSearch/GymSearch';
 import './style.scss';
+import gymData from '../../data/gymData.js'; // If you want to use static data
 
 const TABS = [
   { id: 'stats', label: 'PRs' },
@@ -38,6 +39,7 @@ const UserProfile = () => {
   const [posts, setPosts] = useState([]);
   const [userGyms, setUserGyms] = useState([]);
   const [showGymSearch, setShowGymSearch] = useState(false);
+  const [allGyms, setAllGyms] = useState([]);
 
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -125,6 +127,31 @@ const UserProfile = () => {
     }
   };
 
+  // Fetch all gyms (static or from backend)
+  useEffect(() => {
+    // If you want to use static gymData:
+    const gymsArray = Object.entries(gymData).map(([id, data]) => ({
+      ...data,
+      id: parseInt(id),
+      tags: data.tags || [],
+      rating: data.rating || 0,
+      ratingCount: data.ratingCount || 0
+    }));
+    setAllGyms(gymsArray);
+
+    // If you want to fetch from backend, use this instead:
+    // const fetchGyms = async () => {
+    //   try {
+    //     const response = await fetch(`${API_BASE_URL}/api/getGymsByProvince/Nova Scotia`);
+    //     const result = await response.json();
+    //     setAllGyms(result.gyms || []);
+    //   } catch (e) {
+    //     setAllGyms([]);
+    //   }
+    // };
+    // fetchGyms();
+  }, []);
+
   useEffect(() => {
     const init = async () => {
       await checkProfileOwnership();
@@ -210,6 +237,18 @@ const UserProfile = () => {
   };
 
   const handleGymClick = id => navigate(`/gym/${id}`);
+
+  const handleRemoveGym = async (gymId) => {
+    try {
+      const token = localStorage.getItem('token');
+      // Optionally, call your backend to remove the gym for this user
+      await axios.post(`${API_BASE_URL}/api/removeUserGym`, { gymId, username: userData.username }, { headers: { Authorization: `Bearer ${token}` } });
+      setUserGyms(prev => prev.filter(gym => gym.id !== gymId));
+    } catch (e) {
+      console.error('Error removing gym:', e);
+      alert('Failed to remove gym. Please try again.');
+    }
+  };
 
   const parseTags = tagsVal => {
     try {
@@ -347,7 +386,29 @@ const UserProfile = () => {
             {userGyms?.length ? (
               <div className="gym-strip" role="list">
                 {userGyms.map(gym => (
-                  <article key={gym.id} role="listitem" className="card gym-card" onClick={() => handleGymClick(gym.id)}>
+                  <article key={gym.id} role="listitem" className="card gym-card" onClick={() => handleGymClick(gym.id)} style={{ position: 'relative' }}>
+                    {/* Remove button */}
+                    <button
+                      className="remove-gym-btn"
+                      aria-label="Remove gym"
+                      onClick={e => {
+                        e.stopPropagation();
+                        handleRemoveGym(gym.id);
+                      }}
+                      style={{
+                        position: 'absolute',
+                        top: 8,
+                        right: 8,
+                        background: 'none',
+                        border: 'none',
+                        color: '#FF5722',
+                        fontSize: '18px',
+                        cursor: 'pointer',
+                        zIndex: 2,
+                      }}
+                    >
+                      ×
+                    </button>
                     <div className="gym-title">{gym.name}</div>
                     <div className="gym-sub"><MapPin size={14} /> {gym.address}</div>
                   </article>
@@ -367,7 +428,7 @@ const UserProfile = () => {
                     </button>
                   </header>
                   <div className="modal-body gym-search-body">
-                    <GymSearch onGymSelect={handleGymSelect} />
+                    <GymSearch gyms={allGyms} onGymSelect={handleGymSelect} />
                   </div>
                 </div>
               </div>

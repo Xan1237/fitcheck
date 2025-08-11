@@ -5,13 +5,36 @@ import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import './styles.scss';
 import Header from '../../components/header';
-
+const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const Messages = () => {
   const [activeChat, setActiveChat] = useState(null);
   const [mobileView, setMobileView] = useState('list');
   const [messages, setMessages] = useState([]);
   const [conversations, setConversations] = useState([]);
   const { chatId } = useParams();
+  const [userName, setUserName] = useState("");
+
+    const fetchUsername = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.post(`${VITE_API_BASE_URL}/api/getUserName`, {}, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      if (response.data?.success && response.data?.username) {
+        setUserName(response.data.username);
+        console.log(userName);
+      }
+    } catch (error) {
+      console.error("Error fetching username:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchUsername();
+  }, []);
 
   useEffect(() => {
     if (chatId) {
@@ -23,10 +46,29 @@ const Messages = () => {
       
       // Subscribe to new messages
       subscribeToMessages((message) => {
-        setMessages(prev => [...prev, message]);
+        setMessages(prev => {
+          // Check if this message is from the current user and replace optimistic message
+          if (message.ownerUUID === userName) {
+            // Remove optimistic message and add the real one
+            return prev.filter(msg => !msg.isOptimistic || msg.text !== message.text).concat({
+              id: message.id,
+              text: message.text,
+              created_at: message.created_at,
+              ownerUUID: message.ownerUUID
+            });
+          } else {
+            // For messages from other users, just add them
+            return [...prev, {
+              id: message.id,
+              text: message.text,
+              created_at: message.created_at,
+              ownerUUID: message.ownerUUID
+            }];
+          }
+        });
       });
     }
-  }, [chatId]);
+  }, [chatId, userName]);
 
   useEffect(() => {
     const fetchUserChats = async () => {
@@ -66,14 +108,28 @@ const Messages = () => {
   useEffect(() => {
     subscribeToMessages((message) => {
       console.log('New message received:', message);
-      setMessages(prev => [...prev, {
-        id: message.id,
-        text: message.text,
-        created_at: message.created_at,
-        ownerUUID: message.ownerUUID
-      }]);
+      setMessages(prev => {
+        // Check if this message is from the current user and replace optimistic message
+        if (message.ownerUUID === userName) {
+          // Remove optimistic message and add the real one
+          return prev.filter(msg => !msg.isOptimistic || msg.text !== message.text).concat({
+            id: message.id,
+            text: message.text,
+            created_at: message.created_at,
+            ownerUUID: message.ownerUUID
+          });
+        } else {
+          // For messages from other users, just add them
+          return [...prev, {
+            id: message.id,
+            text: message.text,
+            created_at: message.created_at,
+            ownerUUID: message.ownerUUID
+          }];
+        }
+      });
     });
-  }, []);
+  }, [userName]);
 
   useEffect(() => {
     if (activeChat) {
@@ -89,14 +145,33 @@ const Messages = () => {
     // Set up message subscription
     subscribeToMessages((message) => {
       console.log('New message received:', message);
-      setMessages(prev => [...prev, message]);
+      setMessages(prev => {
+        // Check if this message is from the current user and replace optimistic message
+        if (message.ownerUUID === userName) {
+          // Remove optimistic message and add the real one
+          return prev.filter(msg => !msg.isOptimistic || msg.text !== message.text).concat({
+            id: message.id,
+            text: message.text,
+            created_at: message.created_at,
+            ownerUUID: message.ownerUUID
+          });
+        } else {
+          // For messages from other users, just add them
+          return [...prev, {
+            id: message.id,
+            text: message.text,
+            created_at: message.created_at,
+            ownerUUID: message.ownerUUID
+          }];
+        }
+      });
     });
 
     // Cleanup on unmount
     return () => {
       disconnectSocket();
     };
-  }, []);
+  }, [userName]);
 
   const loadMessages = async (selectedChatId) => {
     try {
@@ -115,7 +190,7 @@ const Messages = () => {
           id: msg.uuid,
           text: msg.text,
           created_at: msg.created_at,
-          ownerUUID: msg.sender_uuid
+          ownerUUID: msg.ownerUsername
         }));
         setMessages(formattedMessages);
       }
@@ -152,10 +227,11 @@ const Messages = () => {
       if (!messageInput.trim()) return;
 
       const newMessage = {
-        id: Date.now(), // Temporary ID for optimistic update
+        id: `temp-${Date.now()}`, // Temporary ID for optimistic update
         text: messageInput,
         created_at: new Date().toISOString(),
-        ownerUUID: localStorage.getItem('userId')
+        ownerUUID: userName,
+        isOptimistic: true // Flag to identify optimistic messages
       };
 
       // Optimistically add message to UI
@@ -197,9 +273,12 @@ const Messages = () => {
           {messages.map((message, index) => (
             <div 
               key={message.id || `${message.created_at}-${index}`}
-              className={`message-bubble ${message.ownerUUID === localStorage.getItem('userId') ? 'me' : 'them'}`}
+              className={`message-bubble ${message.ownerUUID == userName ? 'me' : 'them'}`}
             >
               <p>{message.text || message.message}</p>
+              {message.ownerUUID !== userName && (
+                <span className="sender-name">{message.ownerUUID}</span>
+              )}
               <span className="timestamp">
                 {new Date(message.created_at).toLocaleTimeString()}
               </span>

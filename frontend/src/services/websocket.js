@@ -71,7 +71,7 @@ export const subscribeToMessages = (callback) => {
         id: message.uuid,
         text: message.text,
         created_at: message.created_at,
-        ownerUUID: message.sender_uuid
+        ownerUUID: message.ownerUsername
       };
       callback(formattedMessage);
     });

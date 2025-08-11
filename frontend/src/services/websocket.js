@@ -5,13 +5,18 @@ let socket = null;
 export const initializeSocket = () => {
   try {
     if (!socket) {
+      const token = localStorage.getItem('token');
+      
       socket = io(import.meta.env.VITE_API_BASE_URL, {
         transports: ['websocket', 'polling'],
         reconnection: true,
         reconnectionAttempts: 5,
         reconnectionDelay: 1000,
         timeout: 10000,
-        autoConnect: true
+        autoConnect: true,
+        auth: {
+          token: token
+        }
       });
 
       socket.on('connect', () => {
@@ -19,8 +24,11 @@ export const initializeSocket = () => {
       });
 
       socket.on('connect_error', (error) => {
-        console.error('Connection error:', error);
-        socket.connect();
+        console.error('Connection error:', error.message);
+        if (error.message.includes('Authentication')) {
+          disconnectSocket();
+          window.location.href = '/login';
+        }
       });
 
       socket.on('disconnect', (reason) => {
@@ -58,9 +66,10 @@ export const subscribeToMessages = (callback) => {
   if (socket) {
     console.log('Subscribing to new messages');
     socket.on('newMessage', (message) => {
+      console.log('New message received:', message);
       const formattedMessage = {
-        id: message.message_id,
-        text: message.message,
+        id: message.uuid,
+        text: message.text,
         created_at: message.created_at,
         ownerUUID: message.sender_uuid
       };

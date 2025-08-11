@@ -15,6 +15,28 @@ export function initializeSocket(server) {
         pingInterval: 25000
     });
 
+    // Add middleware to verify token before connection
+    io.use(async (socket, next) => {
+        try {
+            const token = socket.handshake.auth.token;
+            if (!token) {
+                return next(new Error('Authentication token missing'));
+            }
+
+            const { data: { user }, error } = await supabase.auth.getUser(token);
+            
+            if (error || !user) {
+                return next(new Error('Invalid token'));
+            }
+
+            // Add user data to socket
+            socket.user = user;
+            next();
+        } catch (error) {
+            next(new Error('Authentication failed'));
+        }
+    });
+
     io.on('connection', (socket) => {
         console.log('User connected:', socket.id);
 
@@ -30,6 +52,7 @@ export function initializeSocket(server) {
 
         // Handle new messages
         socket.on('sendMessage', async ({ chatId, message, senderId }) => {
+            console.log('Received message:', message, 'for chat:', chatId, 'from sender:', senderId);
             try {
                 // Save message to database
                 const { data: savedMessage, error } = await supabase
@@ -44,7 +67,7 @@ export function initializeSocket(server) {
                     .single();
 
                 if (error) throw error;
-
+                console.log('Message saved:', savedMessage);
                 // Broadcast message to everyone in the chat
                 io.to(chatId).emit('newMessage', savedMessage);
             } catch (error) {

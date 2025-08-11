@@ -1,6 +1,6 @@
 import React, { useState, useEffect, memo, useRef } from 'react';
 import { Search, MoreVertical, Send, ArrowLeft, User } from 'lucide-react';
-import { joinChat, sendMessage, subscribeToMessages } from '../../services/websocket';
+import { joinChat, sendMessage, subscribeToMessages, initializeSocket, disconnectSocket } from '../../services/websocket';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import './styles.scss';
@@ -64,10 +64,39 @@ const Messages = () => {
   }, []);
 
   useEffect(() => {
+    subscribeToMessages((message) => {
+      console.log('New message received:', message);
+      setMessages(prev => [...prev, {
+        id: message.id,
+        text: message.text,
+        created_at: message.created_at,
+        ownerUUID: message.ownerUUID
+      }]);
+    });
+  }, []);
+
+  useEffect(() => {
     if (activeChat) {
       loadMessages(activeChat.id);
+      joinChat(activeChat.id); // Join the chat room when active chat changes
     }
   }, [activeChat]);
+
+  // Initialize socket connection once when component mounts
+  useEffect(() => {
+    const socket = initializeSocket();
+    
+    // Set up message subscription
+    subscribeToMessages((message) => {
+      console.log('New message received:', message);
+      setMessages(prev => [...prev, message]);
+    });
+
+    // Cleanup on unmount
+    return () => {
+      disconnectSocket();
+    };
+  }, []);
 
   const loadMessages = async (selectedChatId) => {
     try {
@@ -111,45 +140,33 @@ const Messages = () => {
     const messagesEndRef = useRef(null);
 
     const scrollToBottom = () => {
-      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     };
 
     useEffect(() => {
-      scrollToBottom();
+        scrollToBottom();
     }, [messages]);
 
     const handleSendMessage = async (e) => {
       e.preventDefault();
       if (!messageInput.trim()) return;
+
+      const newMessage = {
+        id: Date.now(), // Temporary ID for optimistic update
+        text: messageInput,
+        created_at: new Date().toISOString(),
+        ownerUUID: localStorage.getItem('userId')
+      };
+
+      // Optimistically add message to UI
+      setMessages(prev => [...prev, newMessage]);
       
       try {
-        const response = await axios.post(
-          `${import.meta.env.VITE_API_BASE_URL}/api/newMessage`,
-          {
-            chatId: conversation.id,
-            message: messageInput,
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem('token')}`
-            }
-          }
-        );
-
-        if (response.data.success) {
-          sendMessage({
-            chatId: conversation.id,
-            text: messageInput
-          });
-          
-          setMessages(prev => [...prev, {
-            chat_id: conversation.id,
-            text: messageInput
-          }]);
-          
-          setMessageInput('');
-        }
+        sendMessage(conversation.id, messageInput);
+        setMessageInput('');
       } catch (error) {
+        // Remove optimistic message if failed
+        setMessages(prev => prev.filter(msg => msg.id !== newMessage.id));
         console.error('Error sending message:', error);
         alert('Failed to send message. Please try again.');
       }
@@ -251,6 +268,11 @@ const Messages = () => {
     </div>
   );
 };
+
+
+
+
+
 
 
 

@@ -1,5 +1,5 @@
 # To Do
-
+    1) live chat works please saul fix the ui
     2)  when searching a location have suggestions pop up while you search
     3)  Make the "log in to leave a review" better
     6)  the log in token keep expiring and it kills the database

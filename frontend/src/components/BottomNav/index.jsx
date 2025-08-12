@@ -20,6 +20,7 @@ const BottomNav = () => {
   const [userName, setUserName] = useState("");
   const [showCreatePost, setShowCreatePost] = useState(false);
   const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  
   // Check auth status and fetch username
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -29,6 +30,70 @@ const BottomNav = () => {
     if (isTokenValid) {
       fetchUsername();
     }
+  }, []);
+
+  // Handle bottom navigation spacing
+  useEffect(() => {
+    const updateBottomNavSpacing = () => {
+      const bottomNav = document.querySelector('.bottom-nav');
+      if (bottomNav && window.innerWidth <= 768) {
+        const navHeight = bottomNav.offsetHeight;
+        document.documentElement.style.setProperty('--bottom-nav-height', `${navHeight}px`);
+        
+        // Only apply spacing to main page containers, not to root or body
+        const pageContainers = document.querySelectorAll('.messages-page, .feed-page, .home-page, .profile-page, .people-page, .gym-page, .create-post-page');
+        pageContainers.forEach(container => {
+          if (container && container.style) {
+            container.style.paddingBottom = `${navHeight}px`;
+            container.style.minHeight = `calc(100vh - ${navHeight}px)`;
+          }
+        });
+        
+        // Ensure root and body don't have extra padding
+        if (document.documentElement) {
+          document.documentElement.style.paddingBottom = '0';
+        }
+        if (document.body) {
+          document.body.style.paddingBottom = '0';
+        }
+      }
+    };
+
+    // Initial update
+    updateBottomNavSpacing();
+    
+    // Update on resize and orientation change
+    window.addEventListener('resize', updateBottomNavSpacing);
+    window.addEventListener('orientationchange', updateBottomNavSpacing);
+    
+    // Update after a short delay to ensure DOM is ready
+    const timeoutId = setTimeout(updateBottomNavSpacing, 100);
+    
+    return () => {
+      window.removeEventListener('resize', updateBottomNavSpacing);
+      window.removeEventListener('orientationchange', updateBottomNavSpacing);
+      clearTimeout(timeoutId);
+      
+      // Cleanup: reset spacing when component unmounts
+      document.documentElement.style.removeProperty('--bottom-nav-height');
+      
+      // Reset page container spacing
+      const pageContainers = document.querySelectorAll('.messages-page, .feed-page, .home-page, .profile-page, .people-page, .gym-page, .create-post-page');
+      pageContainers.forEach(container => {
+        if (container && container.style) {
+          container.style.paddingBottom = '';
+          container.style.minHeight = '';
+        }
+      });
+      
+      // Ensure root and body are reset
+      if (document.documentElement) {
+        document.documentElement.style.paddingBottom = '';
+      }
+      if (document.body) {
+        document.body.style.paddingBottom = '';
+      }
+    };
   }, []);
 
   const fetchUsername = async () => {

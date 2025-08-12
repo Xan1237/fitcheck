@@ -1,6 +1,6 @@
 .messages-page {
   background-color: #1a1a1a;
-  min-height: 100vh;
+  height: auto;
   color: #fff;
 
   .messages-container {
@@ -139,6 +139,9 @@
     display: flex;
     flex-direction: column;
     background-color: #2a2a2a;
+    min-height: 0; // Ensure flex child can shrink properly
+    margin-bottom: 0; // No bottom margin
+    padding-bottom: 0; // No bottom padding
 
     @media (max-width: 768px) {
       &.hidden {
@@ -150,6 +153,9 @@
       display: flex;
       flex-direction: column;
       height: 100%;
+      min-height: calc(100vh - 200px); // Ensure minimum height accounts for header and bottom nav
+      position: relative; // Ensure proper positioning
+      justify-content: space-between; // Push input area to bottom
 
       .chat-header {
         display: flex;
@@ -157,6 +163,7 @@
         padding: 16px;
         border-bottom: 1px solid #333;
         background-color: #222;
+        flex-shrink: 0; // Prevent header from shrinking
 
         .back-button {
           display: none;
@@ -202,12 +209,16 @@
 
       .messages-container {
         flex: 1;
-        padding: 16px;
+        padding: 16px 16px 0 16px; // Remove bottom padding to eliminate gap
         overflow-y: auto;
         display: flex;
         flex-direction: column;
         gap: 16px;
         width: 100%;
+        scroll-behavior: auto; // Remove smooth scrolling, go directly to position
+        -webkit-overflow-scrolling: touch; // Better scrolling on iOS
+        min-height: 0; // Ensure flex child can shrink properly
+        flex-grow: 1; // Take up all available space
 
         .message-bubble {
           width: fit-content;
@@ -267,12 +278,17 @@
       }
 
       .message-input-container {
-        padding: 16px;
+        padding: 16px 16px 0 16px; // Remove bottom padding completely
         background-color: #222;
         display: flex;
         gap: 12px;
         align-items: center;
         border-top: 1px solid #333;
+        margin-bottom: 0; // Ensure no bottom margin
+        border-bottom: none; // Remove any bottom border
+        flex-shrink: 0; // Prevent input area from shrinking
+        position: sticky; // Stick to bottom
+        bottom: 0; // Position at very bottom
 
         input {
           flex: 1;
@@ -317,6 +333,34 @@
       
       @media (max-width: 768px) {
         display: none;
+      }
+    }
+  }
+  
+  // Mobile-specific adjustments to remove weird spacing
+  @media (max-width: 768px) {
+    .chat-container {
+      .message-input-container {
+        padding: 16px 16px 0 16px; // Zero bottom padding on mobile
+        margin-bottom: 0; // No bottom margin
+        position: sticky; // Stick to bottom on mobile
+        bottom: 0; // Position at very bottom
+        border-bottom: none; // No bottom border
+        z-index: 10; // Ensure it stays on top
+      }
+      
+      .messages-container {
+        padding: 16px 16px 0 16px; // Zero bottom padding on mobile
+        flex: 1; // Take up available space
+      }
+      
+      // Ensure the chat view fills the available space without extra padding
+      .chat-view {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        justify-content: space-between; // Distribute space properly
+        min-height: calc(100vh - 140px); // Account for mobile header and bottom nav
       }
     }
   }

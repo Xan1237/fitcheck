@@ -1,3 +1,29 @@
+// CSS Custom Properties for bottom navigation
+:root {
+  --bottom-nav-height: 80px;
+  --bottom-nav-padding: 20px;
+  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+// Reset any conflicting styles that might affect bottom navigation
+* {
+  box-sizing: border-box;
+}
+
+// Ensure the root container doesn't have extra spacing
+#root {
+  min-height: 100vh;
+  position: relative;
+  padding-bottom: 0; // Ensure no bottom padding on root
+}
+
+// Ensure main app container doesn't have bottom padding
+.App {
+  min-height: 100vh;
+  position: relative;
+  padding-bottom: 0; // Ensure no bottom padding on App
+}
+
 .bottom-nav {
   position: fixed;
   bottom: 0;
@@ -8,13 +34,26 @@
   display: flex;
   justify-content: space-around;
   align-items: center;
-  padding: 8px 0 20px 0; // Extra padding for iOS safe area
+  padding: 8px 0 var(--bottom-nav-padding) 0; // Use CSS variable
+  padding-bottom: calc(var(--bottom-nav-padding) + var(--safe-area-bottom)); // Account for safe area
   z-index: 1000;
   box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3);
+  height: var(--bottom-nav-height); // Use CSS variable
   
   // Only show on mobile devices
   @media (min-width: 769px) {
     display: none;
+  }
+  
+  // Ensure proper positioning on devices with notches or rounded corners
+  @supports (padding: max(0px)) {
+    padding-bottom: max(var(--bottom-nav-padding), var(--safe-area-bottom));
+  }
+  
+  // Handle landscape orientation on mobile
+  @media (max-width: 768px) and (orientation: landscape) {
+    height: calc(var(--bottom-nav-height) - 20px); // Slightly smaller in landscape
+    padding: 4px 0 calc(var(--bottom-nav-padding) - 10px) 0;
   }
 }
 
@@ -49,9 +88,46 @@
   }
 }
 
-// Add bottom padding to body on mobile to prevent content from being hidden
+// Better approach: Add bottom padding to html and body to prevent content from being hidden
 @media (max-width: 768px) {
-  body {
-    padding-bottom: 80px;
+  // Remove the html/body padding that was causing weird spacing
+  // html, body {
+  //   padding-bottom: var(--bottom-nav-height);
+  //   box-sizing: border-box;
+  //   overflow-x: hidden;
+  // }
+  
+  // Only apply spacing to main page containers
+  .messages-page,
+  .feed-page,
+  .home-page,
+  .profile-page,
+  .people-page,
+  .gym-page,
+  .create-post-page {
+    padding-bottom: var(--bottom-nav-height);
+    min-height: calc(100vh - var(--bottom-nav-height));
+    position: relative; // Ensure proper stacking context
+  }
+  
+  // Specific fix for Messages page to prevent weird spacing
+  .messages-page {
+    .messages-container {
+      height: calc(100vh - var(--bottom-nav-height) - 60px); // Account for header
+      max-height: calc(100vh - var(--bottom-nav-height) - 60px);
+      overflow-y: auto;
+    }
+    
+    .chat-container {
+      height: calc(100vh - var(--bottom-nav-height) - 60px);
+      max-height: calc(100vh - var(--bottom-nav-height) - 60px);
+    }
+  }
+  
+  // Utility class for any page that needs bottom nav spacing
+  .with-bottom-nav {
+    padding-bottom: var(--bottom-nav-height);
+    min-height: calc(100vh - var(--bottom-nav-height));
+    position: relative;
   }
 }

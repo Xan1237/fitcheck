@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import './SignIn.scss';
 import { FaDumbbell } from "react-icons/fa";
 import axios from 'axios';
-import { initializeSocket } from '../services/websocket';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
@@ -16,53 +15,21 @@ const AuthPage = () => {
   const [isSignUp, setIsSignUp] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [hasToken, setHasToken] = useState(false);
-  const [hasUsername, setHasUsername] = useState(false);
-
-  // Check localStorage values once on mount
-  useEffect(() => {
-    let mounted = true;
-    
-    if (mounted) {
-      setHasToken(!!localStorage.getItem('token'));
-      setHasUsername(!!localStorage.getItem('username'));
-    }
-    
-    return () => {
-      mounted = false;
-    };
-  }, []);
 
   // Extract and save token from hash if present (for Google sign-in)
   useEffect(() => {
-    let mounted = true;
-    
-    // Only run if there's actually a hash to process
-    if (window.location.hash && mounted) {
-      const params = new URLSearchParams(window.location.hash.replace('#', ''));
-      const token = params.get('access_token');
-      const provider = params.get('provider_token');
-      // Only save token if Google sign-in (provider_token present or redirect from Google)
-      if (token && (provider || window.location.search.includes('provider=google'))) {
-        localStorage.setItem('token', token);
-        if (mounted) {
-          setHasToken(true);
-        }
-        
-        // Initialize WebSocket connection after successful Google auth
-        initializeSocket();
-        
-        window.location.hash = '';
-        window.location.href = '/'; // Redirect to home page
-      }
+    const params = new URLSearchParams(window.location.hash.replace('#', ''));
+    const token = params.get('access_token');
+    const provider = params.get('provider_token');
+    // Only save token if Google sign-in (provider_token present or redirect from Google)
+    if (token && (provider || window.location.search.includes('provider=google'))) {
+      localStorage.setItem('token', token);
+      window.location.hash = '';
+      window.location.href = '/'; // Redirect to home page
     }
-    
-    return () => {
-      mounted = false;
-    };
   }, []);
 
-  const handleSubmit = useCallback(async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
@@ -79,7 +46,7 @@ const AuthPage = () => {
     } finally {
       setLoading(false);
     }
-  }, [isSignUp]);
+  };
 
   const handleSignUp = async () => {
     // Validate inputs
@@ -103,11 +70,6 @@ const AuthPage = () => {
 
       if (response.data.success) {
         localStorage.setItem('token', response.data.token);
-        setHasToken(true);
-        
-        // Initialize WebSocket connection after successful signup
-        initializeSocket();
-        
         window.location.href = "/"; // <-- Change to home page
       } else {
         throw new Error(response.data.message || 'Signup failed');
@@ -133,7 +95,6 @@ const AuthPage = () => {
 
       if (response.data.success) {
         localStorage.setItem('token', response.data.token);
-        setHasToken(true);
         
         // Set expiration if rememberMe is checked (7 days)
         if (rememberMe) {
@@ -141,9 +102,6 @@ const AuthPage = () => {
           expiresAt.setDate(expiresAt.getDate() + 7);
           localStorage.setItem('expiresAt', expiresAt.toISOString());
         }
-        
-        // Initialize WebSocket connection after successful login
-        initializeSocket();
         
         window.location.href = "/"; // <-- Change to home page
       } else {
@@ -157,17 +115,17 @@ const AuthPage = () => {
     }
   };
 
-  const toggleAuthMode = useCallback(() => {
-    setIsSignUp(prev => !prev);
+  const toggleAuthMode = () => {
+    setIsSignUp(!isSignUp);
     setError('');
     setEmail('');
     setPassword('');
     setConfirmPassword('');
     setRememberMe(false);
-  }, []);
+  };
 
   // Supabase docs: https://supabase.com/docs/guides/auth/social-login/auth-google
-  const handleGoogleAuth = useCallback(() => {
+  const handleGoogleAuth = () => {
     if (!SUPABASE_URL || SUPABASE_URL === 'undefined') {
       setError('Google sign-in is not configured. Please contact support.');
       return;
@@ -176,10 +134,11 @@ const AuthPage = () => {
     // Extract access_token from hash and save to localStorage
     const hashParams = new URLSearchParams(window.location.hash.replace('#', ''));
     const accessToken = hashParams.get('access_token');
+    console.log('Access token from hash:', accessToken);
     if (accessToken) {
       localStorage.setItem('token', accessToken);
     }
-  }, [SUPABASE_URL]);
+  };
 
   return (
     <div className="signin-container">
@@ -205,7 +164,7 @@ const AuthPage = () => {
               {error}
             </div>
           )}
-          {(!error && !loading && hasToken && hasUsername) && (
+          {(!error && !loading && localStorage.getItem('token') && localStorage.getItem('username')) && (
             <div className="success-message">
               Login successful! Redirecting to your profile...
             </div>

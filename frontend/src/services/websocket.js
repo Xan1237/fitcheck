@@ -4,15 +4,16 @@ let socket = null;
 
 export const initializeSocket = () => {
   try {
+    // Only initialize socket if there's a valid token
+    const token = localStorage.getItem('token');
+    if (!token) {
+      console.log('No token found, skipping WebSocket initialization');
+      return null;
+    }
+
     if (!socket) {
-      const token = localStorage.getItem('token');
-      
       socket = io(import.meta.env.VITE_API_BASE_URL, {
-        transports: ['websocket', 'polling'],
-        reconnection: true,
-        reconnectionAttempts: 5,
-        reconnectionDelay: 1000,
-        timeout: 10000,
+        transports: ['websocket'],
         autoConnect: true,
         auth: {
           token: token
@@ -26,16 +27,14 @@ export const initializeSocket = () => {
       socket.on('connect_error', (error) => {
         console.error('Connection error:', error.message);
         if (error.message.includes('Authentication')) {
+          console.log('Authentication failed, disconnecting socket');
           disconnectSocket();
-          window.location.href = '/login';
+          // Don't redirect automatically - let the app handle auth state
         }
       });
 
       socket.on('disconnect', (reason) => {
         console.log('Disconnected:', reason);
-        if (reason === 'io server disconnect') {
-          socket.connect();
-        }
       });
     }
   } catch (error) {

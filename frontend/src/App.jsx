@@ -19,8 +19,11 @@ import "./index.css";
 
 const App = () => {
   useEffect(() => {
-    // Initialize socket connection when app loads
-    initializeSocket();
+    // Only initialize socket if user is authenticated
+    const token = localStorage.getItem('token');
+    if (token) {
+      initializeSocket();
+    }
 
     // Cleanup on unmount
     return () => {

@@ -8,7 +8,7 @@ async function uuidToUserName(uuid) {
         .single();
 
     if (userError) {
-        throw new Error('User not found');
+        return;
     }
     
     return userData.username;

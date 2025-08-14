@@ -43,7 +43,7 @@ export const signUpUser = async (req, res) => {
         .upsert({
           id: data.user.id,
           email: data.user.email,
-          username: defaultUsername,
+          username: username,
           updated_at: new Date()
         });
 
@@ -56,8 +56,7 @@ export const signUpUser = async (req, res) => {
       const { error: publicProfileError } = await supabase
         .from('public_profiles')
         .upsert({
-          username: defaultUsername,
-          updated_at: new Date()
+          username: username,
         });
 
       if (publicProfileError) {

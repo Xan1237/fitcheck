@@ -102,7 +102,7 @@ const UserProfile = () => {
 
       setUserData(prev => ({
         ...prev,
-        name: `${result.user.firstName} ${result.user.lastName}`,
+        name: result.user.username,
         username: result.user.username,
         bio: result.user.bio,
         profilePicture: result.user.profilePictureUrl,
@@ -285,9 +285,9 @@ const UserProfile = () => {
             <div className="actions">
               {isOwnProfile ? (
                 <>
-                  <button className="btn" onClick={() => (window.location.href = '/profile')}>
+                  <button className="btn" onClick={() => navigate('/editBio')}>
                     <PencilLine size={16} />
-                    <span>Edit profile</span>
+                    <span>Edit bio</span>
                   </button>
                   <button className="btn primary" onClick={() => { setShowAddPostModal(true); setActiveTab('nutrition'); }}>
                     <Plus size={16} />

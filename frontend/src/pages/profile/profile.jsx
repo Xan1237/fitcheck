@@ -421,7 +421,26 @@ const saveAllFormData = () => {
         />
       </div>
       <div className="form-group">
-        <label htmlFor="bio">Bio</label>
+        <label htmlFor="bio">
+          Bio
+          <button 
+            type="button" 
+            className="quick-edit-link"
+            onClick={() => window.location.href = '/editBio'}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: '#ff7a00',
+              textDecoration: 'underline',
+              cursor: 'pointer',
+              fontSize: '0.8rem',
+              marginLeft: '0.5rem',
+              fontWeight: 'normal'
+            }}
+          >
+            (Quick Edit)
+          </button>
+        </label>
         <textarea
           id="bio"
           name="bio"

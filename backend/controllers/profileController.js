@@ -1,5 +1,114 @@
 // Import Supabase client for database operations
 import { supabase } from '../config/supabaseApp.js'
+import { uuidToUserName } from '../utils/usernameToUuid.js';
+/**
+ * Updates the bio for a user.
+ * Expects bio in req.body and user ID from verified token.
+ * Returns success message on successful update.
+ */
+async function updateUserBio(req, res) {
+    try {
+       
+        const username = await uuidToUserName(req.user.id);
+        const { bio } = req.body;
+        console.log(bio)
+        console.log(username)
+
+        if (!bio || typeof bio !== 'string') {
+            return res.status(400).json({
+                success: false,
+                error: "Bio is required and must be a string"
+            });
+        }
+
+        if (bio.length > 500) {
+            return res.status(400).json({
+                success: false,
+                error: "Bio must be less than 500 characters"
+            });
+        }
+
+        // Update the user's bio in the profiles table
+        const { data, error } = await supabase
+            .from('public_profiles')
+            .update({ bio: bio})
+            .eq('username', username)
+            .select('bio');
+
+        if (error) {
+            console.error('Database error:', error);
+            return res.status(500).json({
+                success: false,
+                error: "Failed to update bio"
+            });
+        }
+
+        if (!data || data.length === 0) {
+            return res.status(404).json({
+                success: false,
+                error: "User profile not found"
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "Bio updated successfully",
+            bio: data[0].bio
+        });
+
+    } catch (error) {
+        console.error('Update bio error:', error);
+        res.status(500).json({
+            success: false,
+            error: "Internal server error"
+        });
+    }
+}
+
+/**
+ * Gets the current bio for a user.
+ * Expects user ID from verified token.
+ * Returns the user's current bio.
+ */
+async function getUserBio(req, res) {
+    try {
+        const userId = req.user.id;
+
+        // Get the user's bio from the profiles table
+        const { data, error } = await supabase
+            .from('profiles')
+            .select('bio')
+            .eq('id', userId)
+            .single();
+
+        if (error) {
+            console.error('Database error:', error);
+            return res.status(500).json({
+                success: false,
+                error: "Failed to fetch bio"
+            });
+        }
+
+        if (!data) {
+            return res.status(404).json({
+                success: false,
+                error: "User profile not found"
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            bio: data.bio || ""
+        });
+
+    } catch (error) {
+        console.error('Get bio error:', error);
+        res.status(500).json({
+            success: false,
+            error: "Internal server error"
+        });
+    }
+}
 
 /**
  * Gets the number of PR (personal record) entries for a user.
@@ -46,4 +155,4 @@ async function getNumberPosts(req, res){
 }
 
 // Export controller functions for use in routes
-export {getNumberPR, getNumberPosts}
+export {getNumberPR, getNumberPosts, updateUserBio, getUserBio}

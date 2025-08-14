@@ -10,7 +10,7 @@ const REDIRECT_URL = '/'; // Use current domain for redirect
 const AuthPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [username, setUsername] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
   const [error, setError] = useState('');
@@ -50,12 +50,8 @@ const AuthPage = () => {
 
   const handleSignUp = async () => {
     // Validate inputs
-    if (!email || !password || !confirmPassword) {
+    if (!email || !password || !username) {
       throw new Error('All fields are required');
-    }
-
-    if (password !== confirmPassword) {
-      throw new Error("Passwords don't match!");
     }
 
     if (password.length < 6) {
@@ -65,7 +61,8 @@ const AuthPage = () => {
     try {
       const response = await axios.post(`${API_BASE_URL}/auth/signup`, {
         email,
-        password
+        password,
+        username
       });
 
       if (response.data.success) {
@@ -120,7 +117,7 @@ const AuthPage = () => {
     setError('');
     setEmail('');
     setPassword('');
-    setConfirmPassword('');
+    setUsername('');
     setRememberMe(false);
   };
 
@@ -183,6 +180,20 @@ const AuthPage = () => {
               />
             </div>
 
+            {isSignUp && (
+              <div className="form-group">
+                <label htmlFor="username">Username</label>
+                <input
+                  type="text"
+                  id="username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="Choose a username"
+                  required
+                />
+              </div>
+            )}
+
             <div className="form-group">
               <label htmlFor="password">Password</label>
               <input
@@ -195,20 +206,6 @@ const AuthPage = () => {
                 minLength={isSignUp ? 6 : undefined}
               />
             </div>
-            
-            {isSignUp && (
-              <div className="form-group">
-                <label htmlFor="confirmPassword">Confirm Password</label>
-                <input
-                  type="password"
-                  id="confirmPassword"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="Confirm your password"
-                  required
-                />
-              </div>
-            )}
 
             {!isSignUp && (
               <div className="form-options">

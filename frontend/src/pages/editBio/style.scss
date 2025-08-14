@@ -1,0 +1,540 @@
+// Variables
+$primary-orange: #ff7a00;
+$secondary-orange: #ff9a33;
+$light-orange: #ffebdb;
+$dark-black: #1a1a1a;
+$gray-dark: #333333;
+$gray-medium: #666666;
+$gray-light: #cccccc;
+$gray-bg: #f4f4f4;
+$white: #ffffff;
+$error-red: #e53935;
+$success-green: #43a047;
+$info-blue: #2196f3;
+
+// Mixins
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+@mixin flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+@mixin hover-effect {
+  transition: all 0.3s ease;
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+  }
+}
+
+@mixin button-base {
+  border: none;
+  border-radius: 8px;
+  padding: 0.875rem 1.5rem;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+  }
+}
+
+@mixin mobile {
+  @media (max-width: 768px) {
+    @content;
+  }
+}
+
+@mixin tablet {
+  @media (min-width: 769px) and (max-width: 1024px) {
+    @content;
+  }
+}
+
+// Base styling
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', 'Roboto', sans-serif;
+  color: $dark-black;
+  background-color: $gray-bg;
+  line-height: 1.6;
+}
+
+// Main Container
+.edit-bio-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, $gray-bg 0%, $white 100%);
+  
+  @include mobile {
+    padding: 0;
+  }
+}
+
+// Header
+.edit-bio-header {
+  background: linear-gradient(135deg, $primary-orange, darken($primary-orange, 15%));
+  color: $white;
+  padding: 1rem 1.5rem;
+  @include flex-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  
+  @include mobile {
+    padding: 1rem;
+  }
+  
+  h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    text-align: center;
+    flex: 1;
+    margin: 0 1rem;
+    
+    @include mobile {
+      font-size: 1.25rem;
+      margin: 0 0.5rem;
+    }
+  }
+  
+  .back-button {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    @include flex-center;
+    color: $white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: scale(1.05);
+    }
+    
+    &:active {
+      transform: scale(0.95);
+    }
+  }
+  
+  .save-button {
+    @include button-base;
+    background: rgba(255, 255, 255, 0.2);
+    color: $white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    min-width: 100px;
+    
+    &:hover:not(.disabled) {
+      background: rgba(255, 255, 255, 0.3);
+      border-color: rgba(255, 255, 255, 0.5);
+    }
+    
+    &.disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    @include mobile {
+      min-width: 80px;
+      padding: 0.75rem 1rem;
+      font-size: 0.9rem;
+    }
+  }
+}
+
+// Main Content
+.edit-bio-content {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+  
+  @include mobile {
+    padding: 1.5rem 1rem;
+  }
+  
+  @include tablet {
+    padding: 2rem;
+  }
+}
+
+// Loading Container
+.loading-container {
+  @include flex-column;
+  @include flex-center;
+  min-height: 300px;
+  text-align: center;
+  
+  .spinner.large {
+    width: 48px;
+    height: 48px;
+    border: 4px solid $gray-light;
+    border-top: 4px solid $primary-orange;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 1rem;
+  }
+  
+  p {
+    color: $gray-medium;
+    font-size: 1.1rem;
+  }
+}
+
+// Bio Input Section
+.bio-input-section {
+  background: $white;
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  margin-bottom: 2rem;
+  
+  @include mobile {
+    padding: 1.5rem;
+    border-radius: 12px;
+  }
+  
+  .input-header {
+    @include flex-center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    
+    h3 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: $dark-black;
+      
+      @include mobile {
+        font-size: 1.25rem;
+      }
+    }
+    
+    svg {
+      color: $primary-orange;
+    }
+  }
+  
+  .textarea-container {
+    position: relative;
+    margin-bottom: 1.5rem;
+    
+    .bio-textarea {
+      width: 100%;
+      min-height: 120px;
+      padding: 1rem;
+      border: 2px solid $gray-light;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-family: inherit;
+      line-height: 1.6;
+      resize: vertical;
+      transition: all 0.2s ease;
+      
+      &:focus {
+        outline: none;
+        border-color: $primary-orange;
+        box-shadow: 0 0 0 3px rgba(255, 122, 0, 0.1);
+      }
+      
+      &.error {
+        border-color: $error-red;
+        box-shadow: 0 0 0 3px rgba(229, 57, 53, 0.1);
+      }
+      
+      &::placeholder {
+        color: $gray-medium;
+        opacity: 0.7;
+      }
+      
+      @include mobile {
+        min-height: 100px;
+        padding: 0.875rem;
+        font-size: 0.95rem;
+      }
+    }
+    
+    .char-counter {
+      position: absolute;
+      bottom: 0.75rem;
+      right: 1rem;
+      font-size: 0.875rem;
+      color: $gray-medium;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 0.25rem 0.5rem;
+      border-radius: 6px;
+      @include flex-center;
+      gap: 0.25rem;
+      
+      &.error {
+        color: $error-red;
+        font-weight: 600;
+        
+        .error-icon {
+          color: $error-red;
+        }
+      }
+      
+      .current-count {
+        font-weight: 600;
+      }
+      
+      .separator {
+        opacity: 0.6;
+      }
+      
+      .max-count {
+        opacity: 0.8;
+      }
+      
+      @include mobile {
+        font-size: 0.8rem;
+        bottom: 0.5rem;
+        right: 0.75rem;
+      }
+    }
+  }
+  
+  .bio-tips {
+    background: $light-orange;
+    border-radius: 12px;
+    padding: 1.5rem;
+    border-left: 4px solid $primary-orange;
+    
+    @include mobile {
+      padding: 1.25rem;
+    }
+    
+    h4 {
+      color: $dark-black;
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      
+      @include mobile {
+        font-size: 1rem;
+      }
+    }
+    
+    ul {
+      list-style: none;
+      padding: 0;
+      
+      li {
+        color: $gray-dark;
+        margin-bottom: 0.5rem;
+        padding-left: 1.5rem;
+        position: relative;
+        
+        &:before {
+          content: "•";
+          color: $primary-orange;
+          font-weight: bold;
+          position: absolute;
+          left: 0;
+        }
+        
+        &:last-child {
+          margin-bottom: 0;
+        }
+        
+        @include mobile {
+          font-size: 0.9rem;
+        }
+      }
+    }
+  }
+}
+
+// Message Display
+.message {
+  @include flex-center;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  font-weight: 500;
+  
+  @include mobile {
+    padding: 0.875rem 1.25rem;
+    font-size: 0.9rem;
+  }
+  
+  &.success {
+    background: rgba(67, 160, 71, 0.1);
+    color: $success-green;
+    border: 1px solid rgba(67, 160, 71, 0.2);
+  }
+  
+  &.error {
+    background: rgba(229, 57, 53, 0.1);
+    color: $error-red;
+    border: 1px solid rgba(229, 57, 53, 0.2);
+  }
+  
+  &.info {
+    background: rgba(33, 150, 243, 0.1);
+    color: $info-blue;
+    border: 1px solid rgba(33, 150, 243, 0.2);
+  }
+  
+  svg {
+    flex-shrink: 0;
+  }
+}
+
+// Action Buttons
+.action-buttons {
+  @include flex-center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  
+  @include mobile {
+    flex-direction: column;
+    width: 100%;
+    
+    button {
+      width: 100%;
+    }
+  }
+  
+  .cancel-button {
+    @include button-base;
+    background: $white;
+    color: $gray-dark;
+    border: 2px solid $gray-light;
+    
+    &:hover:not(:disabled) {
+      background: $gray-bg;
+      border-color: $gray-medium;
+    }
+    
+    &:active {
+      transform: scale(0.98);
+    }
+  }
+  
+  .primary-button {
+    @include button-base;
+    background: linear-gradient(135deg, $primary-orange, $secondary-orange);
+    color: $white;
+    box-shadow: 0 4px 15px rgba(255, 122, 0, 0.3);
+    
+    &:hover:not(.disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(255, 122, 0, 0.4);
+    }
+    
+    &:active {
+      transform: translateY(0);
+    }
+    
+    &.disabled {
+      background: $gray-light;
+      box-shadow: none;
+      cursor: not-allowed;
+    }
+  }
+}
+
+// Spinner Animation
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top: 2px solid $white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+// Responsive Design Enhancements
+@include mobile {
+  .edit-bio-container {
+    background: $white;
+  }
+  
+  .edit-bio-header {
+    border-radius: 0;
+  }
+  
+  .edit-bio-content {
+    padding-top: 1rem;
+  }
+  
+  .bio-input-section {
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  }
+}
+
+@include tablet {
+  .edit-bio-container {
+    background: linear-gradient(135deg, $gray-bg 0%, $white 50%, $gray-bg 100%);
+  }
+}
+
+// Focus and Accessibility
+button:focus,
+textarea:focus {
+  outline: 2px solid $primary-orange;
+  outline-offset: 2px;
+}
+
+// Smooth transitions for all interactive elements
+button,
+textarea,
+.back-button {
+  transition: all 0.2s ease;
+}
+
+// High contrast mode support
+@media (prefers-contrast: high) {
+  .edit-bio-header {
+    background: $dark-black;
+  }
+  
+  .bio-textarea {
+    border-width: 3px;
+  }
+  
+  .message {
+    border-width: 2px;
+  }
+}
+
+// Reduced motion support
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

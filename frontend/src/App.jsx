@@ -14,6 +14,7 @@ import People from "./pages/people/index";
 import Feed from "./pages/feed/index";
 import CreatePost from "./pages/createPost";
 import Messages from "./pages/messages/index";
+import EditBio from "./pages/editBio";
 import { initializeSocket, disconnectSocket } from "./services/websocket";
 import "./index.css";
 
@@ -45,6 +46,7 @@ const App = () => {
         <Route path="/people" element={<People />} />
         <Route path="/createPost" element={<CreatePost />} />
         <Route path="/messages" element={<Messages />} />
+        <Route path="/editBio" element={<EditBio />} />
       </Routes>
       <BottomNav />
     </Router>

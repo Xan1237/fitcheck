@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import Header from '../../components/header';
 import Footer from '../../components/footer';
@@ -184,7 +184,12 @@ const Feed = () => {
                   </div>
                   <div className="user-details">
                     <div className="user-name">
-                      {post.user.name}
+                      <Link
+                        to={`/profile/${post.user.username}`}
+                        className="feed-post-author-link"
+                      >
+                        {post.user.name}
+                      </Link>
                       {post.user.verified && <span className="verified-badge">✓</span>}
                     </div>
                     <div className="user-meta">

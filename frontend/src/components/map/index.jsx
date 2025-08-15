@@ -11,7 +11,7 @@ const markerShadow =
 // Component to handle map position updates with smooth animation
 const ChangeView = ({ center, zoom }) => {
   const map = useMap();
- 
+
   useEffect(() => {
     // Project LatLng to screen coordinates at given zoom
     const targetPoint = map.project(center, zoom);
@@ -66,9 +66,15 @@ const MapController = ({ markers, activeGym }) => {
   return null;
 };
 
-const Map = ({ searchResults, markers, activeGym, setActiveGym }) => {
-  const [position, setPosition] = useState([44.648766, -63.575237]); // Default center
-  const [zoom, setZoom] = useState(12);
+const Map = ({ searchResults, markers, activeGym, setActiveGym, center, zoom }) => {
+  const [position, setPosition] = useState(center || [44.648766, -63.575237]);
+  const [mapZoom, setMapZoom] = useState(zoom || 12);
+
+  // Update position and zoom when props change
+  useEffect(() => {
+    if (center) setPosition(center);
+    if (zoom) setMapZoom(zoom);
+  }, [center, zoom]);
 
   // Function to fetch coordinates from an address
   const fetchCoordinates = async (searchResults) => {
@@ -87,7 +93,7 @@ const Map = ({ searchResults, markers, activeGym, setActiveGym }) => {
 
       const data = await response.json();
       setPosition([data.latitude, data.longitude]);
-      setZoom(14); // Zoom in when searching for a specific location
+      setMapZoom(14); // Zoom in when searching for a specific location
     } catch (error) {
       console.error("Error:", error);
     }
@@ -130,7 +136,7 @@ const Map = ({ searchResults, markers, activeGym, setActiveGym }) => {
       const selectedGym = markers.find((gym) => gym.id === activeGym);
       if (selectedGym) {
         setPosition(selectedGym.position);
-        setZoom(15);
+        setMapZoom(15);
       }
     }
   }, [activeGym, markers]);
@@ -139,11 +145,11 @@ const Map = ({ searchResults, markers, activeGym, setActiveGym }) => {
     <div className="map-container">
       <MapContainer
         center={position}
-        zoom={zoom}
+        zoom={mapZoom}
         scrollWheelZoom={true}
         style={{ height: "100%", width: "100%" }}
       >
-        <ChangeView center={position} zoom={zoom} />
+        <ChangeView center={position} zoom={mapZoom} />
         <MapController markers={markers} activeGym={activeGym} />
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'

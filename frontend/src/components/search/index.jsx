@@ -199,7 +199,7 @@ const Search = ({ onSearchSubmit, gyms, searchQuery, setSearchQuery, filter, set
     <div className="search-bar">
       <form onSubmit={handleSubmit} className="search-form">
         <div className="search-input-container">
-          <div className="search-field">
+          {/* <div className="search-field">
             <input
               type="text"
               placeholder="Enter a location..."
@@ -208,7 +208,7 @@ const Search = ({ onSearchSubmit, gyms, searchQuery, setSearchQuery, filter, set
               className="search-input"
             />
             <FaSearch className="search-icon" />
-          </div>
+          </div> */}
           <select
             id="filter"
             value={localFilter}

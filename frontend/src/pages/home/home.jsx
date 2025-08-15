@@ -10,6 +10,38 @@ import "./styles.scss";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
+const provinceCenters = {
+  "Alberta": [52.4333, -115.5765],
+  "British Columbia": [51.7267, -125.6476],
+  "Manitoba": [52.0609, -97.8139],
+  "New Brunswick": [45.5653, -66.4619],
+  "Newfoundland and Labrador": [50.5, -57.6604],
+  "Northwest Territories": [63.8255, -122.8457],
+  "Nova Scotia": [44.6820, -63.7443],
+  "Nunavut": [70.2998, -83.1076], 
+  "Ontario": [46.5, -85.3232],
+  "Prince Edward Island": [46.2, -63.2568],
+  "Quebec": [51, -73.5491],
+  "Saskatchewan": [52.5399, -106.4509],
+  "Yukon": [63.2823, -135.0000]
+};
+
+const provinceZooms = {
+  "Alberta": 4.8,
+  "British Columbia": 4.6,
+  "Manitoba": 4.7,
+  "New Brunswick": 6.8,
+  "Newfoundland and Labrador": 4.5,
+  "Northwest Territories": 3,
+  "Nova Scotia": 6.5,
+  "Nunavut": 3,
+  "Ontario": 4.5,
+  "Prince Edward Island": 8,
+  "Quebec": 4.2,
+  "Saskatchewan": 4.8,
+  "Yukon": 4.5
+};
+
 const Home = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [filter, setFilter] = useState("Nova Scotia"); // <-- Default to Nova Scotia
@@ -17,6 +49,8 @@ const Home = () => {
   const [filteredGyms, setFilteredGyms] = useState([]);
   const [gyms, setGyms] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [mapCenter, setMapCenter] = useState(provinceCenters[filter]);
+  const [mapZoom, setMapZoom] = useState(provinceZooms[filter] || 6);
 
   // Fetch dynamic gym data and merge with static data on component mount
   useEffect(() => {
@@ -95,6 +129,14 @@ const Home = () => {
     }
   }, [gyms, filter]);
 
+  useEffect(() => {
+    // Update map center and zoom when filter (province) changes
+    if (provinceCenters[filter]) {
+      setMapCenter(provinceCenters[filter]);
+      setMapZoom(provinceZooms[filter] || 6);
+    }
+  }, [filter]);
+
   const handleSearchSubmit = (query, newFilter, filtered) => {
     setSearchQuery(query);
     setFilter(newFilter);
@@ -103,8 +145,13 @@ const Home = () => {
     if (filtered && Array.isArray(filtered)) {
       setFilteredGyms(filtered);
     } else if (gyms.length > 0) {
-      // Always filter by province if no filtered gyms provided
       setFilteredGyms(gyms.filter(gym => gym.province === newFilter));
+    }
+
+    // Zoom map to province center and custom zoom
+    if (provinceCenters[newFilter]) {
+      setMapCenter(provinceCenters[newFilter]);
+      setMapZoom(provinceZooms[newFilter] || 6);
     }
 
     // Set active gym if a specific gym is selected in filter
@@ -143,6 +190,8 @@ const Home = () => {
               markers={filteredGyms}
               activeGym={activeGym}
               setActiveGym={setActiveGym}
+              center={mapCenter}
+              zoom={mapZoom}
             />
           )}
         </div>

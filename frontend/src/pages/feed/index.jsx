@@ -49,6 +49,7 @@ const Feed = () => {
   const [commentInputs, setCommentInputs] = useState({}); // { [postId]: string }
   const [comments, setComments] = useState({}); // { [postId]: [comments] }
   const [loadingComments, setLoadingComments] = useState({}); // { [postId]: bool }
+  const [expandedPosts, setExpandedPosts] = useState({}); // { [postId]: true/false }
 
   // Transform API post to UI post format
   const transformPostData = (apiPost) => {
@@ -190,166 +191,196 @@ const Feed = () => {
     }
   };
 
+  // Helper to toggle expanded state
+  const toggleExpand = (postId) => {
+    setExpandedPosts(prev => ({
+      ...prev,
+      [postId]: !prev[postId]
+    }));
+  };
+
   return (
     <div className="feed-page">
       <Header />
-      
-      {/* Simplified structure - single scrollable area */}
       {loading ? (
         <div className="loading-indicator">Loading posts...</div>
       ) : posts.length > 0 ? (
         <div className="posts-feed">
-          {posts.map(post => (
-            <div key={post.id} className="post-card">
-              <div className="post-header">
-                <div className="post-user-info">
-                  <div className="user-avatar">
-                    {post.user.avatar ? (
-                      <img src={post.user.avatar} alt={post.user.name} />
-                    ) : (
-                      <div className="default-avatar">{post.user.name.charAt(0)}</div>
-                    )}
+          {posts.map(post => {
+            const isExpanded = expandedPosts[post.id];
+            const maxLength = 220;
+            const isLong = post.content && post.content.length > maxLength;
+            const previewText = isLong && !isExpanded
+              ? post.content.slice(0, maxLength) + '...'
+              : post.content;
+
+            return (
+              <div key={post.id} className="post-card">
+                <div className="post-header">
+                  <div className="post-user-info">
+                    <div className="user-avatar">
+                      {post.user.avatar ? (
+                        <img src={post.user.avatar} alt={post.user.name} />
+                      ) : (
+                        <div className="default-avatar">{post.user.name.charAt(0)}</div>
+                      )}
+                    </div>
+                    <div className="user-details">
+                      <div className="user-name">
+                        <Link
+                          to={`/profile/${post.user.username}`}
+                          className="feed-post-author-link"
+                        >
+                          {post.user.name}
+                        </Link>
+                        {post.user.verified && <span className="verified-badge">✓</span>}
+                      </div>
+                      <div className="user-meta">
+                        @{post.user.username} <br/> {post.timestamp}
+                      </div>
+                    </div>
                   </div>
-                  <div className="user-details">
-                    <div className="user-name">
-                      <Link
-                        to={`/profile/${post.user.username}`}
-                        className="feed-post-author-link"
+                </div>
+
+                {post.workoutType && (
+                  <div className="workout-badge">
+                    {getWorkoutIcon(post.workoutType)}
+                    <span>{post.workoutType}</span>
+                    {post.gym && <span className="gym-location">at {post.gym}</span>}
+                  </div>
+                )}
+
+                <div className="post-content">
+                  <p>
+                    {previewText}
+                    {isLong && (
+                      <span
+                        className="expand-toggle"
+                        onClick={() => toggleExpand(post.id)}
+                        role="button"
+                        tabIndex={0}
+                        style={{ userSelect: 'none' }}
+                        onKeyPress={e => {
+                          if (e.key === 'Enter' || e.key === ' ') toggleExpand(post.id);
+                        }}
                       >
-                        {post.user.name}
-                      </Link>
-                      {post.user.verified && <span className="verified-badge">✓</span>}
+                        {isExpanded ? ' Show less' : ' Show more'}
+                      </span>
+                    )}
+                  </p>
+                  {post.image && (
+                    <div className="post-image-container">
+                      <img 
+                        src={post.image} 
+                        alt="Post content" 
+                        className="responsive-image"
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = 'https://via.placeholder.com/400x300?text=Image+Not+Available';
+                        }}
+                      />
                     </div>
-                    <div className="user-meta">
-                      @{post.user.username} <br/> {post.timestamp}
-                    </div>
+                  )}
+                </div>
+
+                {post.tags && post.tags.length > 0 && (
+                  <div className="post-tags">
+                    {post.tags.map((tag, index) => (
+                      <span key={index} className="tag">{tag}</span>
+                    ))}
                   </div>
-                </div>
-              </div>
+                )}
 
-              {post.workoutType && (
-                <div className="workout-badge">
-                  {getWorkoutIcon(post.workoutType)}
-                  <span>{post.workoutType}</span>
-                  {post.gym && <span className="gym-location">at {post.gym}</span>}
+                <div className="post-actions">
+                  <button 
+                    className={`action-btn like-btn ${post.isLiked ? 'liked' : ''}`}
+                    onClick={() => handleLike(post.id)}
+                  >
+                    {post.isLiked ? <FaHeart /> : <FaRegHeart />}
+                    <span>{post.likes}</span>
+                  </button>
+                  <button 
+                    className="action-btn comment-btn"
+                    onClick={() => fetchComments(post.id)}
+                  >
+                    <FaComment />
+                    <span>{post.comments}</span>
+                  </button>
+                  <button className="action-btn share-btn">
+                    <FaShare />
+                    <span>{post.shares}</span>
+                  </button>
                 </div>
-              )}
 
-              <div className="post-content">
-                <p>{post.content}</p>
-                {post.image && (
-                  <div className="post-image-container">
-                    <img 
-                      src={post.image} 
-                      alt="Post content" 
-                      className="responsive-image"
-                      onError={(e) => {
-                        e.target.onerror = null;
-                        e.target.src = 'https://via.placeholder.com/400x300?text=Image+Not+Available';
+                {/* Post Comments Section */}
+                {comments[post.id] && (
+                  <div className="post-comments-section modern">
+                    <div className="comments-list">
+                      {loadingComments[post.id] ? (
+                        <div>Loading comments...</div>
+                      ) : comments[post.id].length === 0 ? (
+                        <div>No comments yet.</div>
+                      ) : (
+                        comments[post.id].map((comment) => {
+                          const avatar = getCommentAvatar(comment);
+                          const uname = comment.username || 'user';
+                          const initial = uname.charAt(0).toUpperCase();
+                          return (
+                            <div key={comment.id} className="comment">
+                              <div className="comment-avatar">
+                                {avatar ? (
+                                  <img src={avatar} alt={`${uname}'s avatar`} />
+                                ) : (
+                                  <div className="avatar-fallback">{initial}</div>
+                                )}
+                              </div>
+
+                              <div className="comment-body">
+                                <div className="comment-header">
+                                  <Link to={`/profile/${uname}`} className="comment-author">@{uname}</Link>
+                                  <span className="dot">•</span>
+                                  <time className="comment-time">{formatTimeSince(comment.created_at)}</time>
+                                </div>
+                                <div className="comment-text">{comment.text}</div>
+                              </div>
+                            </div>
+                          );
+                        })
+                      )}
+                    </div>
+                    <div className="comment-input-row">
+                      <input
+                        type="text"
+                        placeholder="Add a comment..."
+                        value={commentInputs[post.id] || ''}
+                        onChange={e => setCommentInputs(prev => ({ ...prev, [post.id]: e.target.value }))}
+                        className="comment-input"
+                        onKeyDown={(e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                          e.preventDefault();
+                          handleAddComment(post.id);
+                        }
                       }}
-                    />
+                      />
+                      <button
+                        className="add-comment-btn"
+                        onClick={() => handleAddComment(post.id)}
+                        disabled={!commentInputs[post.id] || !commentInputs[post.id].trim()}
+                      >
+                        Post
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>
-
-              {post.tags && post.tags.length > 0 && (
-                <div className="post-tags">
-                  {post.tags.map((tag, index) => (
-                    <span key={index} className="tag">{tag}</span>
-                  ))}
-                </div>
-              )}
-
-              <div className="post-actions">
-                <button 
-                  className={`action-btn like-btn ${post.isLiked ? 'liked' : ''}`}
-                  onClick={() => handleLike(post.id)}
-                >
-                  {post.isLiked ? <FaHeart /> : <FaRegHeart />}
-                  <span>{post.likes}</span>
-                </button>
-                <button 
-                  className="action-btn comment-btn"
-                  onClick={() => fetchComments(post.id)}
-                >
-                  <FaComment />
-                  <span>{post.comments}</span>
-                </button>
-                <button className="action-btn share-btn">
-                  <FaShare />
-                  <span>{post.shares}</span>
-                </button>
-              </div>
-
-              {/* Post Comments Section */}
-              {comments[post.id] && (
-                <div className="post-comments-section modern">
-                  <div className="comments-list">
-                    {loadingComments[post.id] ? (
-                      <div>Loading comments...</div>
-                    ) : comments[post.id].length === 0 ? (
-                      <div>No comments yet.</div>
-                    ) : (
-                      comments[post.id].map((comment) => {
-                        const avatar = getCommentAvatar(comment);
-                        const uname = comment.username || 'user';
-                        const initial = uname.charAt(0).toUpperCase();
-                        return (
-                          <div key={comment.id} className="comment">
-                            <div className="comment-avatar">
-                              {avatar ? (
-                                <img src={avatar} alt={`${uname}'s avatar`} />
-                              ) : (
-                                <div className="avatar-fallback">{initial}</div>
-                              )}
-                            </div>
-
-                            <div className="comment-body">
-                              <div className="comment-header">
-                                <Link to={`/profile/${uname}`} className="comment-author">@{uname}</Link>
-                                <span className="dot">•</span>
-                                <time className="comment-time">{formatTimeSince(comment.created_at)}</time>
-                              </div>
-                              <div className="comment-text">{comment.text}</div>
-                            </div>
-                          </div>
-                        );
-                      })
-                    )}
-                  </div>
-                  <div className="comment-input-row">
-                    <input
-                      type="text"
-                      placeholder="Add a comment..."
-                      value={commentInputs[post.id] || ''}
-                      onChange={e => setCommentInputs(prev => ({ ...prev, [post.id]: e.target.value }))}
-                      className="comment-input"
-                      onKeyDown={(e) => {
-                      if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        handleAddComment(post.id);
-                      }
-                    }}
-                    />
-                    <button
-                      className="add-comment-btn"
-                      onClick={() => handleAddComment(post.id)}
-                      disabled={!commentInputs[post.id] || !commentInputs[post.id].trim()}
-                    >
-                      Post
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          ))}
+            );
+          })}
         </div>
       ) : (
         <div className="empty-state">
           <p>No posts found. Check back later!</p>
         </div>
       )}
-
       <div className="footer">
         <Footer />
       </div>

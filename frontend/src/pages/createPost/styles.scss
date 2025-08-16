@@ -109,3 +109,22 @@ h2 {
     }
   }
 }
+
+.success-message {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #23272f;
+  color: #4caf50;
+  border: 1.5px solid #4caf50;
+  border-radius: 8px;
+  padding: 14px 18px;
+  font-size: 1.08rem;
+  font-weight: 600;
+  margin-bottom: 18px;
+  box-shadow: 0 2px 8px rgba(76,175,80,0.08);
+
+  .success-icon {
+    font-size: 1.3em;
+  }
+}

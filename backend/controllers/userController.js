@@ -469,35 +469,58 @@ const createPost = async (req, res) => {
 
     const username = userData.username;
 
-    // Convert base64 image to buffer and determine file extension
-    const buffer = Buffer.from(imageFile.split(',')[1], 'base64');
-    const fileExt = imageFile.split(';')[0].split('/')[1];
-    const fileName = `${username}-${Date.now()}.${fileExt}`;
+    let publicUrl = null;
 
-    // Upload post image to Supabase Storage
-    const { data: uploadData, error: uploadError } = await supabase.storage
-      .from('post-images-f423yiufg348ygv3rhfvbf34yibv34gb')
-      .upload(fileName, buffer, {
-        contentType: `image/${fileExt}`,
-        upsert: true,
-        duplex: 'half',
-        owner: req.user.id
-      });
+    // Only upload image if imageFile is provided and is a valid base64 string
+    if (
+      imageFile &&
+      typeof imageFile === "string" &&
+      imageFile.startsWith("data:image/")
+    ) {
+      try {
+        const buffer = Buffer.from(imageFile.split(',')[1], 'base64');
+        const fileExt = imageFile.split(';')[0].split('/')[1];
+        const fileName = `${username}-${Date.now()}.${fileExt}`;
 
-    if (uploadError) {
-      console.error("Error uploading file:", uploadError);
-      return res.status(500).json({ 
-        success: false, 
-        error: "Failed to upload post image",
-        details: uploadError.message || uploadError.error || "Unknown error"
-      });
+        // Upload post image to Supabase Storage
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('post-images-f423yiufg348ygv3rhfvbf34yibv34gb')
+          .upload(fileName, buffer, {
+            contentType: `image/${fileExt}`,
+            upsert: true,
+            duplex: 'half',
+            owner: req.user.id
+          });
+
+        if (uploadError) {
+          console.error("Error uploading file:", uploadError);
+          return res.status(500).json({ 
+            success: false, 
+            error: "Failed to upload post image",
+            details: uploadError.message || uploadError.error || "Unknown error"
+          });
+        }
+
+        // Get the public URL for the uploaded image
+        const { data: { publicUrl: url } } = supabase.storage
+          .from('post-images-f423yiufg348ygv3rhfvbf34yibv34gb')
+          .getPublicUrl(fileName);
+
+        publicUrl = url || null;
+      } catch (imgErr) {
+        console.error("Error processing image:", imgErr);
+        return res.status(500).json({ 
+          success: false, 
+          error: "Error processing image",
+          details: imgErr.message
+        });
+      }
     }
 
-    // Get the public URL for the uploaded image
-    const { data: { publicUrl } } = supabase.storage
-      .from('post-images-f423yiufg348ygv3rhfvbf34yibv34gb')
-      .getPublicUrl(fileName);
-
+    // Ensure tags is always a string or array
+    let tagsToSave = tags;
+    if (tagsToSave == null) tagsToSave = "";
+    
     // Create post record in the database
     const { data: postData, error: postError } = await supabase
       .from('posts')
@@ -505,7 +528,7 @@ const createPost = async (req, res) => {
         title,
         description,
         image_url: publicUrl,
-        tags,
+        tags: tagsToSave,
         username,
         uuid: req.user.id,
         created_at: new Date()

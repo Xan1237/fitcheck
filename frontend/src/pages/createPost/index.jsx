@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Header from "../../components/header";
 import Footer from "../../components/footer";
-import { FaImage, FaTag, FaArrowLeft } from "react-icons/fa";
+import { FaImage, FaTag, FaArrowLeft, FaCheckCircle } from "react-icons/fa";
 import "./styles.scss";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -16,6 +16,7 @@ const CreatePost = () => {
   const [imageFile, setImageFile] = useState(null);
   const [previewImage, setPreviewImage] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [successMsg, setSuccessMsg] = useState(""); // NEW
   const fileInputRef = useRef(null);
 
   // Handle image selection and preview
@@ -42,11 +43,12 @@ const CreatePost = () => {
   // Handle post creation
   const handleCreatePost = async (e) => {
     e.preventDefault();
-    if (!title || !description || !imageFile) {
-      alert("Please fill in all required fields and upload an image.");
+    if (!title || !description) {
+      alert("Please fill in the title and description.");
       return;
     }
     setLoading(true);
+    setSuccessMsg(""); // Clear previous success
     try {
       const token = localStorage.getItem("token");
       const response = await axios.post(
@@ -54,7 +56,7 @@ const CreatePost = () => {
         {
           title,
           description,
-          imageFile,
+          imageFile, // can be null
           tags: tags.split(",").map(tag => tag.trim()).filter(tag => tag !== "")
         },
         {
@@ -62,8 +64,10 @@ const CreatePost = () => {
         }
       );
       if (response.data.success) {
-        alert("Post created successfully!");
-        navigate("/profile/" + response.data.data[0]?.username || "");
+        setSuccessMsg("Post created successfully!");
+        setTimeout(() => {
+          navigate("/profile/" + (response.data.data[0]?.username || ""));
+        }, 1800);
       } else {
         alert("Failed to create post.");
       }
@@ -83,6 +87,12 @@ const CreatePost = () => {
           <FaArrowLeft /> Back
         </button>
         <h2>Create a New Post</h2>
+        {successMsg && (
+          <div className="success-message">
+            <FaCheckCircle className="success-icon" />
+            {successMsg}
+          </div>
+        )}
         <form className="create-post-form" onSubmit={handleCreatePost}>
           <div className="form-group">
             <label>Title*</label>
@@ -117,14 +127,13 @@ const CreatePost = () => {
           </div>
           <div className="form-group">
             <label>
-              <FaImage /> Image*
+              <FaImage /> Image (optional)
             </label>
             <input
               type="file"
               accept="image/*"
               ref={fileInputRef}
               onChange={handleImageChange}
-              required
             />
             {previewImage && (
               <img

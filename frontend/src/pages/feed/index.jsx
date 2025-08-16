@@ -35,6 +35,12 @@ function formatTimeSince(dateString) {
   }
 }
 
+const getCommentAvatar = (c) =>
+  c.profile_picture_url ||
+  c.author_profile?.profile_picture_url ||
+  c.author_user?.profile_picture_url ||
+  null;
+
 const Feed = () => {
   const navigate = useNavigate();
   const [posts, setPosts] = useState([]);
@@ -52,7 +58,12 @@ const Feed = () => {
       user: {
         username: apiPost.username || 'anonymous',
         name: apiPost.username?.split('@')[0] || 'Anonymous User',
-        avatar: apiPost.profilePictureUrl || apiPost.profile_picture_url || null,
+        avatar:
+          apiPost.profilePictureUrl ||
+          apiPost.profile_picture_url ||
+          apiPost.author?.profile_picture_url ||
+          apiPost.author_profile?.profile_picture_url ||
+          null,
         verified: apiPost.verified || false
       },
       content: apiPost.description || apiPost.title,
@@ -66,6 +77,7 @@ const Feed = () => {
       tags: tags.map(tag => `#${tag}`)
     };
   };
+
 
   // Function to fetch posts from API using axios
   const getPosts = async () => {
@@ -271,20 +283,38 @@ const Feed = () => {
 
               {/* Post Comments Section */}
               {comments[post.id] && (
-                <div className="post-comments-section">
+                <div className="post-comments-section modern">
                   <div className="comments-list">
                     {loadingComments[post.id] ? (
                       <div>Loading comments...</div>
                     ) : comments[post.id].length === 0 ? (
                       <div>No comments yet.</div>
                     ) : (
-                      comments[post.id].map(comment => (
-                        <div key={comment.id} className="comment-item">
-                          <span className="comment-user">{comment.user_uuid?.slice(0, 8) || 'User'}:</span>
-                          <span className="comment-text">{comment.text}</span>
-                          <span className="comment-date">{new Date(comment.created_at).toLocaleDateString()}</span>
-                        </div>
-                      ))
+                      comments[post.id].map((comment) => {
+                        const avatar = getCommentAvatar(comment);
+                        const uname = comment.username || 'user';
+                        const initial = uname.charAt(0).toUpperCase();
+                        return (
+                          <div key={comment.id} className="comment">
+                            <div className="comment-avatar">
+                              {avatar ? (
+                                <img src={avatar} alt={`${uname}'s avatar`} />
+                              ) : (
+                                <div className="avatar-fallback">{initial}</div>
+                              )}
+                            </div>
+
+                            <div className="comment-body">
+                              <div className="comment-header">
+                                <Link to={`/profile/${uname}`} className="comment-author">@{uname}</Link>
+                                <span className="dot">•</span>
+                                <time className="comment-time">{formatTimeSince(comment.created_at)}</time>
+                              </div>
+                              <div className="comment-text">{comment.text}</div>
+                            </div>
+                          </div>
+                        );
+                      })
                     )}
                   </div>
                   <div className="comment-input-row">
@@ -294,6 +324,12 @@ const Feed = () => {
                       value={commentInputs[post.id] || ''}
                       onChange={e => setCommentInputs(prev => ({ ...prev, [post.id]: e.target.value }))}
                       className="comment-input"
+                      onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        handleAddComment(post.id);
+                      }
+                    }}
                     />
                     <button
                       className="add-comment-btn"

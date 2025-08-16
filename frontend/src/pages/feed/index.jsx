@@ -18,6 +18,23 @@ import './styles.scss';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const VITE_SITE_URL = import.meta.env.VITE_SITE_URL;
 
+function formatTimeSince(dateString) {
+  const createdAt = new Date(dateString);
+  const now = new Date();
+  const diffMs = now - createdAt;
+  const diffMinutes = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMinutes / 60);
+  const diffDays = Math.floor(diffHours / 24);
+
+  if (diffMinutes < 60) {
+    return `${diffMinutes}m`;
+  } else if (diffHours < 24) {
+    return `${diffHours}h`;
+  } else {
+    return `${diffDays}d`;
+  }
+}
+
 const Feed = () => {
   const navigate = useNavigate();
   const [posts, setPosts] = useState([]);
@@ -40,11 +57,10 @@ const Feed = () => {
       },
       content: apiPost.description || apiPost.title,
       image: apiPost.image_url,
-      workoutType: apiPost.workoutType || 'General',
       gym: apiPost.gym || null,
-      timestamp: new Date(apiPost.created_at).toLocaleDateString(),
+      timestamp: formatTimeSince(apiPost.created_at),
       likes: apiPost.total_likes || 0,
-      comments: apiPost.total_comments || 0, // <-- Use total_comments
+      comments: apiPost.total_comments || 0,
       shares: apiPost.shares || 0,
       isLiked: apiPost.isLiked || false,
       tags: tags.map(tag => `#${tag}`)
@@ -193,7 +209,7 @@ const Feed = () => {
                       {post.user.verified && <span className="verified-badge">✓</span>}
                     </div>
                     <div className="user-meta">
-                      @{post.user.username}  {post.timestamp}
+                      @{post.user.username} <br/> {post.timestamp}
                     </div>
                   </div>
                 </div>

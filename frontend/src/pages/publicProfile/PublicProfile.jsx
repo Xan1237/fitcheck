@@ -13,6 +13,23 @@ const TABS = [
   { id: 'nutrition', label: 'Posts' },
 ];
 
+function formatTimeSince(dateString) {
+  const createdAt = new Date(dateString);
+  const now = new Date();
+  const diffMs = now - createdAt;
+  const diffMinutes = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMinutes / 60);
+  const diffDays = Math.floor(diffHours / 24);
+
+  if (diffMinutes < 60) {
+    return `${diffMinutes}m`;
+  } else if (diffHours < 24) {
+    return `${diffHours}h`;
+  } else {
+    return `${diffDays}d`;
+  }
+}
+
 const UserProfile = () => {
   const { name } = useParams();
   const navigate = useNavigate();
@@ -452,7 +469,7 @@ const UserProfile = () => {
                           <span key={`${post.id}-tag-${idx}`} className="tag">#{tag}</span>
                         ))}
                       </div>
-                      <time className="date">{new Date(post.created_at).toLocaleDateString()}</time>
+                      <time className="date">{formatTimeSince(post.created_at)}</time>
                     </div>
                   </article>
                 ))}

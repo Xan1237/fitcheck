@@ -246,14 +246,15 @@ const Gym = () => {
 
         <div className="gym-content">
           <div className="gym-main-info">
-            <div className="gym-image-container">
-              <img
-                className="gym-image"
-                src={gymsData.img}
-                alt={gymsData.name}
-              />
-            </div>
-
+            {gymsData?.img && (
+              <div className="gym-image-container">
+                <img
+                  className="gym-image"
+                  src={gymsData.img}
+                  alt={gymsData?.name || "Gym"}
+                />
+              </div>
+            )}     
             <div className="gym-details">
               <div className="gym-contact-info">
                 {gymsData.location && (

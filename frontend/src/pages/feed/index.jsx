@@ -50,6 +50,7 @@ const Feed = () => {
   const [comments, setComments] = useState({}); // { [postId]: [comments] }
   const [loadingComments, setLoadingComments] = useState({}); // { [postId]: bool }
   const [expandedPosts, setExpandedPosts] = useState({}); // { [postId]: true/false }
+  const [openComments, setOpenComments] = useState({}); // { [postId]: true/false }
 
   // Transform API post to UI post format
   const transformPostData = (apiPost) => {
@@ -130,7 +131,13 @@ const Feed = () => {
       });
       setCommentInputs(prev => ({ ...prev, [postId]: '' }));
       await fetchComments(postId);
-      await getPosts(); // <-- Refresh posts to update comment count
+      setPosts(posts =>
+      posts.map(post =>
+        post.id === postId
+          ? { ...post, comments: post.comments + 1 }
+          : post
+      )
+    );
     } catch (error) {
       alert('Failed to add comment');
       console.error('Failed to add comment:', error);
@@ -301,7 +308,13 @@ const Feed = () => {
                   </button>
                   <button 
                     className="action-btn comment-btn"
-                    onClick={() => fetchComments(post.id)}
+                    onClick={() => {
+                      setOpenComments(prev => ({
+                        ...prev,
+                        [post.id]: !prev[post.id]
+                      }));
+                      if (!openComments[post.id]) fetchComments(post.id);
+                    }}
                   >
                     <FaComment />
                     <span>{post.comments}</span>
@@ -313,7 +326,7 @@ const Feed = () => {
                 </div>
 
                 {/* Post Comments Section */}
-                {comments[post.id] && (
+                {openComments[post.id] && (
                   <div className="post-comments-section modern">
                     <div className="comments-list">
                       {loadingComments[post.id] ? (

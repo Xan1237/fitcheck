@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import gymData from "../data/gymData.js";
 import Message from "../components/message";
 import Header from "../components/header";
+import Footer from "../components/footer";
 import CommentModal from "../components/CommentModal";
 import "./index.scss";
 import { v4 as uuidv4 } from "uuid";
@@ -17,8 +18,26 @@ import {
   FaTags
 } from "react-icons/fa";
 import { use } from "react";
+import { Link } from "react-router-dom";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+function formatTimeSince(dateString) {
+  const createdAt = new Date(dateString);
+  const now = new Date();
+  const diffMs = now - createdAt;
+  const diffMinutes = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMinutes / 60);
+  const diffDays = Math.floor(diffHours / 24);
+
+  if (diffMinutes < 60) {
+    return `${diffMinutes}m`;
+  } else if (diffHours < 24) {
+    return `${diffHours}h`;
+  } else {
+    return `${diffDays}d`;
+  }
+}
 
 const Gym = () => {
   const { gym } = useParams();
@@ -328,16 +347,57 @@ const Gym = () => {
 
             <div className="reviews-list">
               {messages.length > 0 ? (
-                messages.map((msg, index) => (
-                  <Message
-                    key={msg.CommentID || index}
-                    messageContent={msg.CommentText}
-                    username={msg.UserNamedata}
-                    timeStamp={msg.Time}
-                    rating={msg.Rating}
-                    tags={msg.Tags}
-                  />
-                ))
+                messages.map((msg, index) => {
+                  // Be tolerant of field names coming from the API
+                  const username =
+                    msg.UserName ||
+                    msg.username ||
+                    msg.UserNamedata ||
+                    "anonymous";
+                  const timeAgo = msg.Time ? `${formatTimeSince(msg.Time)} ago` : "";
+                  const tags = Array.isArray(msg.Tags) ? msg.Tags : [];
+
+                  return (
+                    <article
+                      key={msg.CommentID || index}
+                      className="review-card"
+                      aria-label="Gym review"
+                    >
+                      <header className="review-header">
+                        <Link
+                          to={`/profile/${username}`}
+                          className="review-author-link"
+                          title={`View ${username}'s profile`}
+                        >
+                          {username}
+                        </Link>
+                        {timeAgo && <span className="review-dot">•</span>}
+                        {timeAgo && <time className="review-time">{timeAgo}</time>}
+                        {typeof msg.Rating === "number" && (
+                          <span className="review-rating" aria-label={`Rating ${msg.Rating}/5`}>
+                            {Array.from({ length: 5 }).map((_, i) => (
+                              <FaStar
+                                key={i}
+                                className={i < Math.round(msg.Rating) ? "star-filled" : "star-empty"}
+                              />
+                            ))}
+                            <span className="rating-number-inline">{msg.Rating}</span>
+                          </span>
+                        )}
+                      </header>
+
+                      <p className="review-text">{msg.CommentText}</p>
+
+                      {tags.length > 0 && (
+                        <ul className="review-tags">
+                          {tags.map((t) => (
+                            <li key={t} className="review-tag">{t}</li>
+                          ))}
+                        </ul>
+                      )}
+                    </article>
+                  );
+                })
               ) : (
                 <div className="no-reviews">
                   No reviews yet. Be the first to add one!
@@ -360,6 +420,7 @@ const Gym = () => {
           setSelectedTags={setSelectedTags}
         />
       )}
+    <Footer />
     </div>
   );
 };

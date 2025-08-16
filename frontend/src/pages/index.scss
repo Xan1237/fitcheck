@@ -410,139 +410,237 @@
 
   /* Preserve existing message component styles with dark theme adjustments */
   .message {
-    background-color: white;
-    border-radius: 8px;
-    padding: 16px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-    border-left: 3px solid #ff5722;
+    background: #23272f;
+    border-radius: 14px;
+    padding: 18px 22px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.13);
+    border-left: 4px solid #ff6b35;
+    margin-bottom: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 
     .message-header {
       display: flex;
       justify-content: space-between;
-      margin-bottom: 10px;
+      align-items: center;
+      margin-bottom: 6px;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #ff6b35;
+      letter-spacing: 0.01em;
     }
 
     .message-rating {
       display: flex;
       align-items: center;
+      gap: 2px;
 
       .star {
         color: #ffc107;
-        margin-right: 2px;
+        font-size: 1.1em;
+        margin-right: 1px;
       }
     }
 
     .message-content {
-      line-height: 1.5;
-      color: #ffffff;
+      color: #fff;
+      font-size: 1.05rem;
+      line-height: 1.6;
+      margin-bottom: 2px;
+      word-break: break-word;
     }
 
     .message-time {
-      color: #cccccc;
-      font-size: 12px;
-      margin-top: 10px;
+      color: #b0b0b0;
+      font-size: 0.93em;
+      margin-top: 2px;
+      font-style: italic;
+      letter-spacing: 0.01em;
     }
 
     .message-tags {
       display: flex;
       flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 10px;
+      gap: 7px;
+      margin-top: 8px;
 
       .tag {
-        background-color: rgba(255, 87, 34, 0.1);
-        color: #ff5722;
-        border-radius: 16px;
-        padding: 4px 12px;
-        font-size: 12px;
+        background: none !important;
+        color: #ff6b35;
+        border: none;
+        border-radius: 0;
+        padding: 0;
+        font-size: 0.97rem;
         font-weight: 500;
+        letter-spacing: 0.01em;
+        box-shadow: none !important;
+        transition: color 0.2s;
+
+        &:hover {
+          color: #ff8c42;
+          text-decoration: underline;
+          background: none !important;
+          box-shadow: none !important;
+        }
       }
     }
   }
-}
 
-/* Keep original styles for backward compatibility */
-#root {
-  background-color: #242424;
+  /* Keep original styles for backward compatibility */
+  #root {
+    background-color: #242424;
 
-  .GymPic {
-    width: 50vw;
-    height: auto;
-    @media (min-width: 770px) {
-      max-height: auto;
+    .GymPic {
       width: 50vw;
-      padding-top: 15px;
-      display: block;
-      margin: auto;
+      height: auto;
+      @media (min-width: 770px) {
+        max-height: auto;
+        width: 50vw;
+        padding-top: 15px;
+        display: block;
+        margin: auto;
+      }
     }
+
+    #messageSection {
+      height: 120vh;
+      margin-top: 5px;
+      background-color: #242424;
+      display: block;
+
+      @media (min-width: 1200px) {
+        width: fit-content;
+      }
+    }
+
+    .page {
+      @media (min-width: 1200px) {
+        display: block;
+        width: 70vw;
+        height: auto;
+        margin: auto;
+      }
+    }
+  }
+
+  /* Original styles with minor dark theme adjustments */
+  #noReviews {
+    color: white;
+    font-size: 15px;
+    margin-top: 10px;
   }
 
   #messageSection {
-    height: 120vh;
-    margin-top: 5px;
-    background-color: #242424;
-    display: block;
-
-    @media (min-width: 1200px) {
-      width: fit-content;
-    }
+    width: 100%;
+    max-width: 600px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
   }
 
-  .page {
-    @media (min-width: 1200px) {
-      display: block;
-      width: 70vw;
-      height: auto;
-      margin: auto;
-    }
+  .commentInputContainer {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 100%;
+    margin-top: 20px;
+  }
+
+  .commentInput {
+    flex-grow: 1;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #3d3d3d;
+    border-radius: 4px;
+    margin-right: 10px;
+    background-color: #333333;
+    color: #ffffff;
+  }
+
+  .addCommentButton {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #ff5722;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  .addCommentButton:hover {
+    background-color: #e64a19;
+    
   }
 }
 
-/* Original styles with minor dark theme adjustments */
-#noReviews {
-  color: white;
-  font-size: 15px;
-  margin-top: 10px;
-}
-
-#messageSection {
-  width: 100%;
-  max-width: 600px;
+/* Reviews layout improvements */
+.reviews-list {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  gap: 12px;
 }
 
-.commentInputContainer {
+.review-card {
+  text-align: left;
+  background: var(--card-bg, #111);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+
+.review-header {
   display: flex;
-  flex-direction: row;
   align-items: center;
-  width: 100%;
-  margin-top: 20px;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 0.95rem;
 }
 
-.commentInput {
-  flex-grow: 1;
-  padding: 10px;
-  font-size: 16px;
-  border: 1px solid #3d3d3d;
-  border-radius: 4px;
-  margin-right: 10px;
-  background-color: #333333;
-  color: #ffffff;
+.review-author-link {
+  font-weight: 600;
+  text-decoration: none;
+  color: var(--link, #fff);
+}
+.review-author-link:hover { text-decoration: underline; }
+
+.review-dot { opacity: 0.6; }
+
+.review-time {
+  opacity: 0.7;
 }
 
-.addCommentButton {
-  padding: 10px 20px;
-  font-size: 16px;
-  background-color: #ff5722;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
+.review-rating {
+  margin-left: auto; /* push stars to the right on wider screens */
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 
-.addCommentButton:hover {
-  background-color: #e64a19;
-  
+.review-text {
+  margin-top: 8px;
+  line-height: 1.55;
+  letter-spacing: 0.01em;
+  white-space: pre-wrap;
 }
+
+.review-tags {
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  list-style: none;
+  padding: 0;
+}
+.review-tag {
+  font-size: 0.85rem;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+/* Optional: tighten star icon styles to match existing theme */
+.star-filled { color: #f5c518; }
+.star-empty  { opacity: 0.25; }
+.rating-number-inline { margin-left: 2px; font-size: 0.9rem; opacity: 0.85; }

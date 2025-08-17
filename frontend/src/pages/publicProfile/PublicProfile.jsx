@@ -57,6 +57,7 @@ const UserProfile = () => {
   const [userGyms, setUserGyms] = useState([]);
   const [showGymSearch, setShowGymSearch] = useState(false);
   const [allGyms, setAllGyms] = useState([]);
+  const [expandedPosts, setExpandedPosts] = useState({}); // Add this near other useState hooks
 
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -277,6 +278,13 @@ const UserProfile = () => {
     } catch { return []; }
   };
 
+  const toggleExpand = (postId) => {
+    setExpandedPosts(prev => ({
+      ...prev,
+      [postId]: !prev[postId]
+    }));
+  };
+
   return (
     <div className="profile-page">
       <Header />
@@ -458,21 +466,48 @@ const UserProfile = () => {
           <section className="panel" role="tabpanel">
             {posts?.length ? (
               <div className="post-grid">
-                {posts.map(post => (
-                  <article key={post.id} className="card post-card">
-                    <img src={post.image_url} alt={post.title} className="post-img" loading="lazy" />
-                    <div className="post-body">
-                      <h3 className="post-title">{post.title}</h3>
-                      <p className="post-desc">{post.description}</p>
-                      <div className="tags">
-                        {parseTags(post.tags).map((tag, idx) => (
-                          <span key={`${post.id}-tag-${idx}`} className="tag">#{tag}</span>
-                        ))}
+                {posts.map(post => {
+                  const isExpanded = expandedPosts[post.id];
+                  const maxLength = 220;
+                  const isLong = post.description && post.description.length > maxLength;
+                  const previewText = isLong && !isExpanded
+                    ? post.description.slice(0, maxLength) + '...'
+                    : post.description;
+
+                  return (
+                    <article key={post.id} className="card post-card">
+                      {post.image_url && (
+                        <img src={post.image_url} alt={post.title} className="post-img" loading="lazy" />
+                      )}
+                      <div className="post-body">
+                        <h3 className="post-title">{post.title}</h3>
+                        <p className="post-desc">
+                          {previewText}
+                          {isLong && (
+                            <span
+                              className="expand-toggle"
+                              onClick={() => toggleExpand(post.id)}
+                              role="button"
+                              tabIndex={0}
+                              style={{ userSelect: 'none' }}
+                              onKeyPress={e => {
+                                if (e.key === 'Enter' || e.key === ' ') toggleExpand(post.id);
+                              }}
+                            >
+                              {isExpanded ? ' Show less' : ' Show more'}
+                            </span>
+                          )}
+                        </p>
+                        <div className="post-tags">
+                          {parseTags(post.tags).map((tag, idx) => (
+                            <span key={`${post.id}-tag-${idx}`} className="tag">#{tag}</span>
+                          ))}
+                        </div>
+                        <time className="date">{formatTimeSince(post.created_at)}</time>
                       </div>
-                      <time className="date">{formatTimeSince(post.created_at)}</time>
-                    </div>
-                  </article>
-                ))}
+                    </article>
+                  );
+                })}
               </div>
             ) : (
               <div className="empty">No posts yet</div>

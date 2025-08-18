@@ -93,6 +93,9 @@ async function getUserChats(req, res) {
             });
         }
         console.log("User chats data:", data);
+
+        //This for loop decides which username to show based on the userId to name the chat
+        //If the userId matches uuid1, then uuid2 is the other user, and vice versa
         for(let i = 0; i < data.length; i++) {
             let obj = data[i];
             if (obj.uuid1 === userId) {

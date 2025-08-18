@@ -141,6 +141,25 @@ const updateGymTags = async (gymId) => {
     return res.status(200).json({ message: "Gym added successfully"});
   }
 
+  async function removeUserGym(req, res){
+    const {gymId} = req.body;
+    const userId = req.user.id;
+
+    const { data, error } = await supabase
+      .from('gyms_frequented')
+      .delete()
+      .eq('uuid', userId)
+      .eq('gymId', gymId);
+
+    if (error) {
+      console.error("Error removing user gym:", error);
+      return res.status(400).json({ error: error.message });
+    }
+
+    console.log("User gym removed successfully:", data);
+    return res.status(200).json({ message: "Gym removed successfully"});
+  }
+
   /**
    * Retrieves the list of gyms frequented by a user.
    * Expects username in req.params.
@@ -204,4 +223,4 @@ const updateGymTags = async (gymId) => {
   
 
 // Export controller functions for use in routes
-export { updateGymTags, addUserGym, getUserGyms, getGymsByProvince };
+export { updateGymTags, addUserGym, getUserGyms, getGymsByProvince, removeUserGym };

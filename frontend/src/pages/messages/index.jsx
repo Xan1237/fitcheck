@@ -115,7 +115,7 @@ const Messages = () => {
               uuid1: chat.uuid1,
               uuid2: chat.uuid2,
               user: {
-                name: `User ${chat.uuid2.slice(0, 8)}`,
+                name: chat.uuid1 === "You" ? chat.uuid2 : chat.uuid1,
                 avatar: null,
                 lastActive: 'Online',
                 lastMessage: 'Start a conversation!',

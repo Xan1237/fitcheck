@@ -1,5 +1,5 @@
 import { supabase } from '../config/supabaseApp.js'
-import { userNameToUuid } from '../utils/usernameToUuid.js';
+import { userNameToUuid, uuidToUsername } from '../utils/usernameToUuid.js';
 async function newChat(req, res) {
     const {targetUserName} = req.body;
     const userId = req.user.id;
@@ -79,6 +79,7 @@ async function newMessage(req, res) {
 async function getUserChats(req, res) {
     const userId = req.user.id;
 
+
     try {
         const { data, error } = await supabase
             .from('chats')
@@ -90,6 +91,18 @@ async function getUserChats(req, res) {
                 success: false,
                 error: error.message
             });
+        }
+        console.log("User chats data:", data);
+        for(let i = 0; i < data.length; i++) {
+            let obj = data[i];
+            if (obj.uuid1 === userId) {
+                obj.uuid2= await uuidToUsername(obj.uuid2);
+                obj.uuid1 = "You";
+            } else {
+                obj.uuid1= await uuidToUsername(obj.uuid1);
+                obj.uuid2 = "You";
+            }
+            
         }
 
         res.status(200).json({

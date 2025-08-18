@@ -1,10 +1,11 @@
 import { supabase } from '../config/supabaseApp.js'
-
+import { userNameToUuid } from '../utils/usernameToUuid.js';
 async function newChat(req, res) {
-    const {targetUserId} = req.body;
+    const {targetUserName} = req.body;
     const userId = req.user.id;
     console.log("New chat initiated");
-    
+    const targetUserId = await userNameToUuid(targetUserName);
+    console.log("Target user ID:", targetUserId);
     try {
         const { data, error } = await supabase
             .from('chats')

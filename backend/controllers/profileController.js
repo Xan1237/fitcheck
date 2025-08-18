@@ -1,6 +1,6 @@
 // Import Supabase client for database operations
 import { supabase } from '../config/supabaseApp.js'
-import { uuidToUserName } from '../utils/usernameToUuid.js';
+import { uuidToUsername } from '../utils/usernameToUuid.js';
 /**
  * Updates the bio for a user.
  * Expects bio in req.body and user ID from verified token.
@@ -9,7 +9,7 @@ import { uuidToUserName } from '../utils/usernameToUuid.js';
 async function updateUserBio(req, res) {
     try {
        
-        const username = await uuidToUserName(req.user.id);
+        const username = await uuidToUsername(req.user.id);
         const { bio } = req.body;
         console.log(bio)
         console.log(username)

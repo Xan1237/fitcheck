@@ -7,12 +7,12 @@ async function userNameToUuid(username) {
         .eq('username', username)
         .single()
     if (userError) {
-        throw new Error('User not found');
+        return;
     }
     return userData.id
 }
 
-async function uuidToUserName(uuid) {
+async function uuidToUsername(uuid) {
     const { data: userData, error: userError } = await supabase
         .from('users')
         .select('username')
@@ -24,4 +24,4 @@ async function uuidToUserName(uuid) {
     return userData.username;
 }
 
-export { userNameToUuid, uuidToUserName }
+export { userNameToUuid, uuidToUsername }

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { User, Plus, PencilLine, UserPlus, MapPin, X } from 'lucide-react';
+import { User, Plus, PencilLine, UserPlus, MapPin, X, MessageCircle} from 'lucide-react';
 import Header from '../../components/header';
 import GymSearch from '../../components/GymSearch/GymSearch';
 import './style.scss';
@@ -241,6 +241,18 @@ const UserProfile = () => {
     }
   };
 
+  function handleMessage() {
+    const token = localStorage.getItem('token'); 
+    axios.post(`${API_BASE_URL}/api/newChat`, { targetUserName: userData.username }, { headers: { Authorization: `Bearer ${token}` } })
+      .then(() => {
+        alert('Message sent successfully!');
+      })
+      .catch(error => {   
+        console.error('Error sending message:', error);
+        alert('Failed to send message. Please try again.');
+      })
+  }
+
   const handleGymSelect = async gym => {
     if (userGyms.some(g => g.id === gym.id)) return alert('This gym is already in your profile');
     try {
@@ -320,10 +332,18 @@ const UserProfile = () => {
                   </button>
                 </>
               ) : (
+                <>
                 <button className="btn primary" onClick={handleFollow}>
                   <UserPlus size={16} />
                   <span>Follow</span>
                 </button>
+                  <button className="btn primary" onClick={handleMessage}>
+                  <MessageCircle size={16} />
+                  <span>
+                    Message
+                  </span>
+                </button>
+                </>
               )}
             </div>
           </div>

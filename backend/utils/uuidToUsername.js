@@ -1,6 +1,6 @@
 import { supabase } from '../config/supabaseApp.js'
 
-async function uuidToUserName(uuid) {
+async function uuidToUsername(uuid) {
     const { data: userData, error: userError } = await supabase
         .from('users')
         .select('username')
@@ -14,4 +14,5 @@ async function uuidToUserName(uuid) {
     return userData.username;
 }
 
-export { uuidToUserName }
+export default uuidToUsername;
+export  {uuidToUsername};

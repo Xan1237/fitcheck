@@ -1,6 +1,6 @@
 import { Server } from 'socket.io';
 import { supabase } from '../config/supabaseApp.js';
-import { uuidToUserName } from '../utils/uuidToUsername.js';
+import { uuidToUsername } from '../utils/uuidToUsername.js';
 
 let io;
 
@@ -56,7 +56,7 @@ export function initializeSocket(server) {
             console.log('Received message:', message, 'for chat:', chatId);
             try {
                 // Convert UUID to username
-                const ownerUsername = await uuidToUserName(socket.user.id);
+                const ownerUsername = await uuidToUsername(socket.user.id);
                 
                 const { data: savedMessage, error } = await supabase
                     .from('messages')

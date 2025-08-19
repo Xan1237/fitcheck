@@ -245,11 +245,10 @@ const UserProfile = () => {
     const token = localStorage.getItem('token'); 
     axios.post(`${API_BASE_URL}/api/newChat`, { targetUserName: userData.username }, { headers: { Authorization: `Bearer ${token}` } })
       .then(() => {
-        alert('Message sent successfully!');
+        window.location.href = '/messages';
       })
       .catch(error => {   
-        console.error('Error sending message:', error);
-        alert('Failed to send message. Please try again.');
+        window.location.href = '/messages';
       })
   }
 

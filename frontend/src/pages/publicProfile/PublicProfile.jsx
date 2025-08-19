@@ -4,6 +4,7 @@ import axios from 'axios';
 import { User, Plus, PencilLine, UserPlus, MapPin, X, MessageCircle} from 'lucide-react';
 import Header from '../../components/header';
 import GymSearch from '../../components/GymSearch/GymSearch';
+import ImageCropper from '../../components/ImageCropper/ImageCropper';
 import './style.scss';
 import gymData from '../../data/gymData.js'; // If you want to use static data
 
@@ -58,6 +59,9 @@ const UserProfile = () => {
   const [showGymSearch, setShowGymSearch] = useState(false);
   const [allGyms, setAllGyms] = useState([]);
   const [expandedPosts, setExpandedPosts] = useState({}); // Add this near other useState hooks
+  const [showImageCropper, setShowImageCropper] = useState(false);
+  const [tempImage, setTempImage] = useState(null);
+  const profilePictureInputRef = useRef(null);
 
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -314,6 +318,69 @@ const UserProfile = () => {
     }));
   };
 
+  const handleProfilePictureSelect = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      alert('Please upload an image file');
+      return;
+    }
+
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (file.size > maxSize) {
+      alert('File size must be less than 5MB');
+      return;
+    }
+
+    const imageUrl = URL.createObjectURL(file);
+    setTempImage(imageUrl);
+    setShowImageCropper(true);
+  };
+
+  const handleCropComplete = async (croppedImageUrl) => {
+    try {
+      const response = await fetch(croppedImageUrl);
+      const blob = await response.blob();
+      const reader = new FileReader();
+      
+      reader.onload = async (event) => {
+        const base64File = event.target.result;
+        
+        const uploadResponse = await fetch(`${API_BASE_URL}/api/uploadProfilePicture`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          },
+          body: JSON.stringify({
+            file: base64File
+          })
+        });
+
+        const data = await uploadResponse.json();
+        if (!data.success) {
+          throw new Error(data.error);
+        }
+
+        setUserData(prev => ({
+          ...prev,
+          profilePicture: data.url
+        }));
+        
+        URL.revokeObjectURL(croppedImageUrl);
+        URL.revokeObjectURL(tempImage);
+        setTempImage(null);
+        setShowImageCropper(false);
+      };
+      
+      reader.readAsDataURL(blob);
+    } catch (error) {
+      console.error('Error uploading profile picture:', error);
+      alert('Failed to upload profile picture. Please try again.');
+    }
+  };
+
   return (
     <div className="profile-page">
       <Header />
@@ -322,12 +389,38 @@ const UserProfile = () => {
       <section className="profile-hero no-gradient">
         <div className="hero-inner container">
           <div className="avatar-wrap">
-            {userData.profilePicture ? (
-              <img src={userData.profilePicture} alt={`${userData.name}'s profile`} className="avatar" />
-            ) : (
-              <div className="avatar placeholder" aria-label="No profile photo">
-                <User size={48} />
-              </div>
+            {isOwnProfile && (
+              <input
+                type="file"
+                ref={profilePictureInputRef}
+                onChange={handleProfilePictureSelect}
+                accept="image/*"
+                style={{ display: 'none' }}
+              />
+            )}
+            <div className="avatar-container" onClick={() => isOwnProfile && profilePictureInputRef.current?.click()}>
+              {userData.profilePicture ? (
+                <>
+                  <img src={userData.profilePicture} alt={`${userData.name}'s profile`} className="avatar" />
+                  {isOwnProfile && <div className="avatar-overlay"><Plus size={24} /></div>}
+                </>
+              ) : (
+                <div className="avatar placeholder" aria-label="No profile photo">
+                  <User size={48} />
+                  {isOwnProfile && <div className="avatar-overlay"><Plus size={24} /></div>}
+                </div>
+              )}
+            </div>
+
+            {showImageCropper && tempImage && (
+              <ImageCropper
+                image={tempImage}
+                onCropComplete={handleCropComplete}
+                onCancel={() => {
+                  setShowImageCropper(false);
+                  setTempImage(null);
+                }}
+              />
             )}
           </div>
 

@@ -106,6 +106,22 @@ const UserProfile = () => {
     } catch (e) { console.error(e); }
   };
 
+  const isFollowing = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await axios.post(`${API_BASE_URL}/api/isFollowing`, { targetUserName: name }, { headers: { Authorization: `Bearer ${token}` } });
+      setUserData(prev => ({ ...prev, stats: { ...prev.stats, isFollowing: res.data.isFollowing } }));
+    } catch (e) { console.error(e); }
+  };
+
+  const unfollowUser = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await axios.post(`${API_BASE_URL}/api/unfollowUser`, { targetUserName: name }, { headers: { Authorization: `Bearer ${token}` } });
+      setUserData(prev => ({ ...prev, stats: { ...prev.stats, isFollowing: false } }));
+    } catch (e) { console.error(e); }
+  };
+
   const getData = async () => {
     try {
       if (!name) throw new Error('Username parameter is required');
@@ -175,6 +191,7 @@ const UserProfile = () => {
       await checkProfileOwnership();
       await getData();
       await Promise.all([getFollowerCount(), getFollowingCount(), getPrCount(), getPostCount(), fetchUserGyms()]);
+      await isFollowing();
     };
     init();
   }, [name]);
@@ -197,6 +214,7 @@ const UserProfile = () => {
     try {
       const token = localStorage.getItem('token');
       await axios.post(`${API_BASE_URL}/api/newFollower`, { targetUserName: name }, { headers: { Authorization: `Bearer ${token}` } });
+      await isFollowing();
       getFollowerCount();
     } catch (e) { console.error('Error following user:', e); }
   };
@@ -334,7 +352,7 @@ const UserProfile = () => {
                 <>
                 <button className="btn primary" onClick={handleFollow}>
                   <UserPlus size={16} />
-                  <span>Follow</span>
+                  <span>{userData.stats.isFollowing ? "Unfollow" : "Follow"}</span>
                 </button>
                   <button className="btn primary" onClick={handleMessage}>
                   <MessageCircle size={16} />

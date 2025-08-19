@@ -29,6 +29,26 @@ async function newFollower(req, res){
         return res.status(400).json({error: 'Sender and target user names are required'})
     }
 
+    const { data, error } = await supabase
+        .from('follows')
+        .select('*')
+        .eq('senderUserId', senderUserName)
+        .eq('targetUserId', targetUserId);
+    if(data.length > 0){
+        const { data, error } = await supabase
+        .from('follows')
+        .delete()
+        .eq('senderUserId', senderUserName)
+        .eq('targetUserId', targetUserId);
+        if(error){
+            return res.status(400).json({error: error.message})
+        }
+        else{
+            return res.status(200).json({message: 'Follower removed successfully'})
+        }
+    }
+    else{
+
     // Insert new follower relationship into 'follows' table
     const {data: userData2, error: userError2} = await supabase
     .from('follows')
@@ -45,6 +65,7 @@ async function newFollower(req, res){
         // Success response
         return res.status(200).json({message: 'Follower added successfully'})
     }
+}
 }
 
 /**
@@ -97,5 +118,15 @@ async function getFollowingCount(req, res){
     return res.status(200).json({ following_count: count });
 }
 
+async function unfollowUser(req, res){
+    const { targetUserName } = req.body;
+    const senderUserId = req.user.id;
+    const targetUserId = await userNameToUuid(targetUserName);
+    const { data, error } = await supabase
+        .from('follows')
+        .delete()
+        .eq('senderUserId', senderUserId)
+        .eq('targetUserId', targetUserId);
+}
 // Export controller functions for use in routes
-export {newFollower, getFollowerCount, getFollowingCount}
+export {newFollower, getFollowerCount, getFollowingCount, unfollowUser}

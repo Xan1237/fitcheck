@@ -1,6 +1,6 @@
 // Import Supabase client for database operations
 import { supabase } from '../config/supabaseApp.js'
-import { uuidToUsername } from '../utils/usernameToUuid.js';
+import { userNameToUuid, uuidToUsername } from '../utils/usernameToUuid.js';
 /**
  * Updates the bio for a user.
  * Expects bio in req.body and user ID from verified token.
@@ -154,5 +154,24 @@ async function getNumberPosts(req, res){
     }
 }
 
+async function isFollowing(req, res){
+    const { targetUserName} = req.body;
+    console.log(targetUserName)
+    const senderUserId = req.user.id;
+    const targetUserId = await userNameToUuid(targetUserName);
+    const { data, error } = await supabase
+        .from('follows')
+        .select('*')
+        .eq('senderUserId', senderUserId)
+        .eq('targetUserId', targetUserId);
+    if(!error){
+        res.status(200).json({isFollowing: data.length > 0})
+    }
+    if(error){
+        console.log(error)
+        res.status(400).json({"message": error})
+    }
+}
+
 // Export controller functions for use in routes
-export {getNumberPR, getNumberPosts, updateUserBio, getUserBio}
+export {getNumberPR, getNumberPosts, updateUserBio, getUserBio, isFollowing}

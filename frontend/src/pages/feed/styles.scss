@@ -644,6 +644,24 @@
     outline: none;
   }
 }
+.expand-toggle.subtle {
+  color: #b0b0b0;
+  font-weight: 500;
+  margin-left: 6px;
+  font-size: 0.98rem;
+  background: none;
+  padding: 2px 4px;
+  border-radius: 3px;
+  cursor: pointer;
+  user-select: none;
+
+  &:hover,
+  &:focus {
+    color: #b0b0b0;
+    background: none;
+    outline: none;
+  }
+}
 
 .posts-feed .post-card:first-child {
   margin-top: 18px;
@@ -662,4 +680,13 @@
   color: #fff;
   line-height: 1.2;
   letter-spacing: 0.01em;
+}
+
+.post-description {
+  white-space: pre-line;
+  line-height: 1.7;
+  margin: 0;
+  font-size: 1.09rem;
+  color: #f3f3f3;
+  word-break: break-word;
 }

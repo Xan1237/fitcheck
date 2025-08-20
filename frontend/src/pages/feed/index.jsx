@@ -68,7 +68,7 @@ const Feed = () => {
           null,
         verified: apiPost.verified || false
       },
-      content: apiPost.description || apiPost.title,
+      description: apiPost.description || '', // <-- always a string!
       image: apiPost.image_url,
       gym: apiPost.gym || null,
       timestamp: formatTimeSince(apiPost.created_at),
@@ -234,10 +234,10 @@ const Feed = () => {
           {posts.map(post => {
             const isExpanded = expandedPosts[post.id];
             const maxLength = 220;
-            const isLong = post.content && post.content.length > maxLength;
+            const isLong = post.description && post.description.length > maxLength;
             const previewText = isLong && !isExpanded
-              ? post.content.slice(0, maxLength) + '...'
-              : post.content;
+              ? post.description.slice(0, maxLength) + '...'
+              : post.description;
 
             return (
               <div key={post.id} className="post-card">
@@ -276,11 +276,13 @@ const Feed = () => {
                 )}
 
                 <div className="post-content">
-                  <p>
-                    {previewText}
+                  <p className="post-description">
+                    {isLong && !isExpanded
+                      ? post.description.slice(0, maxLength)
+                      : post.description}
                     {isLong && (
                       <span
-                        className="expand-toggle"
+                        className="expand-toggle subtle"
                         onClick={() => toggleExpand(post.id)}
                         role="button"
                         tabIndex={0}
@@ -289,7 +291,7 @@ const Feed = () => {
                           if (e.key === 'Enter' || e.key === ' ') toggleExpand(post.id);
                         }}
                       >
-                        {isExpanded ? ' Show less' : ' Show more'}
+                        {isExpanded ? ' show less' : '...more'}
                       </span>
                     )}
                   </p>

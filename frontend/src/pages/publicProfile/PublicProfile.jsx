@@ -601,7 +601,7 @@ const UserProfile = () => {
                   const maxLength = 220;
                   const isLong = post.description && post.description.length > maxLength;
                   const previewText = isLong && !isExpanded
-                    ? post.description.slice(0, maxLength) + '...'
+                    ? post.description.slice(0, maxLength)
                     : post.description;
 
                   return (
@@ -615,7 +615,7 @@ const UserProfile = () => {
                           {previewText}
                           {isLong && (
                             <span
-                              className="expand-toggle"
+                              className="expand-toggle subtle"
                               onClick={() => toggleExpand(post.id)}
                               role="button"
                               tabIndex={0}
@@ -624,7 +624,7 @@ const UserProfile = () => {
                                 if (e.key === 'Enter' || e.key === ' ') toggleExpand(post.id);
                               }}
                             >
-                              {isExpanded ? ' Show less' : ' Show more'}
+                              {isExpanded ? ' show less' : '...more'}
                             </span>
                           )}
                         </p>

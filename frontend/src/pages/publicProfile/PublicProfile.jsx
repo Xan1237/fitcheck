@@ -63,6 +63,9 @@ const UserProfile = () => {
   const [tempImage, setTempImage] = useState(null);
   const profilePictureInputRef = useRef(null);
 
+  const [showEditPRModal, setShowEditPRModal] = useState(false);
+  const [editingPR, setEditingPR] = useState(null);
+
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   // Ownership check
@@ -213,6 +216,68 @@ const UserProfile = () => {
       setNewPR({ exercise: '', weight: '', reps: '' });
     } catch (e) { console.error('Error saving PR:', e); }
   };
+
+  const handleUpdatePR = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      // Allow changing the exercise name too (optional)
+      const payload = {
+        exerciseName: editingPR.exercise,
+        newExerciseName: editingPR.newExercise ?? undefined,
+        weight: editingPR.weight ? Number(editingPR.weight) : undefined,
+        reps: editingPR.reps ? Number(editingPR.reps) : undefined
+      };
+
+      await axios.put(`${API_BASE_URL}/api/pr`, payload, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      // Update UI state
+      setUserData(prev => {
+        const next = { ...prev };
+        next.gymStats = prev.gymStats.map(item => {
+          if (item.exercise !== editingPR.exercise) return item;
+          return {
+            exercise: editingPR.newExercise || editingPR.exercise,
+            weight: (editingPR.weight ?? item.weight).toString().includes('lbs')
+              ? `${editingPR.weight} lbs`
+              : `${editingPR.weight ?? Number(String(item.weight).replace(/[^0-9.]/g,''))} lbs`,
+            reps: editingPR.reps ?? item.reps
+          };
+        });
+        return next;
+      });
+
+      setShowEditPRModal(false);
+      setEditingPR(null);
+    } catch (e) {
+      console.error('Error updating PR:', e);
+      alert('Failed to update PR.');
+    }
+  };
+
+  const handleDeletePR = async (exerciseName) => {
+    try {
+      const token = localStorage.getItem('token');
+      await axios.delete(`${API_BASE_URL}/api/pr/${encodeURIComponent(exerciseName)}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      // Update UI state
+      setUserData(prev => ({
+        ...prev,
+        stats: {
+          ...prev.stats,
+          personalBests: Math.max(0, Number(prev.stats.personalBests) - 1)
+        },
+        gymStats: prev.gymStats.filter(item => item.exercise !== exerciseName)
+      }));
+    } catch (e) {
+      console.error('Error deleting PR:', e);
+      alert('Failed to delete PR.');
+    }
+  };
+
 
   const handleFollow = async () => {
     try {
@@ -516,6 +581,28 @@ const UserProfile = () => {
                       <span className="weight">{stat.weight}</span>
                     </div>
                     <div className="meta"><span>Reps</span><strong>{stat.reps}</strong></div>
+
+                    {isOwnProfile && (
+                      <div className="row gap-8" style={{ marginTop: 8 }}>
+                        <button
+                          className="btn subtle"
+                          onClick={() => {
+                            // parse weight like "225 lbs" -> 225
+                            const w = typeof stat.weight === 'string' ? Number(String(stat.weight).replace(/[^0-9.]/g, '')) : stat.weight;
+                            setEditingPR({ exercise: stat.exercise, weight: w || 0, reps: Number(stat.reps) || 1 });
+                            setShowEditPRModal(true);
+                          }}
+                        >
+                          Edit
+                        </button>
+                        <button
+                          className="btn subtle"
+                          onClick={() => handleDeletePR(stat.exercise)}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    )}
                   </article>
                 ))}
               </div>
@@ -645,6 +732,58 @@ const UserProfile = () => {
           </section>
         )}
       </div>
+
+      {showEditPRModal && editingPR && (
+        <div className="modal" role="dialog" aria-modal="true">
+          <div className="modal-box">
+            <header className="modal-head">
+              <h3>Edit personal record</h3>
+              <button className="icon-btn" aria-label="Close" onClick={() => { setShowEditPRModal(false); setEditingPR(null); }}>
+                <X size={18} />
+              </button>
+            </header>
+            <div className="modal-body">
+              <div className="form-grid">
+                <label className="field">
+                  <span>Exercise</span>
+                  <input
+                    type="text"
+                    value={editingPR.newExercise ?? editingPR.exercise}
+                    onChange={e => setEditingPR(prev => ({ ...prev, newExercise: e.target.value }))}
+                    placeholder="Bench Press"
+                  />
+                  <small className="subtle">Leave unchanged to keep the same name.</small>
+                </label>
+                <label className="field">
+                  <span>Weight (lbs)</span>
+                  <input
+                    type="number"
+                    value={editingPR.weight}
+                    onChange={e => setEditingPR(prev => ({ ...prev, weight: e.target.value }))}
+                    placeholder="225"
+                    min={1}
+                  />
+                </label>
+                <label className="field">
+                  <span>Reps</span>
+                  <input
+                    type="number"
+                    value={editingPR.reps}
+                    onChange={e => setEditingPR(prev => ({ ...prev, reps: e.target.value }))}
+                    placeholder="5"
+                    min={1}
+                  />
+                </label>
+              </div>
+              <div className="modal-actions">
+                <button className="btn" onClick={() => { setShowEditPRModal(false); setEditingPR(null); }}>Cancel</button>
+                <button className="btn primary" onClick={handleUpdatePR}>Save changes</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
 
       {/* Add PR Modal */}
       {showAddPRModal && (

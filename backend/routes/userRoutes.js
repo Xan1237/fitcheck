@@ -6,8 +6,10 @@ import {
   getUserName,
   uploadProfilePicture,
   addPersonalRecord,
+  updatePersonalRecord,
+  deletePersonalRecord,
   createPost,
-  getAllUsers
+  getAllUsers,
 } from "../controllers/userController.js"; // Updated import
 
 import { getAdress } from "../controllers/searchController.js";
@@ -32,6 +34,8 @@ router.get("/api/getGymData", getGymData);
 router.post("/api/getUserName", getUserName);
 router.get("/api/checkProfileOwnership/:username", verifyAuth, checkProfileOwnership);
 router.post("/api/addPersonalRecord", verifyAuth, addPersonalRecord);
+router.put("/api/pr", verifyAuth, updatePersonalRecord);
+router.delete("/api/pr/:exerciseName", verifyAuth, deletePersonalRecord);
 router.post("/api/uploadProfilePicture", verifyAuth, uploadProfilePicture);
 router.post("/api/createPost", verifyAuth, createPost);
 router.post("/api/post/:postId/comment", verifyAuth, addPostComment);

@@ -353,6 +353,97 @@ const addPersonalRecord = async (req, res) => {
   }
 };
 
+// --- PR: update & delete --- //
+const updatePersonalRecord = async (req, res) => {
+  // Body: { exerciseName, newExerciseName?, weight?, reps? }
+  try {
+    if (!req.user?.id) {
+      return res.status(401).json({ success: false, error: "User not authenticated" });
+    }
+
+    const { exerciseName, newExerciseName, weight, reps } = req.body;
+
+    if (!exerciseName) {
+      return res.status(400).json({ success: false, error: "exerciseName is required" });
+    }
+
+    // Resolve the authenticated user's username
+    const { data: userData, error: userError } = await supabase
+      .from('users')
+      .select('username')
+      .eq('id', req.user.id)
+      .single();
+
+    if (userError || !userData?.username) {
+      return res.status(404).json({ success: false, error: "User not found" });
+    }
+
+    // Build update patch (only apply provided fields)
+    const patch = {};
+    if (typeof weight !== 'undefined') patch.weight = weight;
+    if (typeof reps !== 'undefined') patch.reps = reps;
+    if (newExerciseName) patch.exercise_name = newExerciseName;
+
+    if (Object.keys(patch).length === 0) {
+      return res.status(400).json({ success: false, error: "Nothing to update" });
+    }
+
+    // Update by (username, exercise_name)
+    const { error: updateError } = await supabase
+      .from('pr')
+      .update(patch)
+      .eq('username', userData.username)
+      .eq('exercise_name', exerciseName);
+
+    if (updateError) {
+      return res.status(500).json({ success: false, error: updateError.message || "Failed to update PR" });
+    }
+
+    return res.status(200).json({ success: true, message: "PR updated" });
+  } catch (err) {
+    return res.status(500).json({ success: false, error: "Internal Server Error" });
+  }
+};
+
+const deletePersonalRecord = async (req, res) => {
+  // Param or body: exerciseName
+  try {
+    if (!req.user?.id) {
+      return res.status(401).json({ success: false, error: "User not authenticated" });
+    }
+
+    const exerciseName = req.params.exerciseName || req.body.exerciseName;
+    if (!exerciseName) {
+      return res.status(400).json({ success: false, error: "exerciseName is required" });
+    }
+
+    // Resolve the authenticated user's username
+    const { data: userData, error: userError } = await supabase
+      .from('users')
+      .select('username')
+      .eq('id', req.user.id)
+      .single();
+
+    if (userError || !userData?.username) {
+      return res.status(404).json({ success: false, error: "User not found" });
+    }
+
+    const { error: delError } = await supabase
+      .from('pr')
+      .delete()
+      .eq('username', userData.username)
+      .eq('exercise_name', exerciseName);
+
+    if (delError) {
+      return res.status(500).json({ success: false, error: delError.message || "Failed to delete PR" });
+    }
+
+    return res.status(200).json({ success: true, message: "PR deleted" });
+  } catch (err) {
+    return res.status(500).json({ success: false, error: "Internal Server Error" });
+  }
+};
+
 // Upload a profile picture for the authenticated user
 const uploadProfilePicture = async (req, res) => {
   try {
@@ -588,6 +679,8 @@ export {// New middleware for authentication
   getGymData,
   getUserName,
   addPersonalRecord,
+  updatePersonalRecord,
+  deletePersonalRecord,
   uploadProfilePicture,
   createPost,
   getAllUsers

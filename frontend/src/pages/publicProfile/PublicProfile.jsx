@@ -463,20 +463,19 @@ const UserProfile = () => {
                 style={{ display: 'none' }}
               />
             )}
-            <div className="avatar-container" onClick={() => isOwnProfile && profilePictureInputRef.current?.click()}>
-              {userData.profilePicture ? (
-                <>
-                  <img src={userData.profilePicture} alt={`${userData.name}'s profile`} className="avatar" />
-                  {isOwnProfile && <div className="avatar-overlay"><Plus size={24} /></div>}
-                </>
-              ) : (
+            <div
+              className="avatar-container"
+              data-clickable={isOwnProfile ? "true" : "false"}
+              onClick={() => isOwnProfile && profilePictureInputRef.current?.click()}
+              style={userData.profilePicture ? { backgroundImage: `url(${userData.profilePicture})` } : undefined}
+            >
+              {!userData.profilePicture && (
                 <div className="avatar placeholder" aria-label="No profile photo">
                   <User size={48} />
-                  {isOwnProfile && <div className="avatar-overlay"><Plus size={24} /></div>}
                 </div>
               )}
+              {isOwnProfile && <div className="avatar-overlay"><Plus size={24} /></div>}
             </div>
-
             {showImageCropper && tempImage && (
               <ImageCropper
                 image={tempImage}

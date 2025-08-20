@@ -10,7 +10,6 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const CreatePost = () => {
   const navigate = useNavigate();
-  const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [tags, setTags] = useState("");
   const [imageFile, setImageFile] = useState(null);
@@ -43,8 +42,8 @@ const CreatePost = () => {
   // Handle post creation
   const handleCreatePost = async (e) => {
     e.preventDefault();
-    if (!title || !description) {
-      alert("Please fill in the title and description.");
+    if (!description) {
+      alert("Please fill in the description.");
       return;
     }
     setLoading(true);
@@ -54,7 +53,6 @@ const CreatePost = () => {
       const response = await axios.post(
         `${API_BASE_URL}/api/createPost`,
         {
-          title,
           description,
           imageFile, // can be null
           tags: tags.split(",").map(tag => tag.trim()).filter(tag => tag !== "")
@@ -94,16 +92,6 @@ const CreatePost = () => {
           </div>
         )}
         <form className="create-post-form" onSubmit={handleCreatePost}>
-          <div className="form-group">
-            <label>Title*</label>
-            <input
-              type="text"
-              value={title}
-              onChange={e => setTitle(e.target.value)}
-              placeholder="Enter post title"
-              required
-            />
-          </div>
           <div className="form-group">
             <label>Description*</label>
             <textarea

@@ -501,7 +501,10 @@ const UserProfile = () => {
                     <PencilLine size={16} />
                     <span>Edit bio</span>
                   </button>
-                  <button className="btn primary" onClick={() => { setShowAddPostModal(true); setActiveTab('nutrition'); }}>
+                  <button
+                    className="btn primary"
+                    onClick={() => navigate('/createPost')}
+                  >
                     <Plus size={16} />
                     <span>New post</span>
                   </button>
@@ -832,8 +835,8 @@ const UserProfile = () => {
             <div className="modal-body">
               <div className="form-grid">
                 <label className="field">
-                  <span>Title</span>
-                  <input type="text" value={newPost.title} onChange={e => setNewPost(prev => ({ ...prev, title: e.target.value }))} placeholder="Give your post a title" />
+                  <span>Description*</span>
+                  <textarea rows={4} value={newPost.description} onChange={e => setNewPost(prev => ({ ...prev, description: e.target.value }))} placeholder="Write a description" />
                 </label>
                 <label className="field">
                   <span>Image</span>
@@ -841,10 +844,6 @@ const UserProfile = () => {
                   {newPost.imageFile && (
                     <img src={newPost.imageFile} alt="Selected" className="preview" />
                   )}
-                </label>
-                <label className="field">
-                  <span>Description</span>
-                  <textarea rows={4} value={newPost.description} onChange={e => setNewPost(prev => ({ ...prev, description: e.target.value }))} placeholder="Write a description" />
                 </label>
                 <label className="field">
                   <span>Tags (comma separated)</span>

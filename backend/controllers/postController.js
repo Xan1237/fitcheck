@@ -8,6 +8,9 @@ import { supabase } from '../config/supabaseApp.js'
  */
 async function getPosts(req, res) {
   try {
+    const userId = req.user?.id;
+    console.log("Current user ID:", userId); // Debug log
+
     const { data, error } = await supabase
       .from('posts')
       .select(`
@@ -19,7 +22,6 @@ async function getPosts(req, res) {
         tags,
         username,
         total_comments,
-        total_likes,
         uuid,
         author:users!posts_uuid_fkey(
           username,
@@ -27,7 +29,8 @@ async function getPosts(req, res) {
         ),
         author_profile:public_profiles!posts_username_fkey(
           profile_picture_url
-        )
+        ),
+        postLikes:postLikes(*)
       `)
       .order('created_at', { ascending: false });
 
@@ -35,17 +38,28 @@ async function getPosts(req, res) {
       return res.status(400).json({ message: error.message });
     }
 
-    // Normalize avatar to top level for the frontend
+    // Normalize avatar and count likes
     const formatted = (data || []).map(p => {
       const avatar =
         p?.author?.profile_picture_url ||
         p?.author_profile?.profile_picture_url ||
         null;
 
+      console.log("Post likes for post:", p.postId, p.postLikes); // Debug log
+      
+      // Count likes and check if current user liked the post
+      const total_likes = Array.isArray(p.postLikes) ? p.postLikes.length : 0;
+      const is_liked = p.postLikes?.some(like => {
+        console.log("Comparing:", like.user_uuid, userId); // Debug log
+        return like.user_uuid === userId;
+      }) || false;
+
       return {
         ...p,
-        profile_picture_url: avatar,   // snake_case
-        profilePictureUrl: avatar      // camelCase (your UI checks both)
+        total_likes,
+        is_liked,
+        profile_picture_url: avatar,
+        profilePictureUrl: avatar
       };
     });
 
@@ -182,5 +196,57 @@ async function getPostComments(req, res) {
     }
 }
 
+async function addPostLike(req, res) {
+  const { postId } = req.params;
+  const userId = req.user.id;
+
+  if (!postId) {
+    return res.status(400).json({ success: false, error: "Missing postId" });
+  }
+
+  try {
+    // Check if the like already exists
+    const { data: existingLike, error: likeError } = await supabase
+      .from('postLikes')
+      .select('*')
+      .eq('post_uuid', postId)
+      .eq('user_uuid', userId)
+    console.log(likeError);
+    if (likeError) {
+         console.log("exist" + insertError);
+      return res.status(500).json({ success: false, error: likeError.message });
+    }
+    console.log(existingLike);
+    if (existingLike.length > 0) {
+      // If the like exists, remove it (unlike)
+      const { error: deleteError } = await supabase
+        .from('postLikes')
+        .delete()
+        .eq('post_uuid', postId)
+        .eq('user_uuid', userId);
+
+      if (deleteError) {
+        return res.status(500).json({ success: false, error: deleteError.message });
+      }
+
+      return res.status(200).json({ success: true, message: "Post unliked" });
+    } else {
+      // If the like doesn't exist, add it
+      const { error: insertError } = await supabase
+        .from('postLikes')
+        .insert({  "post_uuid": postId, "user_uuid": userId });
+
+      if (insertError) {
+        console.log("inseterror" + insertError);
+        return res.status(500).json({ success: false, error: insertError.message });
+      }
+
+      return res.status(201).json({ success: true, message: "Post liked" });
+    }
+  } catch (err) {
+    return res.status(500).json({ success: false, error: err.message });
+  }
+}
+
 // Export controller functions for use in routes
-export { getPosts, addPostComment, getPostComments }
+export { getPosts, addPostComment, getPostComments, addPostLike}

@@ -3,6 +3,20 @@ import { supabase } from '../config/supabaseApp.js'
 
 export const signUpUser = async (req, res) => {
   const { email, password, username } = req.body
+      if(username.length < 3 || username.length > 20) {
+        return res.status(400).json({ success: false, message: 'Username must be between 3 and 20 characters long' });
+      }
+      
+     const { data: existingUsers, error } = await supabase
+            .from('users')
+            .select("*")
+            .eq("username", username);
+            
+    console.log("Username check response:", existingUsers);
+    
+    if(existingUsers && existingUsers.length > 0) {
+        return res.status(400).json({ success: false, message: 'Username already exists' });
+    }
 
   // 1) Basic validation
   if (!email || !password) {

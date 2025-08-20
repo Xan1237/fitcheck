@@ -75,7 +75,7 @@ const Feed = () => {
       likes: apiPost.total_likes || 0,
       comments: apiPost.total_comments || 0,
       shares: apiPost.shares || 0,
-      isLiked: apiPost.isLiked || false,
+      isLiked: apiPost.is_liked || false,
       tags: tags.map(tag => `#${tag}`)
     };
   };
@@ -86,7 +86,10 @@ const Feed = () => {
     setLoading(true);
     try {
       // Replace with your actual API endpoint
-      const response = await axios.get(`${API_BASE_URL}/api/getPosts`);
+      const token = localStorage.getItem('token');
+      const response = await axios.get(`${API_BASE_URL}/api/getPosts`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       
       // Transform each API post to the required format
       const transformedPosts = response.data.map(transformPostData);
@@ -173,16 +176,23 @@ const Feed = () => {
     }
   }, []);
 
-  const handleLike = (postId) => {
-    setPosts(posts.map(post => 
-      post.id === postId 
-        ? { 
-            ...post, 
-            isLiked: !post.isLiked,
-            likes: post.isLiked ? post.likes - 1 : post.likes + 1
-          }
-        : post
-    ));
+  const handleLike = async (postId) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get(
+        `${API_BASE_URL}/api/addPostLike/${postId}`,
+        {
+          headers: { Authorization: `Bearer ${token}` }
+        }
+      );
+
+      if (response.data.success) {
+        await getPosts(); // Refresh posts to get updated like status
+      }
+    } catch (error) {
+      console.error('Failed to toggle like:', error);
+      alert('Failed to like post. Please try again.');
+    }
   };
 
   const getWorkoutIcon = (workoutType) => {
@@ -400,6 +410,9 @@ const Feed = () => {
     </div>
   );
 };
+
+
+
 
 
 

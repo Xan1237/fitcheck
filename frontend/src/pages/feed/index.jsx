@@ -187,7 +187,15 @@ const Feed = () => {
       );
 
       if (response.data.success) {
-        await getPosts(); // Refresh posts to get updated like status
+        setPosts(posts.map(post => 
+          post.id === postId 
+            ? { 
+                ...post, 
+                isLiked: !post.isLiked,
+                likes: post.isLiked ? post.likes - 1 : post.likes + 1
+              }
+            : post
+        ));
       }
     } catch (error) {
       console.error('Failed to toggle like:', error);

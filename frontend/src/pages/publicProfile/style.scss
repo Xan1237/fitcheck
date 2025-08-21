@@ -1,4 +1,4 @@
-$orange: #FF5722; // brand accent
+$orange: #ff6b35; // brand accent
 $orange-600: #ff6a00;
 $orange-700: #e25f00;
 $black: #0d0d0d;
@@ -103,7 +103,7 @@ body { background: $bg !important; color: $text; }
 
 /* identity */
 .identity { display: grid; gap: 6px; }
-.display { font-size: 1.4rem; line-height: 1.15; font-weight: 700; color: $text; }
+.display { font-size: 1.4rem; line-height: 1.15; font-weight: 700; color: $orange; }
 .username { color: $muted; font-size: .95rem; }
 .bio { color: #cfd3d8; font-size: .95rem; }
 
@@ -231,14 +231,14 @@ body { background: $bg !important; color: $text; }
 
 /* responsive grids */
 @media (min-width: 560px) {
-  .display { font-size: 1.6rem; color: $text; }
+  .display { font-size: 1.6rem; color: $orange; }
   .post-img { height: 280px; }
   .pr-grid { grid-template-columns: repeat(2, 1fr); }
   .gym-strip { grid-template-columns: repeat(2, 1fr); }
 }
 @media (min-width: 880px) {
   .profile-hero .hero-inner { grid-template-columns: auto 1fr auto; }
-  .display { font-size: 1.9rem; color: $text; }
+  .display { font-size: 1.9rem; color: $orange; }
   .quick-stats { max-width: 520px; margin-left: auto; }
   .tabs--segmented { width: max-content; margin: 16px 0; }
   .post-grid { grid-template-columns: repeat(3, 1fr); }

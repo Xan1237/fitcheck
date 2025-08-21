@@ -15,7 +15,24 @@ const verifyAuth = async (req, res, next) => {
     const token = authHeader.split("Bearer ")[1];
   
     try {
-      // Verify the JWT with Supabase
+      // First, get the current session
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError) {
+        throw sessionError;
+      }
+
+      // Try to refresh the session if it exists
+      if (session) {
+        const { data: { session: refreshedSession }, error: refreshError } = 
+          await supabase.auth.refreshSession();
+        
+        if (refreshError) {
+          throw refreshError;
+        }
+      }
+
+      // Now verify the user with potentially refreshed token
       const { data: { user }, error } = await supabase.auth.getUser(token);
       
       if (error || !user) {
@@ -26,12 +43,11 @@ const verifyAuth = async (req, res, next) => {
         });
       }
       
-      // Add user data to request object
+      // Add both user and fresh session data to request object
       req.user = user;
+      req.session = session;
 
-      //Passes the user data to the next middleware
       next();
-
     } catch (error) {
       console.error("Auth verification error:", error);
       return res.status(401).json({

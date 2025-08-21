@@ -22,7 +22,6 @@ async function getPosts(req, res) {
         tags,
         username,
         total_comments,
-        uuid,
         author:users!posts_uuid_fkey(
           username,
           profile_picture_url
@@ -248,5 +247,79 @@ async function addPostLike(req, res) {
   }
 }
 
+/**
+ * Gets a single post by ID.
+ * Expects postId in req.params.
+ * Returns the post from the 'posts' table, including author and like information.
+ */
+async function getPostById(req, res) {
+  try {
+    const { postId } = req.params;
+    const userId = req.user?.id;
+    console.log("Fetching post with ID:", postId, "Type:", typeof postId);
+    
+    // First, try to fetch post without joins to debug
+    const { data: rawPost, error: rawError } = await supabase
+      .from('posts')
+      .select('postId')
+      .eq('postId', postId);
+    
+    console.log("Raw query result:", rawPost, "Error:", rawError);
+
+    const { data, error } = await supabase
+      .from('posts')
+      .select(`
+        postId,
+        created_at,
+        title,
+        description,
+        image_url,
+        tags,
+        username,
+        total_comments,
+        author:users!posts_uuid_fkey(
+          username,
+          profile_picture_url
+        ),
+        author_profile:public_profiles!posts_username_fkey(
+          profile_picture_url
+        ),
+        postLikes:postLikes(*)
+      `)
+      .eq('postId', postId);
+      // Removed .single() to see if we get any results
+
+    if (error || !data || data.length === 0) {
+      console.error('Error or no data:', error, 'Data:', data);
+      return res.status(404).json({ message: 'Post not found' });
+    }
+
+    // Use first result instead of .single()
+    const post = data[0];
+    
+    // Format the post with the same logic as getPosts
+    const avatar =
+      post?.author?.profile_picture_url ||
+      post?.author_profile?.profile_picture_url ||
+      null;
+
+    const total_likes = Array.isArray(post.postLikes) ? post.postLikes.length : 0;
+    const is_liked = post.postLikes?.some(like => like.user_uuid === userId) || false;
+
+    const formatted = {
+      ...post,
+      total_likes,
+      is_liked,
+      profile_picture_url: avatar,
+      profilePictureUrl: avatar
+    };
+
+    return res.status(200).json(formatted);
+  } catch (e) {
+    console.error('Unexpected error:', e);
+    return res.status(500).json({ message: e.message });
+  }
+}
+
 // Export controller functions for use in routes
-export { getPosts, addPostComment, getPostComments, addPostLike}
+export { getPosts, addPostComment, getPostComments, addPostLike, getPostById }

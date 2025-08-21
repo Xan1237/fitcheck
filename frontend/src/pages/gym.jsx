@@ -15,10 +15,12 @@ import {
   FaMapMarkerAlt,
   FaPhone,
   FaDirections,
-  FaTags
+  FaTags,
+  FaUsers
 } from "react-icons/fa";
 import { use } from "react";
 import { Link } from "react-router-dom";
+import axios from "axios";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -48,6 +50,35 @@ const Gym = () => {
   const [rating, setRating] = useState(0);
   const [selectedTags, setSelectedTags] = useState([]);
   const [gymTags, setGymTags] = useState([]);
+
+
+  async function getPeopleByGymFrequented(params) {
+    const token = localStorage.getItem("token");
+    try {
+      const response = await axios.get(
+        `${API_BASE_URL}/api/getPeopleByGymFrequented/${params.gymId}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+          },
+        }
+      );
+      // Handle successful response
+      console.log("People frequented this gym:", response.data.data);
+    } catch (error) {
+      if (error.response) {
+        console.error("Error fetching people:", error.response.data.message);
+      } else {
+        console.error("Error fetching people:", error.message);
+      }
+    }
+  }
+
+  useEffect(() => {
+    const params = { gymId: gymsData.id };
+    getPeopleByGymFrequented(params);
+  }, []);
 
   useEffect(() => {
     fetchComments()
@@ -188,6 +219,7 @@ const Gym = () => {
       console.error("Error fetching comments:", error);
     }
   };
+  
 
   // Calculate average rating from messages
   const calculateAverageRating = (msgs) => {
@@ -296,6 +328,18 @@ const Gym = () => {
                     >
                       Get Directions
                     </a>
+                  </div>
+                )}
+                
+                {gymsData.id && (
+                  <div className="info-item">
+                    <FaUsers className="info-icon" />
+                    <Link
+                      to={`/gym/${gymsData.id}/members`}
+                      className="info-link"
+                    >
+                      Members
+                    </Link>
                   </div>
                 )}
               </div>

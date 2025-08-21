@@ -220,7 +220,24 @@ const updateGymTags = async (gymId) => {
       return res.status(500).json({ error: "Internal server error" });
     }
   }
+
+  async function getPeopleByGymFrequented(req, res){
+    const { gymId } = req.params;
+    try {
+      const { data, error } = await supabase
+        .from('gyms_frequented')
+        .select('username')
+        .eq('gymId', gymId);
+
+      if (error) {
+        return res.status(400).json({ error: error.message });
+      }
+      return res.status(200).json({ users: data });
+    } catch (error) {
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  }
   
 
 // Export controller functions for use in routes
-export { updateGymTags, addUserGym, getUserGyms, getGymsByProvince, removeUserGym };
+export { updateGymTags, addUserGym, getUserGyms, getGymsByProvince, removeUserGym, getPeopleByGymFrequented };

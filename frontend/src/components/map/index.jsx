@@ -4,10 +4,6 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "./style.scss";
 
-// Import marker icon images to ensure they're properly bundled
-const markerShadow =
-  "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png";
-
 // Component to handle map position updates with smooth animation
 const ChangeView = ({ center, zoom }) => {
   const map = useMap();
@@ -111,11 +107,9 @@ const Map = ({ searchResults, markers, activeGym, setActiveGym, center, zoom }) 
           <path stroke="%23ffffff" stroke-width="${strokeWidth}" fill="%23ff6b35" d="M12.5,0C5.597,0,0,5.597,0,12.5C0,19.403,12.5,41,12.5,41S25,19.403,25,12.5C25,5.597,19.403,0,12.5,0z
           M12.5,18.75a6.25,6.25,0,1,1,0-12.5a6.25,6.25,0,0,1,0,12.5z"/>
         </svg>`,
-      shadowUrl: markerShadow,
       iconSize: [size, height],
       iconAnchor: [size / 2, height],
       popupAnchor: [0, -height],
-      shadowSize: [41, 41],
     });
   };
 

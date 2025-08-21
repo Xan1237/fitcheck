@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useTransition} from "react";
 import Search from "../../components/search";
 import Map from "../../components/map";
 import Header from "../../components/header";
@@ -51,83 +51,74 @@ const Home = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [mapCenter, setMapCenter] = useState(provinceCenters[filter]);
   const [mapZoom, setMapZoom] = useState(provinceZooms[filter] || 6);
+  const [isPending, startTransition] = useTransition();
 
-  // Fetch dynamic gym data and merge with static data on component mount
-  useEffect(() => {
-    const fetchGymData = async () => {
-      try {
-        setIsLoading(true);
-        const response = await fetch(`${API_BASE_URL}/api/getGymData`);
-        
-        if (!response.ok) {
-          console.warn("API response not OK:", response.status);
-          throw new Error("Failed to fetch gym data");
-        }
-        
-        const { success, data, error } = await response.json();
-        
-        // Still proceed with static data even if API returns "No gyms found"
-        if (success && data) {
-          // Merge dynamic data with static data
-          const mergedGyms = Object.entries(gymData).map(([id, staticData]) => {
-            const dynamicData = data[id] || {};
-            
-            return {
-              ...staticData,
-              id: parseInt(id),
-              // Use dynamically fetched tags if available, otherwise use static tags or empty array
-              tags: dynamicData.tags || staticData.tags || [],
-              // Include rating data from backend
-              rating: dynamicData.rating !== undefined ? Number(dynamicData.rating) : 0,
-              ratingCount: dynamicData.ratingCount || 0
-            };
-          });
-          
-          setGyms(mergedGyms);
-          setFilteredGyms(mergedGyms);
-        } else {
-          console.warn("API returned error or no data:", error);
-          // Fall back to static data
-          const staticGyms = Object.entries(gymData).map(([id, data]) => ({
-            ...data,
-            id: parseInt(id),
-            tags: data.tags || [],
-            rating: 0,
-            ratingCount: 0
-          }));
-          
-          setGyms(staticGyms);
-          setFilteredGyms(staticGyms);
-        }
-      } catch (error) {
-        console.error("Error fetching gym data:", error);
-        
-        // Fall back to static data
-        const staticGyms = Object.entries(gymData).map(([id, data]) => ({
-          ...data,
-          id: parseInt(id),
-          tags: data.tags || [],
+
+  const fetchGymsForProvince = async (province) => {
+    try {
+      setIsLoading(true);
+
+      // 1) Try dynamic data from API
+      const res = await fetch(`${API_BASE_URL}/api/getGymsByProvince/${encodeURIComponent(province)}`);
+      if (!res.ok) throw new Error(`Province fetch failed: ${res.status}`);
+      const gymsFromApi = await res.json(); // expect an array of gyms
+
+      // Normalize and return (prefer backend truth)
+      return (gymsFromApi || []).map(g => ({
+        id: Number.isNaN(Number(g.id)) ? g.id : Number(g.id),
+        name: g.name,
+        province: province,
+        position: g.position,         // [lat, lng]
+        tags: g.tags || [],
+        rating: Number(g.rating ?? g.avg_rating ?? 0),
+        ratingCount: Number(g.rating_count ?? g.ratingCount ?? 0),
+        link: g.link,
+        location: g.location,
+        gym_hours: g.gym_hours
+      }));
+    } catch (e) {
+      console.warn("Falling back to static province data:", e?.message);
+
+      // 2) Fallback to static dataset for this province only
+      const staticGyms = Object.entries(gymData)
+        .map(([id, data]) => ({ id: Number(id), ...data }))
+        .filter(g => g.province === province)
+        .map(g => ({
+          ...g,
+          tags: g.tags || [],
           rating: 0,
-          ratingCount: 0
+          ratingCount: 0,
         }));
-        
-        setGyms(staticGyms);
-        setFilteredGyms(staticGyms);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
-    fetchGymData();
-  }, []);
 
-  // Filter gyms by province whenever gyms or filter changes
-  useEffect(() => {
-    if (gyms && gyms.length > 0) {
-      const provinceGyms = gyms.filter(gym => gym.province === filter);
-      setFilteredGyms(provinceGyms);
+      return staticGyms;
+    } finally {
+      setIsLoading(false);
     }
-  }, [gyms, filter]);
+  };
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const data = await fetchGymsForProvince(filter);
+      if (cancelled) return;
+      startTransition(() => {
+        setGyms(data);
+        setFilteredGyms(data);
+       // Optional: reset activeGym to first item when province changes
+        setActiveGym(data[0] || null);
+      });
+    })();
+    return () => { cancelled = true; };
+  }, [filter]);
+
+
+  // // Filter gyms by province whenever gyms or filter changes
+  // useEffect(() => {
+  //   if (gyms && gyms.length > 0) {
+  //     const provinceGyms = gyms.filter(gym => gym.province === filter);
+  //     setFilteredGyms(provinceGyms);
+  //   }
+  // }, [gyms, filter]);
 
   useEffect(() => {
     // Update map center and zoom when filter (province) changes
@@ -139,29 +130,18 @@ const Home = () => {
 
   const handleSearchSubmit = (query, newFilter, filtered) => {
     setSearchQuery(query);
+    // Changing the province triggers the fetch effect above
     setFilter(newFilter);
-
-    // Update filtered gyms if provided
+    // Any pre-computed filtered array from Search can be applied as a low-priority update
     if (filtered && Array.isArray(filtered)) {
-      setFilteredGyms(filtered);
-    } else if (gyms.length > 0) {
-      setFilteredGyms(gyms.filter(gym => gym.province === newFilter));
+      startTransition(() => setFilteredGyms(filtered));
     }
-
-    // Zoom map to province center and custom zoom
     if (provinceCenters[newFilter]) {
       setMapCenter(provinceCenters[newFilter]);
       setMapZoom(provinceZooms[newFilter] || 6);
     }
-
-    // Set active gym if a specific gym is selected in filter
-    if (newFilter && gyms.length > 0) {
-      const filteredGym = gyms.find((gym) => gym.name === newFilter);
-      if (filteredGym) {
-        setActiveGym(filteredGym.id);
-      }
-    }
   };
+
 
   return (
     <div className="home-container">

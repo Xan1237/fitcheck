@@ -247,6 +247,14 @@ const Feed = () => {
   return (
     <div className="feed-page">
       <Header />
+      <div className="feed-top">
+        <div className="feed-title-section">
+          <h1 className="fitcheck-title">FitCheck</h1>
+          <Link to="/messages" className="messages-link">
+            <FaComment />
+          </Link>
+        </div>
+      </div>
       {loading ? (
         <div className="loading-indicator">Loading posts...</div>
       ) : posts.length > 0 ? (

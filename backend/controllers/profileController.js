@@ -173,5 +173,45 @@ async function isFollowing(req, res){
     }
 }
 
+async function getProfilePicture(req, res) {
+    try {
+        const username = req.params.username;
+
+        // Get the user's profile picture from the profiles table
+        const { data, error } = await supabase
+            .from('public_profiles')
+            .select('profile_picture_url')
+            .eq('username', username)
+            .single();
+
+        if (error) {
+            console.error('Database error:', error);
+            return res.status(500).json({
+                success: false,
+                error: "Failed to fetch profile picture"
+            });
+        }
+
+        if (!data) {
+            return res.status(404).json({
+                success: false,
+                error: "User profile not found"
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            profile_picture: data || ""
+        });
+
+    } catch (error) {
+        console.error('Get profile picture error:', error);
+        res.status(500).json({
+            success: false,
+            error: "Internal server error"
+        });
+    }
+}
+
 // Export controller functions for use in routes
-export {getNumberPR, getNumberPosts, updateUserBio, getUserBio, isFollowing}
+export {getNumberPR, getNumberPosts, updateUserBio, getUserBio, isFollowing, getProfilePicture}

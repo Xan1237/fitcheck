@@ -98,7 +98,13 @@ body { background: $bg !important; color: $text; }
 }
 .profile-hero .avatar-container[data-clickable="true"]:hover .avatar-overlay {
   opacity: 1;
-  background: rgba(0,0,0,0.10);
+  background: rgba(0, 0, 0, 0.5);
+
+  svg, .icon { 
+    color: #000000; 
+    fill: #000000; 
+    transition: color 0.2s, fill 0.2s;
+  }
 }
 
 /* identity */

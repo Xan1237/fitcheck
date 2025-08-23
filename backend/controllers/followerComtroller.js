@@ -128,5 +128,95 @@ async function unfollowUser(req, res){
         .eq('senderUserId', senderUserId)
         .eq('targetUserId', targetUserId);
 }
+
+/**
+ * Gets all followers for a given username
+ * Expects username in req.params
+ */
+async function getFollowers(req, res) {
+    const { username } = req.params;
+    const userId = await userNameToUuid(username);
+
+    if (!userId) {
+        return res.status(400).json({ error: 'Invalid username' });
+    }
+
+    // Query for followers - people who are following the user (where user is the target)
+    const { data, error } = await supabase
+        .from('follows')
+        .select(`
+            senderUserId,
+            targetUserId,
+            follower:users!follows_follower_id_fkey (
+                username,
+                profile_picture_url
+            )
+        `)
+        .eq('targetUserId', userId);
+
+    if (error) {
+        return res.status(400).json({ error: error.message });
+    }
+
+    // Process the results - get the followers' details
+    const followers = data.map(connection => ({
+        username: connection.follower.username,
+        profilePicture: connection.follower.profile_picture_url
+    }));
+
+    return res.status(200).json({
+        followers,
+        followerCount: followers.length
+    });
+}
+
+/**
+ * Gets all users that a given username is following
+ * Expects username in req.params
+ */
+async function getFollowing(req, res) {
+    const { username } = req.params;
+    const userId = await userNameToUuid(username);
+
+    if (!userId) {
+        return res.status(400).json({ error: 'Invalid username' });
+    }
+
+    // Query for following - people who the user is following (where user is the sender)
+    const { data, error } = await supabase
+        .from('follows')
+        .select(`
+            senderUserId,
+            targetUserId,
+            following:users!follows_following_id_fkey (
+                username,
+                profile_picture_url
+            )
+        `)
+        .eq('senderUserId', userId);
+
+    if (error) {
+        return res.status(400).json({ error: error.message });
+    }
+
+    // Process the results - get the following users' details
+    const following = data.map(connection => ({
+        username: connection.following.username,
+        profilePicture: connection.following.profile_picture_url
+    }));
+
+    return res.status(200).json({
+        following,
+        followingCount: following.length
+    });
+}
+
 // Export controller functions for use in routes
-export {newFollower, getFollowerCount, getFollowingCount, unfollowUser}
+export {
+    newFollower,
+    getFollowerCount,
+    getFollowingCount,
+    unfollowUser,
+    getFollowers,
+    getFollowing
+}

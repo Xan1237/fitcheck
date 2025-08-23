@@ -2,7 +2,7 @@ import express, { json } from "express";
 import { verifyAuth } from "../middlewares/auth_verify.js";
 import { newFollower } from "../controllers/followerComtroller.js";
 import { getFollowerCount } from "../controllers/followerComtroller.js";
-import { getFollowingCount } from "../controllers/followerComtroller.js";
+import { getFollowingCount, getFollowers, getFollowing} from "../controllers/followerComtroller.js";
 import {getNumberPR, getNumberPosts, updateUserBio, getUserBio, getProfilePicture} from "../controllers/profileController.js"
 const router = express.Router();
 
@@ -12,7 +12,8 @@ router.get("/api/getFollowingCount/:username", verifyAuth, getFollowingCount)
 router.get("/api/getNumberPR/:username", verifyAuth, getNumberPR)
 router.get("/api/getNumberPost/:username", verifyAuth, getNumberPosts)
 router.get("/api/getProfilePicture/:username", getProfilePicture);
-
+router.get("/api/followers/:username", verifyAuth, getFollowers);
+router.get("/api/following/:username", verifyAuth, getFollowing);
 // Bio management routes
 router.get("/api/getUserBio", verifyAuth, getUserBio);
 router.put("/api/updateUserBio", verifyAuth, updateUserBio);

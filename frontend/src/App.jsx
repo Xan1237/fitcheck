@@ -18,6 +18,8 @@ import EditBio from "./pages/editBio";
 import PostPage from "./pages/postPage/index";
 import GymDirectory from "./pages/gymDirectory/index";
 import { initializeSocket, disconnectSocket } from "./services/websocket";
+import Following from "./pages/following";
+import Followers from "./pages/followers";
 import "./index.css";
 
 const App = () => {
@@ -51,6 +53,8 @@ const App = () => {
         <Route path="/editBio" element={<EditBio />} />
         <Route path="/gym/:gymId/members" element={<GymDirectory />} />
         <Route path="/post/:postId" element={<PostPage />} />
+        <Route path="/following/:username" element={<Following />} />
+        <Route path="/followers/:username" element={<Followers />} />
       </Routes>
       <BottomNav />
     </Router>

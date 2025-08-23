@@ -595,11 +595,11 @@ const UserProfile = () => {
               <div className="value">{userData.stats.personalBests}</div>
               <div className="label">PRs</div>
             </div>
-            <div className="stat">
+            <div className="stat" onClick={() => navigate(`/followers/${userData.username}`)}>
               <div className="value">{userData.stats.followers}</div>
               <div className="label">Followers</div>
             </div>
-            <div className="stat">
+            <div className="stat" onClick={() => navigate(`/following/${userData.username}`)}>
               <div className="value">{userData.stats.following}</div>
               <div className="label">Following</div>
             </div>

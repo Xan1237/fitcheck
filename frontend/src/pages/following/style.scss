@@ -1,0 +1,125 @@
+.following-directory {
+  padding: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+
+  .directory-header {
+    background: #1a1a1a;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    text-align: center;
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-height: 60px;
+    
+    h1 {
+      color: #ffffff;
+      font-size: 24px;
+      margin: 0;
+      width: 100%;
+    }
+
+    @media (max-width: 768px) {
+      padding: 15px 50px;
+      
+      h1 {
+        font-size: 20px;
+      }
+    }
+
+    @media (max-width: 380px) {
+      h1 {
+        font-size: 18px;
+      }
+    }
+
+    .back-button {
+      position: absolute;
+      left: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: #ffffff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      padding: 0;
+      font-size: 20px;
+      transition: opacity 0.2s;
+
+      &:hover {
+        opacity: 0.8;
+      }
+    }
+  }
+
+  .users-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 20px;
+    padding: 20px 0;
+
+    .user-card {
+      background: #1a1a1a;
+      border-radius: 12px;
+      padding: 15px;
+      text-align: center;
+      text-decoration: none;
+      color: #ffffff;
+      transition: transform 0.2s;
+
+      &:hover {
+        transform: translateY(-5px);
+      }
+
+      .user-avatar {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 10px;
+        border-radius: 50%;
+        overflow: hidden;
+        background: #2a2a2a;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        .profile-image {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+
+        .avatar-text {
+          font-size: 32px;
+          color: #ffffff;
+        }
+      }
+
+      .username {
+        margin: 0;
+        font-size: 16px;
+        word-break: break-word;
+      }
+    }
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: #666666;
+    background: #1a1a1a;
+    border-radius: 12px;
+    margin-top: 20px;
+
+    p {
+      margin: 0;
+      font-size: 16px;
+    }
+  }
+}

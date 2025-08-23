@@ -26,6 +26,18 @@ $white: #ffffff;
   font-family: 'gym-icons';
 }
 
+.confirmation-message {
+  padding: 15px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  background-color: #e3f2fd;
+  color: #1976d2;
+  border: 1px solid #90caf9;
+  text-align: center;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
 // Global styles
 * {
   margin: 0;

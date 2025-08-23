@@ -15,6 +15,7 @@ const AuthPage = () => {
   const [isSignUp, setIsSignUp] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [confirmationMessage, setConfirmationMessage] = useState('');
 
   // Extract and save token from hash if present (for Google sign-in)
   useEffect(() => {
@@ -66,8 +67,11 @@ const AuthPage = () => {
       });
 
       if (response.data.success) {
-        localStorage.setItem('token', response.data.token);
-        window.location.href = "/"; // <-- Change to home page
+        setConfirmationMessage("Please check your email and verify your account before signing in.");
+        setIsSignUp(false);  // Switch to login form
+        setEmail('');  // Clear the form
+        setPassword('');
+        setUsername('');
       } else {
         throw new Error(response.data.message || 'Signup failed');
       }
@@ -159,6 +163,11 @@ const AuthPage = () => {
           {error && (
             <div className="error-message">
               {error}
+            </div>
+          )}
+          {confirmationMessage && (
+            <div className="confirmation-message">
+              {confirmationMessage}
             </div>
           )}
           {(!error && !loading && localStorage.getItem('token') && localStorage.getItem('username')) && (

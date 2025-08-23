@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { User, Plus, PencilLine, UserPlus, MapPin, X, MessageCircle} from 'lucide-react';
 import Header from '../../components/header';
@@ -13,6 +13,15 @@ const TABS = [
   { id: 'progress', label: 'Gyms' },
   { id: 'nutrition', label: 'Posts' },
 ];
+
+function getTabFromQuery(search) {
+  const params = new URLSearchParams(search);
+  const tab = params.get('tab');
+  if (tab === 'posts') return 'nutrition';
+  if (tab === 'gyms') return 'progress';
+  if (tab === 'prs') return 'stats';
+  return 'stats';
+}
 
 function formatTimeSince(dateString) {
   const createdAt = new Date(dateString);
@@ -34,6 +43,7 @@ function formatTimeSince(dateString) {
 const UserProfile = () => {
   const { name } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [userData, setUserData] = useState({
     name: 'Alex Johnson',
@@ -44,14 +54,15 @@ const UserProfile = () => {
     gymStats: []
   });
 
-  const [activeTab, setActiveTab] = useState('stats');
+  // Set initial tab from query string
+  const [activeTab, setActiveTab] = useState(() => getTabFromQuery(location.search));
   const [isOwnProfile, setIsOwnProfile] = useState(false);
 
   const [showAddPRModal, setShowAddPRModal] = useState(false);
   const [newPR, setNewPR] = useState({ exercise: '', weight: '', reps: '' });
 
   const [showAddPostModal, setShowAddPostModal] = useState(false);
-  const [newPost, setNewPost] = useState({ title: '', description: '', imageFile: null, tags: '' });
+  const [newPost, setNewPost] = useState({ description: '', imageFile: null, tags: '' });
   const fileInputRef = useRef(null);
 
   const [posts, setPosts] = useState([]);
@@ -203,6 +214,10 @@ const UserProfile = () => {
     init();
   }, [name]);
 
+  useEffect(() => {
+    setActiveTab(getTabFromQuery(location.search));
+  }, [location.search]);
+
   const handleSavePR = async () => {
     try {
       const token = localStorage.getItem('token');
@@ -303,7 +318,6 @@ const UserProfile = () => {
     try {
       const token = localStorage.getItem('token');
       const payload = {
-        title: newPost.title,
         description: newPost.description,
         imageFile: newPost.imageFile,
         tags: newPost.tags.split(',').map(t => t.trim()).filter(Boolean)
@@ -312,7 +326,6 @@ const UserProfile = () => {
       if (res.data.success) {
         setPosts(prev => [{
           id: res.data.data[0].id,
-          title: newPost.title,
           description: newPost.description,
           image_url: res.data.data[0].image_url,
           tags: payload.tags,
@@ -320,7 +333,7 @@ const UserProfile = () => {
           username: userData.username
         }, ...prev]);
         setShowAddPostModal(false);
-        setNewPost({ title: '', description: '', imageFile: null, tags: '' });
+        setNewPost({ description: '', imageFile: null, tags: '' });
       }
     } catch (e) {
       console.error('Error creating post:', e);
@@ -685,8 +698,9 @@ const UserProfile = () => {
           <section className="panel" role="tabpanel">
             {posts?.length ? (
               <div className="post-grid">
-                {posts.map(post => {
-                  const isExpanded = expandedPosts[post.id];
+                {posts.map((post, idx) => {
+                  const postKey = post.id ?? idx; // fallback to idx if no id
+                  const isExpanded = expandedPosts[postKey];
                   const maxLength = 220;
                   const isLong = post.description && post.description.length > maxLength;
                   const previewText = isLong && !isExpanded
@@ -694,32 +708,31 @@ const UserProfile = () => {
                     : post.description;
 
                   return (
-                    <article key={post.id} className="card post-card">
+                    <article key={postKey} className="card post-card">
                       {post.image_url && (
-                        <img src={post.image_url} alt={post.title} className="post-img" loading="lazy" />
+                        <img src={post.image_url} className="post-img" loading="lazy" />
                       )}
                       <div className="post-body">
-                        <h3 className="post-title">{post.title}</h3>
-                        <p className="post-desc">
+                        <p className="post-desc" style={{ whiteSpace: 'pre-line' }}>
                           {previewText}
                           {isLong && (
                             <span
                               className="expand-toggle subtle"
-                              onClick={() => toggleExpand(post.id)}
+                              onClick={() => toggleExpand(postKey)}
                               role="button"
                               tabIndex={0}
                               style={{ userSelect: 'none' }}
                               onKeyPress={e => {
-                                if (e.key === 'Enter' || e.key === ' ') toggleExpand(post.id);
+                                if (e.key === 'Enter' || e.key === ' ') toggleExpand(postKey);
                               }}
                             >
                               {isExpanded ? ' show less' : '...more'}
                             </span>
                           )}
                         </p>
-                        <div className="post-tags">
+                        <div className="profile-post-tags">
                           {parseTags(post.tags).map((tag, idx) => (
-                            <span key={`${post.id}-tag-${idx}`} className="tag">#{tag}</span>
+                            <span key={`${postKey}-tag-${idx}`} className="tag">#{tag}</span>
                           ))}
                         </div>
                         <time className="date">{formatTimeSince(post.created_at)}</time>
@@ -851,7 +864,7 @@ const UserProfile = () => {
               </div>
               <div className="modal-actions">
                 <button className="btn" onClick={() => setShowAddPostModal(false)}>Cancel</button>
-                <button className="btn primary" onClick={handleCreatePost} disabled={!newPost.imageFile || !newPost.title || !newPost.description}>Post</button>
+                <button className="btn primary" onClick={handleCreatePost} disabled={!newPost.imageFile || !newPost.description}>Post</button>
               </div>
             </div>
           </div>

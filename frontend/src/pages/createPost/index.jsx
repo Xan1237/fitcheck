@@ -64,7 +64,8 @@ const CreatePost = () => {
       if (response.data.success) {
         setSuccessMsg("Post created successfully!");
         setTimeout(() => {
-          navigate("/profile/" + (response.data.data[0]?.username || ""));
+          // Add ?tab=posts to the redirect
+          navigate(`/profile/${response.data.data[0]?.username || ""}?tab=posts`);
         }, 1800);
       } else {
         alert("Failed to create post.");

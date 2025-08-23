@@ -162,32 +162,33 @@ body { background: $bg !important; color: $text; }
 .tag { display: inline-block; padding: 4px 8px; font-size: .8rem; background: $orange !important; border: 1px solid $border; border-radius: 999px; }
 .date { display: block; margin-top: 8px; color: $muted; font-size: .8rem; }
 
-.post-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 7px;
-  margin: 12px 0 0 0;
+.profile-post-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin: 12px 0 0 0;
+    margin-left: 0px;
 
-  .tag {
-    background: none !important;
-    color: #ff6b35;
-    padding: 0;
-    border-radius: 0;
-    font-size: 0.97rem;
-    border: none;
-    font-weight: 500;
-    letter-spacing: 0.01em;
-    box-shadow: none !important;
-    transition: color 0.2s;
+    .tag {
+      background: none !important; // Ensure no background
+      color: #ff6b35;
+      padding: 0;
+      border-radius: 0;
+      font-size: 0.97rem;
+      border: none;
+      font-weight: 500;
+      letter-spacing: 0.01em;
+      box-shadow: none !important; // Remove any shadow
+      transition: color 0.2s;
 
-    &:hover {
-      color: #ff8c42;
-      text-decoration: underline;
-      background: none !important;
-      box-shadow: none !important;
+      &:hover {
+        color: #ff8c42;
+        text-decoration: underline;
+        background: none !important;
+        box-shadow: none !important;
+      }
     }
   }
-}
 
 /* empty */
 .empty {

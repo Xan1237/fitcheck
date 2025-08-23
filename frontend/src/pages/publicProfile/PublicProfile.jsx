@@ -773,7 +773,7 @@ const UserProfile = () => {
                         <p className="post-desc" style={{ whiteSpace: 'pre-line' }}>
                           {previewText}
                           {isLong && (
-                            <span
+                            <span 
                               className="expand-toggle subtle"
                               onClick={() => toggleExpand(postKey)}
                               role="button"

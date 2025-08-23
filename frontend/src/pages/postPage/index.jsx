@@ -40,7 +40,7 @@ const PostPage = () => {
     const fetchPost = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get(`${API_BASE_URL}/api/post/${postId}`, {
+        const response = await axios.get(`/api/post/${postId}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         setPost(response.data);
@@ -59,7 +59,7 @@ const PostPage = () => {
 
   const fetchComments = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/api/post/${postId}/comments`);
+      const response = await axios.get(`/api/post/${postId}/comments`);
       setComments(response.data.data || []);
     } catch (err) {
       console.error('Error fetching comments:', err);
@@ -70,7 +70,7 @@ const PostPage = () => {
     try {
       const token = localStorage.getItem('token');
       const response = await axios.get(
-        `${API_BASE_URL}/api/addPostLike/${postId}`,
+        `/api/addPostLike/${postId}`,
         {
           headers: { Authorization: `Bearer ${token}` }
         }
@@ -95,7 +95,7 @@ const PostPage = () => {
     try {
       const token = localStorage.getItem('token');
       await axios.post(
-        `${API_BASE_URL}/api/post/${postId}/comment`,
+        `/api/post/${postId}/comment`,
         {
           text: newComment,
           created_at: new Date()

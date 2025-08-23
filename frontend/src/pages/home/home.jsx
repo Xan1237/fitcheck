@@ -59,7 +59,7 @@ const Home = () => {
       setIsLoading(true);
 
       // 1) Try dynamic data from API
-      const res = await fetch(`${API_BASE_URL}/api/getGymsByProvince/${encodeURIComponent(province)}`);
+      const res = await fetch(`/api/getGymsByProvince/${encodeURIComponent(province)}`);
       if (!res.ok) throw new Error(`Province fetch failed: ${res.status}`);
       const gymsFromApi = await res.json(); // expect an array of gyms
 

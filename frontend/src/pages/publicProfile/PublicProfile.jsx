@@ -53,7 +53,7 @@ const UserProfile = () => {
         const token = localStorage.getItem('token');
         if (!token) return;
 
-        const response = await fetch(`${API_BASE_URL}/api/GetUserData/?userName=${encodeURIComponent(localStorage.getItem('username'))}`, {
+        const response = await fetch(`/api/GetUserData/?userName=${encodeURIComponent(localStorage.getItem('username'))}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         const data = await response.json();
@@ -73,7 +73,7 @@ const UserProfile = () => {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${API_BASE_URL}/api/post/${postId}`, {
+      const response = await fetch(`/api/post/${postId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -132,7 +132,7 @@ const UserProfile = () => {
     try {
       const token = localStorage.getItem('token');
       if (!token) return setIsOwnProfile(false);
-      const res = await axios.get(`${API_BASE_URL}/api/checkProfileOwnership/${name}`, { headers: { Authorization: `Bearer ${token}` } });
+      const res = await axios.get(`/api/checkProfileOwnership/${name}`, { headers: { Authorization: `Bearer ${token}` } });
       setIsOwnProfile(!!res.data.isOwner);
     } catch (e) {
       console.error('Error checking profile ownership:', e);
@@ -143,7 +143,7 @@ const UserProfile = () => {
   const getFollowerCount = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.get(`${API_BASE_URL}/api/getFollowerCount/${name}`, { headers: { Authorization: `Bearer ${token}` } });
+      const res = await axios.get(`/api/getFollowerCount/${name}`, { headers: { Authorization: `Bearer ${token}` } });
       setUserData(prev => ({ ...prev, stats: { ...prev.stats, followers: res.data.follower_count } }));
     } catch (e) { console.error(e); }
   };
@@ -151,7 +151,7 @@ const UserProfile = () => {
   const getFollowingCount = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.get(`${API_BASE_URL}/api/getFollowingCount/${name}`, { headers: { Authorization: `Bearer ${token}` } });
+      const res = await axios.get(`/api/getFollowingCount/${name}`, { headers: { Authorization: `Bearer ${token}` } });
       setUserData(prev => ({ ...prev, stats: { ...prev.stats, following: res.data.following_count } }));
     } catch (e) { console.error(e); }
   };
@@ -159,7 +159,7 @@ const UserProfile = () => {
   const getPostCount = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.get(`${API_BASE_URL}/api/getNumberPost/${name}`, { headers: { Authorization: `Bearer ${token}` } });
+      const res = await axios.get(`/api/getNumberPost/${name}`, { headers: { Authorization: `Bearer ${token}` } });
       setUserData(prev => ({ ...prev, stats: { ...prev.stats, workoutsCompleted: res.data.post_count } }));
     } catch (e) { console.error(e); }
   };
@@ -167,7 +167,7 @@ const UserProfile = () => {
   const getPrCount = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.get(`${API_BASE_URL}/api/getNumberPR/${name}`, { headers: { Authorization: `Bearer ${token}` } });
+      const res = await axios.get(`/api/getNumberPR/${name}`, { headers: { Authorization: `Bearer ${token}` } });
       setUserData(prev => ({ ...prev, stats: { ...prev.stats, personalBests: res.data.pr_count } }));
     } catch (e) { console.error(e); }
   };
@@ -175,7 +175,7 @@ const UserProfile = () => {
   const isFollowing = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.post(`${API_BASE_URL}/api/isFollowing`, { targetUserName: name }, { headers: { Authorization: `Bearer ${token}` } });
+      const res = await axios.post(`/api/isFollowing`, { targetUserName: name }, { headers: { Authorization: `Bearer ${token}` } });
       setUserData(prev => ({ ...prev, stats: { ...prev.stats, isFollowing: res.data.isFollowing } }));
     } catch (e) { console.error(e); }
   };
@@ -183,7 +183,7 @@ const UserProfile = () => {
   const unfollowUser = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.post(`${API_BASE_URL}/api/unfollowUser`, { targetUserName: name }, { headers: { Authorization: `Bearer ${token}` } });
+      const res = await axios.post(`/api/unfollowUser`, { targetUserName: name }, { headers: { Authorization: `Bearer ${token}` } });
       setUserData(prev => ({ ...prev, stats: { ...prev.stats, isFollowing: false } }));
     } catch (e) { console.error(e); }
   };
@@ -191,7 +191,7 @@ const UserProfile = () => {
   const getData = async () => {
     try {
       if (!name) throw new Error('Username parameter is required');
-      const response = await fetch(`${API_BASE_URL}/api/GetUserData/?userName=${encodeURIComponent(name)}`);
+      const response = await fetch(`/api/GetUserData/?userName=${encodeURIComponent(name)}`);
       if (!response.ok) {
         if (response.status === 404) return; // graceful 404
         const errorData = await response.json();
@@ -218,7 +218,7 @@ const UserProfile = () => {
   const fetchUserGyms = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.get(`${API_BASE_URL}/api/getUserGyms/${name}`, { headers: { Authorization: `Bearer ${token}` } });
+      const res = await axios.get(`/api/getUserGyms/${name}`, { headers: { Authorization: `Bearer ${token}` } });
       const gyms = res?.data?.gyms || [];
       setUserGyms(gyms.map(gym => ({ id: gym.id, name: gym.name, address: gym.address })));
     } catch (e) {
@@ -242,7 +242,7 @@ const UserProfile = () => {
     // If you want to fetch from backend, use this instead:
     // const fetchGyms = async () => {
     //   try {
-    //     const response = await fetch(`${API_BASE_URL}/api/getGymsByProvince/Nova Scotia`);
+    //     const response = await fetch(`/api/getGymsByProvince/Nova Scotia`);
     //     const result = await response.json();
     //     setAllGyms(result.gyms || []);
     //   } catch (e) {
@@ -269,7 +269,7 @@ const UserProfile = () => {
   const handleSavePR = async () => {
     try {
       const token = localStorage.getItem('token');
-      await axios.post(`${API_BASE_URL}/api/addPersonalRecord`, { newPR }, { headers: { Authorization: `Bearer ${token}` } });
+      await axios.post(`/api/addPersonalRecord`, { newPR }, { headers: { Authorization: `Bearer ${token}` } });
       setUserData(prev => ({
         ...prev,
         stats: { ...prev.stats, personalBests: Number(prev.stats.personalBests) + 1 },
@@ -291,7 +291,7 @@ const UserProfile = () => {
         reps: editingPR.reps ? Number(editingPR.reps) : undefined
       };
 
-      await axios.put(`${API_BASE_URL}/api/pr`, payload, {
+      await axios.put(`/api/pr`, payload, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
@@ -322,7 +322,7 @@ const UserProfile = () => {
   const handleDeletePR = async (exerciseName) => {
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`${API_BASE_URL}/api/pr/${encodeURIComponent(exerciseName)}`, {
+      await axios.delete(`/api/pr/${encodeURIComponent(exerciseName)}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
@@ -345,7 +345,7 @@ const UserProfile = () => {
   const handleFollow = async () => {
     try {
       const token = localStorage.getItem('token');
-      await axios.post(`${API_BASE_URL}/api/newFollower`, { targetUserName: name }, { headers: { Authorization: `Bearer ${token}` } });
+      await axios.post(`/api/newFollower`, { targetUserName: name }, { headers: { Authorization: `Bearer ${token}` } });
       await isFollowing();
       getFollowerCount();
     } catch (e) { console.error('Error following user:', e); }
@@ -370,7 +370,7 @@ const UserProfile = () => {
         imageFile: newPost.imageFile,
         tags: newPost.tags.split(',').map(t => t.trim()).filter(Boolean)
       };
-      const res = await axios.post(`${API_BASE_URL}/api/createPost`, payload, { headers: { Authorization: `Bearer ${token}` } });
+      const res = await axios.post(`/api/createPost`, payload, { headers: { Authorization: `Bearer ${token}` } });
       if (res.data.success) {
         setPosts(prev => [{
           id: res.data.data[0].id,
@@ -391,7 +391,7 @@ const UserProfile = () => {
 
   function handleMessage() {
     const token = localStorage.getItem('token'); 
-    axios.post(`${API_BASE_URL}/api/newChat`, { targetUserName: userData.username }, { headers: { Authorization: `Bearer ${token}` } })
+    axios.post(`/api/newChat`, { targetUserName: userData.username }, { headers: { Authorization: `Bearer ${token}` } })
       .then(() => {
         window.location.href = '/messages';
       })
@@ -404,7 +404,7 @@ const UserProfile = () => {
     if (userGyms.some(g => g.id === gym.id)) return alert('This gym is already in your profile');
     try {
       const token = localStorage.getItem('token');
-      await axios.post(`${API_BASE_URL}/api/addUserGym`, { gymId: gym.id, username: userData.username, gymName: gym.name, gymAdress: gym.address }, { headers: { Authorization: `Bearer ${token}` } });
+      await axios.post(`/api/addUserGym`, { gymId: gym.id, username: userData.username, gymName: gym.name, gymAdress: gym.address }, { headers: { Authorization: `Bearer ${token}` } });
       setUserGyms(prev => [...prev, gym]);
       setShowGymSearch(false);
     } catch (e) {
@@ -419,7 +419,7 @@ const UserProfile = () => {
     try {
       const token = localStorage.getItem('token');
       // Optionally, call your backend to remove the gym for this user
-      await axios.post(`${API_BASE_URL}/api/removeUserGym`, { gymId, username: userData.username }, { headers: { Authorization: `Bearer ${token}` } });
+      await axios.post(`/api/removeUserGym`, { gymId, username: userData.username }, { headers: { Authorization: `Bearer ${token}` } });
       setUserGyms(prev => prev.filter(gym => gym.id !== gymId));
     } catch (e) {
       console.error('Error removing gym:', e);
@@ -473,7 +473,7 @@ const UserProfile = () => {
       reader.onload = async (event) => {
         const base64File = event.target.result;
         
-        const uploadResponse = await fetch(`${API_BASE_URL}/api/uploadProfilePicture`, {
+        const uploadResponse = await fetch(`/api/uploadProfilePicture`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

@@ -20,7 +20,7 @@ const GymDirectory = () => {
   useEffect(() => {
     const fetchGymUsers = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/api/getPeopleByGymFrequented/${gymId}`, {
+        const response = await fetch(`/api/getPeopleByGymFrequented/${gymId}`, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`,

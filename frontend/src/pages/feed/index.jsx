@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useParams} from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import axios from 'axios';
+import axiosInstance from '../../services/axios';
 import Header from '../../components/header';
 import Footer from '../../components/footer';
 import { 
@@ -14,9 +14,6 @@ import {
   FaEllipsisV
 } from 'react-icons/fa';
 import './styles.scss';
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-const VITE_SITE_URL = import.meta.env.VITE_SITE_URL;
 
 function formatTimeSince(dateString) {
   const createdAt = new Date(dateString);
@@ -89,7 +86,7 @@ const Feed = () => {
     try {
       // Replace with your actual API endpoint
       const token = localStorage.getItem('token');
-      const response = await axios.get(`${API_BASE_URL}/api/getPosts`, {
+      const response = await axiosInstance.get('/api/getPosts', {
         headers: { Authorization: `Bearer ${token}` }
       });
       
@@ -111,7 +108,7 @@ const Feed = () => {
   const fetchComments = async (postId) => {
     setLoadingComments(prev => ({ ...prev, [postId]: true }));
     try {
-      const response = await axios.get(`${API_BASE_URL}/api/post/${postId}/comments`);
+      const response = await axios.get(`/api/post/${postId}/comments`);
       setComments(prev => ({ ...prev, [postId]: response.data.data || [] }));
     } catch (error) {
       setComments(prev => ({ ...prev, [postId]: [] }));
@@ -127,7 +124,7 @@ const Feed = () => {
     if (!text || !text.trim()) return;
     try {
       const token = localStorage.getItem('token');
-      await axios.post(`${API_BASE_URL}/api/post/${postId}/comment`, {
+      await axios.post(`/api/post/${postId}/comment`, {
         text,
         created_at: new Date(),
         username: userData?.username || undefined
@@ -200,7 +197,7 @@ const Feed = () => {
     try {
       const token = localStorage.getItem('token');
       const response = await axios.get(
-        `${API_BASE_URL}/api/addPostLike/${postId}`,
+        `/api/addPostLike/${postId}`,
         {
           headers: { Authorization: `Bearer ${token}` }
         }

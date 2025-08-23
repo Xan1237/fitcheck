@@ -60,7 +60,7 @@ const AuthPage = () => {
     }
 
     try {
-      const response = await axios.post(`${API_BASE_URL}/auth/signup`, {
+      const response = await axios.post(`/auth/signup`, {
         email,
         password,
         username
@@ -89,7 +89,7 @@ const AuthPage = () => {
     }
 
     try {
-      const response = await axios.post(`${API_BASE_URL}/auth/signin`, {
+      const response = await axios.post(`/auth/signin`, {
         email,
         password
       });

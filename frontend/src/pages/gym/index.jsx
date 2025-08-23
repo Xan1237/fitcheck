@@ -58,7 +58,7 @@ const Gym = () => {
     const token = localStorage.getItem('token');
     try {
       console.log(commentData);
-      const response = await fetch(`${API_BASE_URL}/api/comment`, {
+      const response = await fetch(`/api/comment`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -95,7 +95,7 @@ const Gym = () => {
     const gymName = gymsData.id;
     try {
       const response = await fetch(
-        `${API_BASE_URL}/api/GetComments/?GymName=${encodeURIComponent(gymName)}`,
+        `/api/GetComments/?GymName=${encodeURIComponent(gymName)}`,
         { method: 'GET' }
       );
 

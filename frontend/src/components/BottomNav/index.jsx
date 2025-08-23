@@ -99,7 +99,7 @@ const BottomNav = () => {
   const fetchUsername = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.post(`${VITE_API_BASE_URL}/api/getUserName`, {}, {
+      const response = await axios.post(`/api/getUserName`, {}, {
         headers: {
           Authorization: `Bearer ${token}`
         }

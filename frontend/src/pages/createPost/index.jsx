@@ -51,7 +51,7 @@ const CreatePost = () => {
     try {
       const token = localStorage.getItem("token");
       const response = await axios.post(
-        `${API_BASE_URL}/api/createPost`,
+        `/api/createPost`,
         {
           description,
           imageFile, // can be null

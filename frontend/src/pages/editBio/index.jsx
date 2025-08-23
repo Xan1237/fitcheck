@@ -27,7 +27,7 @@ const EditBio = () => {
         return;
       }
 
-      const response = await axios.get(`${API_BASE_URL}/api/getUserBio`, {
+      const response = await axios.get(`/api/getUserBio`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -78,7 +78,7 @@ const EditBio = () => {
         return;
       }
 
-      const response = await axios.put(`${API_BASE_URL}/api/updateUserBio`, 
+      const response = await axios.put(`/api/updateUserBio`, 
         { bio: bio.trim() },
         {
           headers: {

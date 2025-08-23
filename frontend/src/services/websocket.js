@@ -8,11 +8,16 @@ export const initializeSocket = () => {
     const token = localStorage.getItem('token');
     if (!token) {
       console.log('No token found, skipping WebSocket initialization');
-      return null;
+      return;
     }
 
+    // Get the WebSocket URL based on environment
+    const wsUrl = window.location.hostname === 'localhost' 
+      ? 'http://localhost:3000'
+      : 'https://fitcheck-kt9g.onrender.com';
+
     if (!socket) {
-      socket = io(import.meta.env.VITE_API_BASE_URL, {
+      socket = io(wsUrl, {
         transports: ['websocket'],
         autoConnect: true,
         auth: {

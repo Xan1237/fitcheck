@@ -4,17 +4,20 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   plugins: [react()],
   server: {
+    port: 4173,
     proxy: {
       '/api': {
-        target: 'https://fitcheck-kt9g.onrender.com',  // Redirect /api requests to backend
+        target: 'http://localhost:3000',
         changeOrigin: true,
-        secure: false,
       },
       '/auth': {
-        target: 'https://fitcheck-kt9g.onrender.com',  // Redirect /auth requests to backend
+        target: 'http://localhost:3000',
         changeOrigin: true,
-        secure: false,
       },
     },
+  },
+  preview: {
+    port: 4173,
+    host: true
   },
 });

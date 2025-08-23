@@ -17,7 +17,7 @@ const People = () => {
     const fetchUsers = async () => {
       setLoading(true);
       try {
-        const response = await axios.get(`${API_BASE_URL}/api/getAllUsers`);
+        const response = await axios.get(`/api/getAllUsers`);
         setUsers(response.data || []);
       } catch (error) {
         setUsers([]);

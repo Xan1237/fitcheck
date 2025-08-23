@@ -53,7 +53,7 @@ const Header = () => {
     setLoading(true);
     try {
       // Just call getUserName - it already handles token verification
-      const response = await axios.post(`${API_BASE_URL}/api/getUserName`, {}, {
+      const response = await axios.post(`/api/getUserName`, {}, {
         headers: {
           Authorization: `Bearer ${token}`
         }

@@ -47,7 +47,7 @@ const ProfilePictureUpload = ({ onUploadSuccess }) => {
       reader.onload = async (event) => {
         const base64File = event.target.result;
         
-        const uploadResponse = await fetch(`${API_BASE_URL}/api/uploadProfilePicture`, {
+        const uploadResponse = await fetch(`/api/uploadProfilePicture`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -339,7 +339,7 @@ const saveAllFormData = () => {
   };
   const token = localStorage.getItem('token');
   console.log("Sending data to backend:", sendingdata);
-  axios.post(`${API_BASE_URL}/api/profile`, 
+  axios.post(`/api/profile`, 
     sendingdata,
     {
       headers: {

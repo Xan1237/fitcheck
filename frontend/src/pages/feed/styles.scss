@@ -13,17 +13,6 @@
     padding-right: 12px;
   }
 
-  .header, .footer {
-    margin: 0 auto;
-    width: 100%;
-    background: #232526;
-    border-bottom: 1px solid #232323;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-
-    @media (max-width: 768px) {
-      display: none;
-    }
-  }
 }
 
 // Main feed container

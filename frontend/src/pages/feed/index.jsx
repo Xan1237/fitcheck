@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useParams} from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import Header from '../../components/header';
@@ -51,6 +51,9 @@ const Feed = () => {
   const [loadingComments, setLoadingComments] = useState({}); // { [postId]: bool }
   const [expandedPosts, setExpandedPosts] = useState({}); // { [postId]: true/false }
   const [openComments, setOpenComments] = useState({}); // { [postId]: true/false }
+  const [sharePostId, setSharePostId] = useState(null);
+  const [copySuccess, setCopySuccess] = useState(false);
+
 
   // Transform API post to UI post format
   const transformPostData = (apiPost) => {
@@ -74,7 +77,6 @@ const Feed = () => {
       timestamp: formatTimeSince(apiPost.created_at),
       likes: apiPost.total_likes || 0,
       comments: apiPost.total_comments || 0,
-      shares: apiPost.shares || 0,
       isLiked: apiPost.is_liked || false,
       tags: tags.map(tag => `#${tag}`)
     };
@@ -145,6 +147,24 @@ const Feed = () => {
       alert('Failed to add comment');
       console.error('Failed to add comment:', error);
     }
+  };
+
+  const handleShare = (postId) => {
+    setSharePostId(postId);
+    setCopySuccess(false);
+  };
+
+  const handleCopyLink = () => {
+    const url = `${VITE_SITE_URL}/post/${sharePostId}`;
+    navigator.clipboard.writeText(url).then(() => {
+      setCopySuccess(true);
+      setTimeout(() => setCopySuccess(false), 1500);
+    });
+  };
+
+  const closeSharePopup = () => {
+    setSharePostId(null);
+    setCopySuccess(false);
   };
 
   useEffect(() => {
@@ -339,9 +359,8 @@ const Feed = () => {
                     <FaComment />
                     <span>{post.comments}</span>
                   </button>
-                  <button className="action-btn share-btn">
+                  <button className="action-btn share-btn" onClick={() => handleShare(post.id)}>
                     <FaShare />
-                    <span>{post.shares}</span>
                   </button>
                 </div>
 
@@ -402,6 +421,28 @@ const Feed = () => {
                       >
                         Post
                       </button>
+                    </div>
+                  </div>
+                )}
+                {/* Share Popup */}
+                {sharePostId === post.id && (
+                  <div className="share-popup-overlay" onClick={closeSharePopup}>
+                    <div className="share-popup" onClick={e => e.stopPropagation()}>
+                      <button className="share-close-btn" onClick={closeSharePopup}>&times;</button>
+                      <div className="share-title">Share this post</div>
+                      <input
+                        className="share-link-input"
+                        type="text"
+                        value={`${VITE_SITE_URL}/post/${post.id}`}
+                        readOnly
+                        onFocus={e => e.target.select()}
+                      />
+                      <div className="share-actions-row">
+                        <button className="share-action" onClick={handleCopyLink}>
+                          Copy Link
+                        </button>
+                        {copySuccess && <span style={{ color: '#ff6b35', marginLeft: 8 }}>Copied!</span>}
+                      </div>
                     </div>
                   </div>
                 )}

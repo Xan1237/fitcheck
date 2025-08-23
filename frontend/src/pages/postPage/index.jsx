@@ -3,19 +3,27 @@ import { useParams, Link } from 'react-router-dom';
 import { FaHeart, FaRegHeart, FaComment, FaShare } from 'react-icons/fa';
 import axios from 'axios';
 import Header from '../../components/header';
-import './style.scss';
+// Use feed styles for post page
+import '../feed/styles.scss';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const VITE_SITE_URL = import.meta.env.VITE_SITE_URL;
 
-function formatTimestamp(dateString) {
-  const date = new Date(dateString);
-  return date.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
+function formatTimeSince(dateString) {
+  const createdAt = new Date(dateString);
+  const now = new Date();
+  const diffMs = now - createdAt;
+  const diffMinutes = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMinutes / 60);
+  const diffDays = Math.floor(diffHours / 24);
+
+  if (diffMinutes < 60) {
+    return `${diffMinutes}m`;
+  } else if (diffHours < 24) {
+    return `${diffHours}h`;
+  } else {
+    return `${diffDays}d`;
+  }
 }
 
 const PostPage = () => {
@@ -25,6 +33,8 @@ const PostPage = () => {
   const [newComment, setNewComment] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showShare, setShowShare] = useState(false);
+  const [copySuccess, setCopySuccess] = useState(false);
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -44,6 +54,7 @@ const PostPage = () => {
     };
 
     fetchPost();
+    // eslint-disable-next-line
   }, [postId]);
 
   const fetchComments = async () => {
@@ -104,6 +115,24 @@ const PostPage = () => {
     }
   };
 
+  const handleShare = () => {
+    setShowShare(true);
+    setCopySuccess(false);
+  };
+
+  const handleCopyLink = () => {
+    const url = `${VITE_SITE_URL}/post/${postId}`;
+    navigator.clipboard.writeText(url).then(() => {
+      setCopySuccess(true);
+      setTimeout(() => setCopySuccess(false), 1500);
+    });
+  };
+
+  const closeSharePopup = () => {
+    setShowShare(false);
+    setCopySuccess(false);
+  };
+
   const parseTags = (tagsString) => {
     try {
       return typeof tagsString === 'string' ? JSON.parse(tagsString) : tagsString || [];
@@ -113,110 +142,156 @@ const PostPage = () => {
     }
   };
 
-  if (loading) return <div className="post-page"><div className="loading">Loading...</div></div>;
-  if (error) return <div className="post-page"><div className="error">{error}</div></div>;
-  if (!post) return <div className="post-page"><div className="error">Post not found</div></div>;
+  if (loading) return <div className="feed-page"><div className="loading-indicator">Loading...</div></div>;
+  if (error) return <div className="feed-page"><div className="empty-state">{error}</div></div>;
+  if (!post) return <div className="feed-page"><div className="empty-state">Post not found</div></div>;
 
   return (
     <>
       <Header />
-      <div className="post-page">
-        <div className="post-container">
-          <div className="post-header">
-            <div className="user-avatar">
-              {post.author?.profile_picture_url ? (
-                <img src={post.author.profile_picture_url} alt={post.username} />
-              ) : (
-                <div className="default-avatar">{post.username?.[0]?.toUpperCase()}</div>
+      <div className="feed-page">
+        <div className="posts-feed">
+          <div className="post-card">
+            <div className="post-header">
+              <div className="post-user-info">
+                <div className="user-avatar">
+                  {post.author?.profile_picture_url ? (
+                    <img src={post.author.profile_picture_url} alt={post.username} />
+                  ) : (
+                    <div className="default-avatar">{post.username?.[0]?.toUpperCase()}</div>
+                  )}
+                </div>
+                <div className="user-details">
+                  <div className="user-name">
+                    <Link
+                      to={`/profile/${post.username}`}
+                      className="feed-post-author-link"
+                    >
+                      {post.username}
+                    </Link>
+                  </div>
+                  <div className="user-meta">
+                    @{post.username} <br /> {formatTimeSince(post.created_at)}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="post-content">
+              {post.title && <h1 className="post-title">{post.title}</h1>}
+              <p className="post-description">{post.description}</p>
+              {post.image_url && (
+                <div className="post-image-container">
+                  <img
+                    src={post.image_url}
+                    alt="Post content"
+                    className="responsive-image"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = 'https://via.placeholder.com/400x300?text=Image+Not+Available';
+                    }}
+                  />
+                </div>
               )}
             </div>
-            <div className="user-info">
-              <Link to={`/profile/${post.username}`} className="username">
-                @{post.username}
-              </Link>
-              <div className="timestamp">{formatTimestamp(post.created_at)}</div>
-            </div>
-          </div>
 
-          <div className="post-content">
-            {post.title && <h1 className="post-title">{post.title}</h1>}
-            <p className="post-text">{post.description}</p>
-            {post.image_url && (
-              <img 
-                src={post.image_url} 
-                alt="Post content" 
-                className="post-image"
-                onError={(e) => {
-                  e.target.onerror = null;
-                  e.target.src = 'https://via.placeholder.com/400x300?text=Image+Not+Available';
-                }}
-              />
-            )}
             {post.tags && (
-              <div className="tags">
+              <div className="post-tags">
                 {parseTags(post.tags).map((tag, index) => (
                   <span key={index} className="tag">#{tag}</span>
                 ))}
               </div>
             )}
-          </div>
 
-          <div className="post-actions">
-            <button 
-              className={`action-btn ${post.is_liked ? 'liked' : ''}`}
-              onClick={handleLike}
-            >
-              {post.is_liked ? <FaHeart /> : <FaRegHeart />}
-              <span>{post.total_likes || 0}</span>
-            </button>
-            <button className="action-btn">
-              <FaComment />
-              <span>{post.total_comments || 0}</span>
-            </button>
-            <button className="action-btn">
-              <FaShare />
-              <span>{post.shares || 0}</span>
-            </button>
-          </div>
-        </div>
+            <div className="post-actions">
+              <button
+                className={`action-btn like-btn ${post.is_liked ? 'liked' : ''}`}
+                onClick={handleLike}
+              >
+                {post.is_liked ? <FaHeart /> : <FaRegHeart />}
+                <span>{post.total_likes || 0}</span>
+              </button>
+              <button className="action-btn comment-btn">
+                <FaComment />
+                <span>{post.total_comments || 0}</span>
+              </button>
+              <button className="action-btn share-btn" onClick={handleShare}>
+                <FaShare />
+              </button>
+            </div>
 
-        <div className="comments-section">
-          <div className="comments-header">Comments</div>
-          <form className="comment-input" onSubmit={handleAddComment}>
-            <input
-              type="text"
-              placeholder="Add a comment..."
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-            />
-            <button type="submit" disabled={!newComment.trim()}>
-              Post
-            </button>
-          </form>
+            {/* Comments Section */}
+            <div className="post-comments-section modern">
+              <div className="comments-list">
+                {comments.length === 0 ? (
+                  <div>No comments yet.</div>
+                ) : (
+                  comments.map((comment) => {
+                    const avatar = comment.profile_picture_url;
+                    const uname = comment.username || 'user';
+                    const initial = uname.charAt(0).toUpperCase();
+                    return (
+                      <div key={comment.id} className="comment">
+                        <div className="comment-avatar">
+                          {avatar ? (
+                            <img src={avatar} alt={`${uname}'s avatar`} />
+                          ) : (
+                            <div className="avatar-fallback">{initial}</div>
+                          )}
+                        </div>
+                        <div className="comment-body">
+                          <div className="comment-header">
+                            <Link to={`/profile/${uname}`} className="comment-author">@{uname}</Link>
+                            <span className="dot">•</span>
+                            <time className="comment-time">{formatTimeSince(comment.created_at)}</time>
+                          </div>
+                          <div className="comment-text">{comment.text}</div>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+              <form className="comment-input-row" onSubmit={handleAddComment}>
+                <input
+                  type="text"
+                  placeholder="Add a comment..."
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
+                  className="comment-input"
+                />
+                <button
+                  type="submit"
+                  className="add-comment-btn"
+                  disabled={!newComment.trim()}
+                >
+                  Post
+                </button>
+              </form>
+            </div>
 
-          <div className="comments-list">
-            {comments.map((comment) => (
-              <div key={comment.id} className="comment">
-                <div className="comment-avatar">
-                  {comment.profile_picture_url ? (
-                    <img src={comment.profile_picture_url} alt={comment.username} />
-                  ) : (
-                    <div className="default-avatar">{comment.username?.[0]?.toUpperCase()}</div>
-                  )}
-                </div>
-                <div className="comment-content">
-                  <div className="comment-header">
-                    <Link to={`/profile/${comment.username}`} className="comment-author">
-                      @{comment.username}
-                    </Link>
-                    <span className="comment-time">
-                      {formatTimestamp(comment.created_at)}
-                    </span>
+            {/* Share Popup */}
+            {showShare && (
+              <div className="share-popup-overlay" onClick={closeSharePopup}>
+                <div className="share-popup" onClick={e => e.stopPropagation()}>
+                  <button className="share-close-btn" onClick={closeSharePopup}>&times;</button>
+                  <div className="share-title">Share this post</div>
+                  <input
+                    className="share-link-input"
+                    type="text"
+                    value={`${VITE_SITE_URL}/post/${postId}`}
+                    readOnly
+                    onFocus={e => e.target.select()}
+                  />
+                  <div className="share-actions-row">
+                    <button className="share-action" onClick={handleCopyLink}>
+                      Copy Link
+                    </button>
+                    {copySuccess && <span style={{ color: '#ff6b35', marginLeft: 8 }}>Copied!</span>}
                   </div>
-                  <div className="comment-text">{comment.text}</div>
                 </div>
               </div>
-            ))}
+            )}
           </div>
         </div>
       </div>

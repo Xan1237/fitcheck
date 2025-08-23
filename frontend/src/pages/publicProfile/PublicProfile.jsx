@@ -44,6 +44,54 @@ const UserProfile = () => {
   const { name } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
+  const [currentUserUuid, setCurrentUserUuid] = useState(null);
+
+  // Fetch current user's UUID
+  useEffect(() => {
+    const fetchCurrentUser = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+
+        const response = await fetch(`${API_BASE_URL}/api/GetUserData/?userName=${encodeURIComponent(localStorage.getItem('username'))}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await response.json();
+        setCurrentUserUuid(data.user.uuid);
+      } catch (error) {
+        console.error('Error fetching current user:', error);
+      }
+    };
+
+    fetchCurrentUser();
+  }, []);
+
+  const handleDeletePost = async (postId) => {
+    if (!window.confirm('Are you sure you want to delete this post?')) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_BASE_URL}/api/post/${postId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        // Remove the post from the state
+        setPosts(prev => prev.filter(post => post.postId !== postId));
+      } else {
+        const error = await response.json();
+        alert(error.message || 'Failed to delete post');
+      }
+    } catch (error) {
+      console.error('Error deleting post:', error);
+      alert('Failed to delete post');
+    }
+  };
 
   const [userData, setUserData] = useState({
     name: 'Alex Johnson',
@@ -709,6 +757,15 @@ const UserProfile = () => {
 
                   return (
                     <article key={postKey} className="card post-card">
+                      {isOwnProfile && (
+                        <button
+                          onClick={() => handleDeletePost(post.postId)}
+                          className="delete-post-btn"
+                          aria-label="Delete post"
+                        >
+                          <X size={16} />
+                        </button>
+                      )}
                       {post.image_url && (
                         <img src={post.image_url} className="post-img" loading="lazy" />
                       )}

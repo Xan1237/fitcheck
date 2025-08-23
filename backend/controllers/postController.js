@@ -321,5 +321,52 @@ async function getPostById(req, res) {
   }
 }
 
+
+
+/**
+ * Deletes a post by its ID.
+ * Requires authentication and verifies post ownership.
+ */
+async function deletePost(req, res) {
+  try {
+    const { postId } = req.params;
+    const userId = req.user?.id;
+
+    if (!postId) {
+      return res.status(400).json({ message: 'Post ID is required' });
+    }
+
+    // First, verify that the post exists and belongs to the user
+    const { data: post, error: fetchError } = await supabase
+      .from('posts')
+      .select('*')
+      .eq('postId', postId)
+      .single();
+
+    if (fetchError) {
+      return res.status(404).json({ message: 'Post not found' });
+    }
+
+    if (post.uuid !== userId) {
+      return res.status(403).json({ message: 'Not authorized to delete this post' });
+    }
+
+    // Delete the post
+    const { error: deleteError } = await supabase
+      .from('posts')
+      .delete()
+      .eq('postId', postId);
+
+    if (deleteError) {
+      return res.status(400).json({ message: deleteError.message });
+    }
+
+    return res.status(200).json({ message: 'Post deleted successfully' });
+  } catch (e) {
+    console.error('Error deleting post:', e);
+    return res.status(500).json({ message: e.message });
+  }
+}
+
 // Export controller functions for use in routes
-export { getPosts, addPostComment, getPostComments, addPostLike, getPostById }
+export { getPosts, addPostComment, getPostComments, addPostLike, getPostById, deletePost }

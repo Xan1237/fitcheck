@@ -1,140 +1,333 @@
-.gym-directory {
-  padding: 20px;
-  max-width: 800px;
-  margin: 0 auto;
+/* ----- Directory pages: unified, mobile-first styles ----- */
 
+/* Theme tokens */
+:root {
+  --bg: #0b0b0e;
+  --card: #13131a;
+  --elev: #171723;
+  --text: #f7f7fb;
+  --muted: #b7b8c7;
+  --accent: #7aa2ff;
+  --ring: rgba(122, 162, 255, 0.45);
+  --border: #242436;
+  --shadow: 0 8px 20px rgba(0,0,0,0.35);
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #f8f9fc;
+    --card: #ffffff;
+    --elev: #ffffff;
+    --text: #13141a;
+    --muted: #596080;
+    --accent: #335dff;
+    --ring: rgba(51,93,255,0.25);
+    --border: #e7e8ee;
+    --shadow: 0 8px 20px rgba(0,0,0,0.06);
+  }
+}
+
+/* Scope everything to directory pages to avoid leaking styles */
+.directory-page {
+  color: var(--text);
+  background: var(--bg);
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+
+  /* Page container spacing */
+  & > .directory-header,
+  & > .empty-state,
+  & > .users-grid {
+    width: min(100%, 1120px);
+    margin-inline: auto;
+    padding-inline: clamp(16px, 4vw, 28px);
+  }
+
+  /* Header: back button + title */
   .directory-header {
-    background: #1a1a1a;
-    padding: 20px;
-    border-radius: 12px;
-    margin-bottom: 20px;
-    text-align: center;
-    position: relative;
-    display: flex;
+    display: grid;
+    grid-template-columns: auto 1fr;
     align-items: center;
-    min-height: 60px;
-    
+    gap: 12px;
+    padding-top: clamp(8px, 1.5vh, 16px);
+    padding-bottom: clamp(8px, 1.5vh, 16px);
+
     h1 {
-      color: #ffffff;
-      font-size: 24px;
+      font-size: clamp(20px, 2.4vw, 28px);
+      font-weight: 700;
+      letter-spacing: 0.2px;
       margin: 0;
-      width: 100%;
-    }
-
-    @media (max-width: 768px) {
-      padding: 15px 50px;
-      
-      h1 {
-        font-size: 20px;
-      }
-    }
-
-    @media (max-width: 380px) {
-      h1 {
-        font-size: 18px;
-      }
     }
 
     .back-button {
-      position: absolute;
-      left: 15px;
-      top: 50%;
-      transform: translateY(-50%);
-      background: none;
-      border: none;
-      color: #ffffff;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
+      display: inline-grid;
       justify-content: center;
+      place-items: center;
       width: 40px;
       height: 40px;
-      border-radius: 50%;
-      transition: background-color 0.2s;
-      padding: 0;
-      z-index: 1;
-
-      &:hover {
-        background-color: rgba(255, 255, 255, 0.1);
-      }
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--text);
+      transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.15);
 
       svg {
-        font-size: 20px;
+        width: 16px;
+        height: 16px;
       }
 
-      @media (max-width: 768px) {
-        left: 8px;
-        width: 32px;
-        height: 32px;
+      &:hover {
+        transform: translateY(-1px);
+        box-shadow: var(--shadow);
+        border-color: var(--ring);
+      }
 
-        svg {
-          font-size: 16px;
-        }
+      &:active {
+        transform: translateY(0);
+        box-shadow: 0 1px 6px rgba(0,0,0,0.18);
+      }
+
+      &:focus-visible {
+        outline: none;
+        box-shadow: 0 0 0 3px var(--ring);
       }
     }
   }
 
+  /* Users grid */
   .users-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 20px;
-    padding: 10px;
+    gap: clamp(12px, 2.6vw, 20px);
+    padding-bottom: clamp(24px, 4vh, 40px);
+
+    /* 2 cards on small phones, scale up responsively */
+    grid-template-columns: repeat(auto-fill, minmax(min(44%, 200px), 1fr));
   }
 
+  /* User card */
   .user-card {
-    background: #1a1a1a;
-    border-radius: 10px;
-    padding: 15px;
-    text-align: center;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    cursor: pointer;
+    display: grid;
+    place-items: center;
+    gap: 10px;
     text-decoration: none;
-
-    &:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-    }
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 16px 14px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.18);
+    transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease, background 160ms ease;
 
     .user-avatar {
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      background: #2a2a2a;
-      margin: 0 auto 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      width: clamp(68px, 12vw, 88px);
+      height: clamp(68px, 12vw, 88px);
+      border-radius: 999px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(180deg, var(--elev), transparent);
+      border: 1px solid var(--border);
       overflow: hidden;
-      
-      .avatar-text {
-        color: #ffffff;
-        font-size: 24px;
-        text-transform: uppercase;
-      }
+      position: relative;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
 
       .profile-image {
         width: 100%;
         height: 100%;
         object-fit: cover;
+        display: block;
+      }
+
+      .avatar-text {
+        font-size: clamp(22px, 5vw, 28px);
+        font-weight: 700;
+        color: var(--muted);
+        text-transform: uppercase;
       }
     }
 
     .username {
-      color: #ffffff;
-      font-size: 16px;
-      margin: 10px 0;
-      word-break: break-word;
+      font-size: clamp(14px, 1.8vw, 16px);
+      font-weight: 600;
+      letter-spacing: 0.2px;
+      color: var(--text);
+      text-align: center;
+      margin: 0;
+      max-width: 95%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    &:hover {
+      box-shadow: var(--shadow);
+      border-color: var(--ring);
+      background: color-mix(in srgb, var(--card), var(--accent) 3%);
+    }
+
+    &:active {
+      box-shadow: 0 4px 10px rgba(0,0,0,0.18);
+    }
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 3px var(--ring);
     }
   }
 
+  /* Empty states and messages */
   .empty-state {
+    display: grid;
+    place-items: center;
     text-align: center;
-    padding: 40px;
-    color: #666;
-    
+    padding-block: clamp(40px, 16vh, 100px);
+
     p {
-      font-size: 18px;
-      margin: 10px 0;
+      color: var(--muted);
+      font-size: clamp(14px, 1.8vw, 16px);
+      margin: 0;
     }
   }
+}
+
+/* Larger breakpoints: widen cards subtly */
+@media (min-width: 680px) {
+  .directory-page .users-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
+}
+
+/* Accessibility: reduce motion if the user prefers */
+@media (prefers-reduced-motion: reduce) {
+  .directory-page .user-card,
+  .directory-page .back-button {
+    transition: none !important;
+  }
+}
+
+/* ---------- Loading states: skeleton + shimmer ---------- */
+
+/* Reuse theme tokens already defined */
+:root {
+  --skeleton-base: color-mix(in srgb, var(--card), #ffffff 6%);
+  --skeleton-edge: color-mix(in srgb, var(--card), #000000 8%);
+  --shimmer: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in srgb, var(--skeleton-base), #ffffff 18%) 50%,
+    transparent 100%
+  );
+}
+
+/* Container used while data loads */
+.directory-page .loading-grid {
+  display: grid;
+  gap: clamp(12px, 2.6vw, 20px);
+  padding-inline: clamp(16px, 4vw, 28px);
+  padding-bottom: clamp(24px, 4vh, 40px);
+  width: min(100%, 1120px);
+  margin-inline: auto;
+
+  /* same column behavior as .users-grid for seamless swap */
+  grid-template-columns: repeat(auto-fill, minmax(min(44%, 200px), 1fr));
+}
+
+@media (min-width: 680px) {
+  .directory-page .loading-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
+}
+
+/* Card-shaped skeleton that matches your .user-card geometry */
+.skeleton-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 16px 14px;
+  position: relative;
+  overflow: hidden;
+
+  /* subtle inset to match real card */
+  box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+}
+
+/* Shimmer animation bar */
+.skeleton-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: var(--shimmer);
+  transform: translateX(-100%);
+  animation: shimmer-move 1.2s infinite;
+}
+
+/* Inner skeleton bits (avatar circle + two lines) */
+.skeleton-avatar,
+.skeleton-line {
+  background: radial-gradient(120% 120% at 50% 0%,
+    var(--skeleton-base) 0%,
+    var(--skeleton-edge) 100%);
+}
+
+.skeleton-avatar {
+  width: clamp(68px, 12vw, 88px);
+  height: clamp(68px, 12vw, 88px);
+  border-radius: 999px;
+  margin: 4px auto 12px auto;
+  border: 1px solid var(--border);
+}
+
+.skeleton-line {
+  height: 12px;
+  border-radius: 8px;
+  margin: 8px auto 0 auto;
+  width: 72%;
+}
+
+.skeleton-line.line-2 {
+  width: 46%;
+}
+
+/* Header skeleton for title and back button */
+.directory-page .directory-header.loading {
+  position: relative;
+}
+
+.directory-page .directory-header.loading .back-button,
+.directory-page .directory-header.loading h1 {
+  visibility: hidden; /* preserve layout so nothing jumps */
+}
+
+.directory-page .directory-header.loading::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: var(--shimmer);
+  animation: shimmer-move 1.2s infinite;
+  border-radius: 10px;
+  opacity: 0.75;
+}
+
+/* Reduce motion if preferred */
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-card::after,
+  .directory-page .directory-header.loading::after {
+    animation: none;
+    background-image: none;
+  }
+}
+
+/* Keyframes */
+@keyframes shimmer-move {
+  0%   { transform: translateX(-100%); }
+  60%  { transform: translateX(100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* Optional: muted "Loading…" text for screen readers only */
+.visually-hidden {
+  position: absolute !important;
+  height: 1px; width: 1px;
+  overflow: hidden; clip: rect(1px, 1px, 1px, 1px);
+  white-space: nowrap; border: 0; padding: 0; margin: -1px;
 }

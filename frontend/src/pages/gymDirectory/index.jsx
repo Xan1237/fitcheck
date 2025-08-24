@@ -73,11 +73,39 @@ const GymDirectory = () => {
 
   if (loading) {
     return (
-      <div className="gym-directory">
-        <Header />
-        <div className="directory-header">
-          <h1>Loading...</h1>
-        </div>
+      <div className="directory-page followers-directory">
+        {/* Header */}
+        {loading ? (
+          <div className="directory-header loading" aria-busy="true">
+            <span className="visually-hidden">Loading</span>
+            <button className="back-button" aria-hidden />
+            <h1 aria-hidden>Loading…</h1>
+          </div>
+        ) : (
+          <div className="directory-header">
+            <button className="back-button" onClick={() => navigate(-1)} aria-label="Go back">
+              {/* your SVG back arrow */}
+            </button>
+            <h1>Followers</h1>
+          </div>
+        )}
+
+        {/* Content grid */}
+        {loading ? (
+          <div className="loading-grid">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div className="skeleton-card" key={i}>
+                <div className="skeleton-avatar" />
+                <div className="skeleton-line" />
+                <div className="skeleton-line line-2" />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="users-grid">
+            {/* map your real users here */}
+          </div>
+        )}
       </div>
     );
   }
@@ -96,8 +124,10 @@ const GymDirectory = () => {
     );
   }
 
+  
+
   return (
-      <div className="gym-directory">
+      <div className="directory-page gym-directory">
         <Header />
         <div className="directory-header">
           <button onClick={handleBack} className="back-button" aria-label="Back to gym page">

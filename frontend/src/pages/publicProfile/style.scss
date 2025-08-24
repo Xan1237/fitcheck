@@ -49,8 +49,8 @@ body { background: $bg !important; color: $text; }
 /* fixed, square, circular frame */
 .profile-hero .avatar-container {
   position: relative;
-  width: 84px;        /* mobile size */
-  height: 84px;
+  width: 114px;        /* mobile size */
+  height: 124px;
   flex: 0 0 84px;
   border-radius: 50%;
   overflow: hidden;
@@ -65,8 +65,8 @@ body { background: $bg !important; color: $text; }
 }
 @media (min-width: 880px) {
   .profile-hero .avatar-container {
-    width: 96px;      /* desktop size */
-    height: 96px;
+    width: 114px;      /* desktop size */
+    height: 139px;
     flex: 0 0 96px;
   }
 }
@@ -74,7 +74,7 @@ body { background: $bg !important; color: $text; }
 
 /* placeholder (shown only when no photo yet) */
 .profile-hero .avatar-container .avatar.placeholder {
-  width: 100%;
+  width: 146%;
   height: 100%;
   display: grid;
   place-items: center;
@@ -279,4 +279,9 @@ body { background: $bg !important; color: $text; }
   .post-grid { grid-template-columns: repeat(3, 1fr); }
   .pr-grid { grid-template-columns: repeat(3, 1fr); }
   .gym-strip { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 879px) {
+  .profile-hero .avatar-container {
+    margin-top: -14px; // Move avatar up on mobile
+  }
 }

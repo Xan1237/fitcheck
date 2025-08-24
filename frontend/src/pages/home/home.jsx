@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useTransition} from "react";
+import { useNavigate } from "react-router-dom";
 import Search from "../../components/search";
 import Map from "../../components/map";
 import Header from "../../components/header";
@@ -6,6 +7,7 @@ import Footer from "../../components/footer";
 import Title from "../../components/title";
 import gymData from "../../data/gymData.js"; 
 import GymSidebar from "../../components/gymSidebar";
+import GymSearch from "../../components/GymSearch/GymSearch";
 import "./styles.scss";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -52,6 +54,8 @@ const Home = () => {
   const [mapCenter, setMapCenter] = useState(provinceCenters[filter]);
   const [mapZoom, setMapZoom] = useState(provinceZooms[filter] || 6);
   const [isPending, startTransition] = useTransition();
+  const navigate = useNavigate();
+  const [showGymSearch, setShowGymSearch] = useState(false);
 
 
   const fetchGymsForProvince = async (province) => {
@@ -93,6 +97,36 @@ const Home = () => {
       return staticGyms;
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleGymSelectFromHome = async (gym) => {
+    try {
+      const token = localStorage.getItem("token");
+      const username = localStorage.getItem("username");
+      if (token && username && gym?.id) {
+        await fetch(`${API_BASE_URL}/api/addUserGym`, {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            gymId: gym.id,
+            username,
+            gymName: gym.name,
+            // Home gyms may have either `address` or a nested `location.address`.
+            gymAdress: gym.address || gym?.location?.address || ""
+          })
+        });
+      }
+    } catch (e) {
+      console.error("Error adding gym from Home:", e);
+      // Non-blocking — still navigate so the user lands on the gym page
+    } finally {
+      setShowGymSearch(false);
+      // Take user to the gym's review/details page (same route used elsewhere)
+      navigate(`/gym/${gym.id}`);
     }
   };
 
@@ -155,6 +189,7 @@ const Home = () => {
           setFilter={setFilter}
           onSearchSubmit={handleSearchSubmit}
           gyms={gyms}
+          onOpenGymNameSearch={() => setShowGymSearch(true)}   // ← new
         />
       </div>
       <div className="map-sidebar-container">
@@ -191,6 +226,22 @@ const Home = () => {
           )}
         </div>
       </div>
+      {showGymSearch && (
+        <div className="modal" role="dialog" aria-modal="true">
+          <div className="modal-box">
+            <header className="modal-head">
+              <h3>Search gyms</h3>
+              <button className="icon-btn" aria-label="Close" onClick={() => setShowGymSearch(false)}>
+                ✕
+              </button>
+            </header>
+            <div className="modal-body gym-search-body">
+              {/* Use the same component and look/feel as Public Profile */}
+              <GymSearch gyms={gyms} onGymSelect={handleGymSelectFromHome} />
+            </div>
+          </div>
+        </div>
+      )}
       <Footer />
     </div>
   );

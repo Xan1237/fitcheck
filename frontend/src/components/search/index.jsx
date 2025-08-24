@@ -5,7 +5,7 @@ import './style.scss';
 // Import the tag categories from the shared file
 import { tagCategories } from '../../data/tagCategories';
 
-const Search = ({ onSearchSubmit, gyms, searchQuery, setSearchQuery, filter, setFilter }) => {
+const Search = ({ onSearchSubmit, gyms, searchQuery, setSearchQuery, filter, setFilter, onOpenGymNameSearch  }) => {
   // Local state to manage the input values
   const [localSearchQuery, setLocalSearchQuery] = useState(searchQuery || '');
   const [localFilter, setLocalFilter] = useState(filter || 'all');
@@ -199,23 +199,22 @@ const Search = ({ onSearchSubmit, gyms, searchQuery, setSearchQuery, filter, set
     <div className="search-bar">
       <form onSubmit={handleSubmit} className="search-form">
         <div className="search-input-container">
-          {/* <div className="search-field">
-            <input
-              type="text"
-              placeholder="Enter a location..."
-              value={localSearchQuery}
-              onChange={handleSearchChange}
-              className="search-input"
-            />
-            <FaSearch className="search-icon" />
-          </div> */}
+
+          {/* NEW: show this BEFORE the province filter */}
+          <button
+            type="button"
+            className="search-button gym-name-search"
+            onClick={onOpenGymNameSearch}
+          >
+            Search by gym name
+          </button>
+
           <select
             id="filter"
             value={localFilter}
             onChange={handleFilterChange}
             className="filter-select"
           >
-            {/* REMOVE the "All Provinces/Territories" option */}
             <option value="Alberta">Alberta</option>
             <option value="British Columbia">British Columbia</option>
             <option value="Manitoba">Manitoba</option>

@@ -532,13 +532,15 @@ const UserProfile = () => {
             <div
               className="avatar-container"
               data-clickable={isOwnProfile ? "true" : "false"}
-              onClick={() => isOwnProfile && profilePictureInputRef.current?.click()}
-              style={userData.profilePicture ? { backgroundImage: `url(${userData.profilePicture})` } : undefined}
             >
-              {!userData.profilePicture && (
-                <div className="avatar placeholder" aria-label="No profile photo">
-                  <User size={48} />
-                </div>
+              {userData.profilePicture ? (
+                <img
+                  src={userData.profilePicture}
+                  alt="Profile"
+                  className="avatar-img"
+                />
+              ) : (
+                <User size={84} /> // Just the icon, no wrapper
               )}
               {isOwnProfile && <div className="avatar-overlay"><Plus size={24} /></div>}
             </div>

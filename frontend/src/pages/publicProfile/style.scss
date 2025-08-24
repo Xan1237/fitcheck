@@ -50,10 +50,10 @@ body { background: $bg !important; color: $text; }
 .profile-hero .avatar-container {
   position: relative;
   width: 84px;        /* mobile size */
-  height: 84px;
+  height: 100px;
   flex: 0 0 84px;
   border-radius: 50%;
-  overflow: hidden;
+  // overflow: hidden;
 
   /* background image settings (works when inline style sets background-image) */
   background-size: cover;
@@ -61,7 +61,7 @@ body { background: $bg !important; color: $text; }
   background-repeat: no-repeat;
 
   /* extra guard: clip any child content to a perfect circle */
-  clip-path: circle(50% at 50% 50%);
+  // clip-path: circle(50% at 50% 50%);
 }
 @media (min-width: 880px) {
   .profile-hero .avatar-container {
@@ -279,4 +279,11 @@ body { background: $bg !important; color: $text; }
   .post-grid { grid-template-columns: repeat(3, 1fr); }
   .pr-grid { grid-template-columns: repeat(3, 1fr); }
   .gym-strip { grid-template-columns: repeat(3, 1fr); }
+}
+
+.avatar-img{
+  border-radius: 50%;
+  height: auto;
+  width: 150%;
+  margin-top: -15px;
 }

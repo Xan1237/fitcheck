@@ -198,7 +198,8 @@ const userInfo = async (req, res) => {
     const { data: prData, error: prError } = await supabase
       .from('pr')
       .select('exercise_name, weight, reps')
-      .eq('username', userName);
+      .eq('username', userName)
+      .order("exercise_name");
 
     // Get user's posts
     const { data: postsData, error: postsError } = await supabase

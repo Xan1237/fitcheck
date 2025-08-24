@@ -240,7 +240,7 @@ const Home = () => {
             </header>
             <div className="modal-body gym-search-body">
               {/* Use the same component and look/feel as Public Profile */}
-              <GymSearch gyms={gyms} onGymSelect={handleGymSelectFromHome} />
+              <GymSearch gyms={Object.values(gymData)} onGymSelect={handleGymSelectFromHome} />
             </div>
           </div>
         </div>

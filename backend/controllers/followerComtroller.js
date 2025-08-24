@@ -147,7 +147,7 @@ async function getFollowers(req, res) {
         .select(`
             senderUserId,
             targetUserId,
-            follower:users!follows_follower_id_fkey (
+            follower:users!follows_senderUserId_fkey (
                 username,
                 profile_picture_url
             )
@@ -188,7 +188,7 @@ async function getFollowing(req, res) {
         .select(`
             senderUserId,
             targetUserId,
-            following:users!follows_following_id_fkey (
+            following:users!follows_senderUserId_fkey (
                 username,
                 profile_picture_url
             )

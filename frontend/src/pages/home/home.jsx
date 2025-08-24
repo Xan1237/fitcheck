@@ -65,10 +65,13 @@ const Home = () => {
       // 1) Try dynamic data from API
       const res = await fetch(`${API_BASE_URL}/api/getGymsByProvince/${encodeURIComponent(province)}`);
       if (!res.ok) throw new Error(`Province fetch failed: ${res.status}`);
-      const gymsFromApi = await res.json(); // expect an array of gyms
+      const payload = await res.json();
+      const gymsFromApi = Array.isArray(payload) ? payload : payload?.gyms || [];
+      console.log("Gyms from API:", gymsFromApi); 
 
       // Normalize and return (prefer backend truth)
-      return (gymsFromApi || []).map(g => ({
+      return gymsFromApi
+        .map(g => ({
         id: Number.isNaN(Number(g.id)) ? g.id : Number(g.id),
         name: g.name,
         province: province,

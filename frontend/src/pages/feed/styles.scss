@@ -741,3 +741,14 @@
   color: #f3f3f3;
   word-break: break-word;
 }
+
+.start-post-card {
+  border: 2px dashed #ff6b35;
+  background: #23272f;
+  transition: border-color 0.18s, box-shadow 0.18s;
+  &:hover, &:focus {
+    border-color: #ff8c42;
+    box-shadow: 0 2px 16px rgba(255,107,53,0.08);
+    background: #23272f;
+  }
+}

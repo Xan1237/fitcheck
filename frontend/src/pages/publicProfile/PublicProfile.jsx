@@ -754,7 +754,7 @@ const UserProfile = () => {
             {posts?.length ? (
               <div className="post-grid">
                 {posts.map((post, idx) => {
-                  const postKey = post.id ?? idx; // fallback to idx if no id
+                  const postKey = post.id ?? idx;
                   const isExpanded = expandedPosts[postKey];
                   const maxLength = 220;
                   const isLong = post.description && post.description.length > maxLength;
@@ -763,10 +763,18 @@ const UserProfile = () => {
                     : post.description;
 
                   return (
-                    <article key={postKey} className="card post-card">
+                    <article
+                      key={postKey}
+                      className="card post-card"
+                      style={{ cursor: 'pointer' }}
+                      onClick={() => navigate(`/post/${post.postId || post.id}`)}
+                    >
                       {isOwnProfile && (
                         <button
-                          onClick={() => handleDeletePost(post.postId)}
+                          onClick={e => {
+                            e.stopPropagation();
+                            handleDeletePost(post.postId);
+                          }}
                           className="delete-post-btn"
                           aria-label="Delete post"
                         >
@@ -782,12 +790,18 @@ const UserProfile = () => {
                           {isLong && (
                             <span 
                               className="expand-toggle subtle"
-                              onClick={() => toggleExpand(postKey)}
+                              onClick={e => {
+                                e.stopPropagation();
+                                toggleExpand(postKey);
+                              }}
                               role="button"
                               tabIndex={0}
                               style={{ userSelect: 'none' }}
                               onKeyPress={e => {
-                                if (e.key === 'Enter' || e.key === ' ') toggleExpand(postKey);
+                                if (e.key === 'Enter' || e.key === ' ') {
+                                  e.stopPropagation();
+                                  toggleExpand(postKey);
+                                }
                               }}
                             >
                               {isExpanded ? ' show less' : '...more'}

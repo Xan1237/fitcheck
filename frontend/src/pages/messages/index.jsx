@@ -1,4 +1,5 @@
 import React, { useState, useEffect, memo, useRef } from 'react';
+import PropTypes from 'prop-types';
 import { Search, MoreVertical, Send, ArrowLeft, User, Phone, Video, Info, Smile } from 'lucide-react';
 import { joinChat, sendMessage, subscribeToMessages, initializeSocket, disconnectSocket } from '../../services/websocket';
 import { useParams } from 'react-router-dom';
@@ -69,7 +70,7 @@ const Messages = () => {
       joinChat(chatId);
       
       // Load existing messages
-      loadMessages();
+      loadMessages(chatId);
       
       // Subscribe to new messages
       subscribeToMessages((message) => {
@@ -119,7 +120,7 @@ const Messages = () => {
                 avatar: null,
                 lastActive: 'Online',
                 lastMessage: 'Start a conversation!',
-                unreadCount: Math.floor(Math.random() * 5) // Random unread count for demo
+                unreadCount: Number(chat.unread_count ?? 0)
               }
             };
           });
@@ -242,8 +243,7 @@ const Messages = () => {
   const filteredConversations = conversations.filter(conv =>
     conv.user.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
-
-  const ChatView = memo(({ conversation, messages }) => {
+  const ChatView = memo(function ChatView({ conversation, messages }) {
     const [messageInput, setMessageInput] = useState('');
     const [isTyping, setIsTyping] = useState(false);
     const messagesEndRef = useRef(null);
@@ -317,7 +317,7 @@ const Messages = () => {
           </div>
         </div>
 
-        <div className="messages-container">
+        <div className="chat-messages">
           {messages.map((message, index) => (
             <div 
               key={message.id || `${message.created_at}-${index}`}
@@ -370,10 +370,36 @@ const Messages = () => {
     );
   });
 
+  ChatView.displayName = "ChatView";
+
+  ChatView.propTypes = {
+    conversation: PropTypes.shape({
+      id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+      user: PropTypes.shape({
+        name: PropTypes.string.isRequired,
+        avatar: PropTypes.string,
+        lastActive: PropTypes.string,
+        lastMessage: PropTypes.string,
+        unreadCount: PropTypes.number
+      }).isRequired
+    }).isRequired,
+    messages: PropTypes.arrayOf(
+      PropTypes.shape({
+        id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+        text: PropTypes.string,
+        created_at: PropTypes.string,
+        ownerUUID: PropTypes.string,
+        isOptimistic: PropTypes.bool
+      })
+    ).isRequired
+  };
+
   return (
     <div className="messages-container">
       <Header />
       <div className={`conversations-list ${mobileView === 'chat' ? 'hidden' : ''}`}>
+        
+        
         <div className="search-bar">
           <Search size={20} />
           <input 
@@ -403,6 +429,13 @@ const Messages = () => {
               onClick={() => {
                 setActiveChat(conversation);
                 setMobileView('chat');
+                setConversations(prev =>
+                  prev.map(c =>
+                    c.id === conversation.id
+                      ? { ...c, user: { ...c.user, unreadCount: 0 } }
+                      : c
+                  )
+                );
               }}
             >
               {renderAvatar(conversation.user)}
@@ -425,15 +458,9 @@ const Messages = () => {
 
       <div className={`chat-container ${mobileView === 'list' ? 'hidden' : ''}`}>
         {activeChat ? (
-          <ChatView 
-            conversation={activeChat} 
-            messages={messages}
-          />
+          <ChatView conversation={activeChat} messages={messages} />
         ) : (
-          <div className="no-chat-selected">
-            <p>Select a conversation to start messaging</p>
-            <span>Your messages will appear here</span>
-          </div>
+          <div className="no-chat-selected">...</div>
         )}
       </div>
     </div>

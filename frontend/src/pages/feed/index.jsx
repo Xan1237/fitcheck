@@ -210,7 +210,7 @@ const Feed = () => {
       );
 
       if (response.data.success) {
-        setPosts(posts.map(post => 
+        setPosts(posts.map (post => 
           post.id === postId 
             ? { 
                 ...post, 
@@ -262,6 +262,39 @@ const Feed = () => {
         <div className="loading-indicator">Loading posts...</div>
       ) : posts.length > 0 ? (
         <div className="posts-feed">
+          {/* Start a post card */}
+          <div
+            className="post-card start-post-card"
+            style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '16px', padding: '18px 20px', marginBottom: '24px' }}
+            onClick={() => navigate('/createPost')}
+            tabIndex={0}
+            role="button"
+            onKeyPress={e => {
+              if (e.key === 'Enter' || e.key === ' ') navigate('/createPost');
+            }}
+          >
+            
+            <div style={{ flex: 1 }}>
+              <span style={{ color: '#b0b0b0', fontSize: '1.08rem', fontWeight: 500 }}>
+                Start a post...
+              </span>
+            </div>
+            <button
+              style={{
+                background: '#ff6b35',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '999px',
+                padding: '8px 18px',
+                fontWeight: 600,
+                fontSize: '1rem',
+                cursor: 'pointer'
+              }}
+              tabIndex={-1}
+            >
+              Create
+            </button>
+          </div>
           {posts.map(post => {
             const isExpanded = expandedPosts[post.id];
             const maxLength = 220;

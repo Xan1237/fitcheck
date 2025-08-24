@@ -1102,3 +1102,66 @@ input:focus, button:focus {
   opacity: 0.6;
   pointer-events: none;
 }
+
+/* Page shell (centers content on desktop) */
+.messages-page {
+  width: 100%;
+}
+
+/* Centered content area with a max width */
+.messages-content {
+  width: 100%;
+  max-width: 1100px;  /* tweak as you like */
+  margin: 0 auto;
+  padding: 16px 20px;
+  display: grid;
+  grid-template-columns: 1fr; /* mobile: stacked */
+  gap: 16px;
+}
+
+/* Desktop: two columns, centered under the header */
+@media (min-width: 1024px) {
+  .messages-content {
+    grid-template-columns: 360px 1fr; /* left list / right chat */
+    gap: 20px;
+  }
+}
+
+/* Left column (list) */
+.conversations-list {
+  background: var(--card, #111315);
+  border: 1px solid var(--border, #22262a);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+/* Right column (chat) */
+.chat-container {
+  background: var(--card, #111315);
+  border: 1px solid var(--border, #22262a);
+  border-radius: 16px;
+  min-height: 60vh;
+  display: flex;
+}
+
+/* Chat header + body + input should stretch nicely */
+.chat-view {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* The inner scroller (renamed) */
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+}
+
+/* Optional: on mobile we still honor your show/hide toggles */
+@media (max-width: 1023px) {
+  .conversations-list.hidden,
+  .chat-container.hidden {
+    display: none;
+  }
+}

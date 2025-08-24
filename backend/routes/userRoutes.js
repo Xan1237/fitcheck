@@ -11,12 +11,14 @@ import {
   createPost,
   getAllUsers,
 } from "../controllers/userController.js"; // Updated import
+import { setUsername } from "../controllers/setUsernameController.js";
 
 import { getAdress } from "../controllers/searchController.js";
 import { createComment, getComments } from "../controllers/commentControler.js";
 import { signUpUser } from "../middlewares/auth_signup_password.js";
 import { signInUser } from "../middlewares/auth_signin_password.js";
 import { verifyAuth } from "../middlewares/auth_verify.js";
+import { validateGoogleToken } from "../middlewares/validate_google_token.js";
 import { checkProfileOwnership } from "../middlewares/check_profile_ownership.js";
 import { addPostComment, getPostComments } from "../controllers/postController.js";
 
@@ -28,10 +30,12 @@ router.post("/api/address", getAdress);
 router.get("/api/GetComments", getComments);
 router.post("/auth/signup", signUpUser);
 router.post("/auth/signin", signInUser);
+router.post("/auth/validate-google-token", validateGoogleToken);
 router.post("/api/profile",verifyAuth, profile);
 router.get("/api/GetUserData", userInfo);
 router.get("/api/getGymData", getGymData);
 router.post("/api/getUserName", getUserName);
+router.post("/api/set-username", verifyAuth, setUsername);
 router.get("/api/checkProfileOwnership/:username", verifyAuth, checkProfileOwnership);
 router.post("/api/addPersonalRecord", verifyAuth, addPersonalRecord);
 router.put("/api/pr", verifyAuth, updatePersonalRecord);

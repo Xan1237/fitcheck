@@ -46,8 +46,13 @@ const UserProfile = () => {
   const location = useLocation();
   const [currentUserUuid, setCurrentUserUuid] = useState(null);
 
+
+
   // Fetch current user's UUID
   useEffect(() => {
+      if(name == ""){
+    navigate('/setUsername');
+  }
     const fetchCurrentUser = async () => {
       try {
         const token = localStorage.getItem('token');

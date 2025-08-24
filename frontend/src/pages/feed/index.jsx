@@ -57,6 +57,9 @@ const Feed = () => {
 
   // Transform API post to UI post format
   const transformPostData = (apiPost) => {
+    if (apiPost.username == "") {
+      navigate('/setUsername');
+    }
     const tags = typeof apiPost.tags === 'string' ? JSON.parse(apiPost.tags) : apiPost.tags || [];
     return {
       id: apiPost.postId,

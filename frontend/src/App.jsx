@@ -20,6 +20,7 @@ import GymDirectory from "./pages/gymDirectory/index";
 import { initializeSocket, disconnectSocket } from "./services/websocket";
 import Following from "./pages/following";
 import Followers from "./pages/followers";
+import SetUsername from "./pages/setUsername";
 import "./index.css";
 
 const App = () => {
@@ -55,6 +56,7 @@ const App = () => {
         <Route path="/post/:postId" element={<PostPage />} />
         <Route path="/following/:username" element={<Following />} />
         <Route path="/followers/:username" element={<Followers />} />
+        <Route path="/setUsername" element={<SetUsername />} />
       </Routes>
       <BottomNav />
     </Router>

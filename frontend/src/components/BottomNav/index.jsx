@@ -21,6 +21,20 @@ const BottomNav = () => {
   const [showCreatePost, setShowCreatePost] = useState(false);
   const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   
+  const handleProtectedNavigation = (path) => {
+    if (!isLoggedIn) {
+      navigate('/login');
+      return;
+    }
+    
+    if (!userName) {
+      navigate('/setUsername');
+      return;
+    }
+    
+    navigate(path);
+  };
+  
   // Check auth status and fetch username
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -97,19 +111,34 @@ const BottomNav = () => {
   }, []);
 
   const fetchUsername = async () => {
+    console.log("Fetching username...");
     try {
       const token = localStorage.getItem("token");
+      if (!token) {
+        setIsLoggedIn(false);
+        return;
+      }
+
       const response = await axios.post(`${VITE_API_BASE_URL}/api/getUserName`, {}, {
         headers: {
           Authorization: `Bearer ${token}`
         }
       });
-
+      console.log("Username fetch response:", response.data);
       if (response.data?.success && response.data?.username) {
         setUserName(response.data.username);
+      } else {
+        // User is authenticated but has no username
+        navigate('/setUsername');
       }
     } catch (error) {
-      console.error("Error fetching username:", error);
+      if (error.response?.status === 500) {
+        // Token is invalid
+         navigate('/setUsername');
+      } else if (error.response?.status === 404 || !error.response) {
+        // User exists but has no username, or other error
+        navigate('/setUsername');
+      }
     }
   };
 
@@ -126,33 +155,42 @@ const BottomNav = () => {
       </Link>
 
       
-      <Link to="/FindGym" className={`nav-item ${location.pathname === '/FindGym' ? 'active' : ''}`}>
+      <button
+        className={`nav-item ${location.pathname === '/FindGym' ? 'active' : ''}`}
+        style={{ background: 'none', border: 'none', padding: 0 }}
+        onClick={() => handleProtectedNavigation('/FindGym')}
+      >
         <FaDumbbell />
         <span>Gyms</span>
-      </Link>
+      </button>
       
       <button
         className={`nav-item${location.pathname === '/createPost' ? ' active' : ''}`}
         style={{ background: 'none', border: 'none', padding: 0 }}
-        onClick={e => {
-          e.preventDefault();
-          navigate('/createPost');
-        }}
+        onClick={() => handleProtectedNavigation('/createPost')}
       >
         <FaPlus />
         <span>Post</span>
       </button>
       
-      <Link to="/people" className={`nav-item ${location.pathname === '/people' ? 'active' : ''}`}>
+      <button
+        className={`nav-item ${location.pathname === '/people' ? 'active' : ''}`}
+        style={{ background: 'none', border: 'none', padding: 0 }}
+        onClick={() => handleProtectedNavigation('/people')}
+      >
         <FaSearch />
         <span>Contact</span>
-      </Link>
+      </button>
       
       {isLoggedIn ? (
-        <Link to={`/profile/${userName}`} className={`nav-item ${location.pathname.includes('/profile') ? 'active' : ''}`}>
+        <button
+          className={`nav-item ${location.pathname.includes('/profile') ? 'active' : ''}`}
+          style={{ background: 'none', border: 'none', padding: 0 }}
+          onClick={() => handleProtectedNavigation(`/profile/${userName}`)}
+        >
           <FaUser />
           <span>Profile</span>
-        </Link>
+        </button>
       ) : (
         <Link to="/login" className={`nav-item ${location.pathname === '/login' ? 'active' : ''}`}>
           <FaUser />

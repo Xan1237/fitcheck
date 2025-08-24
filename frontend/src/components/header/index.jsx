@@ -43,6 +43,7 @@ const Header = () => {
   };
 
   const fetchUsername = async () => {
+    console.log("Fetching username...");
     const token = localStorage.getItem("token");
     
     if (!token) {
@@ -52,7 +53,7 @@ const Header = () => {
 
     setLoading(true);
     try {
-      // Just call getUserName - it already handles token verification
+      console.log("Fetching username...");
       const response = await axios.post(`${API_BASE_URL}/api/getUserName`, {}, {
         headers: {
           Authorization: `Bearer ${token}`
@@ -68,13 +69,17 @@ const Header = () => {
       if (userData.username) {
         setUserName(userData.username);
       } else {
-        console.error("Username not found in response");
-        handleLogout();
+        console.log("No username found, redirecting to username setup");
+        window.location.href = '/setUsername';
       }
     } catch (error) {
       console.error("Error fetching username:", error);
       if (error.response?.status === 401) {
         handleLogout();
+      } else if (error.response?.status === 404 || !error.response) {
+        // User exists but has no username, or other error
+        console.log("Redirecting to username setup due to error");
+        window.location.href = '/setUsername';
       }
     } finally {
       setLoading(false);

@@ -17,17 +17,38 @@ const AuthPage = () => {
   const [loading, setLoading] = useState(false);
   const [confirmationMessage, setConfirmationMessage] = useState('');
 
-  // Extract and save token from hash if present (for Google sign-in)
+  // Extract and validate token from hash if present (for Google sign-in)
   useEffect(() => {
-    const params = new URLSearchParams(window.location.hash.replace('#', ''));
-    const token = params.get('access_token');
-    const provider = params.get('provider_token');
-    // Only save token if Google sign-in (provider_token present or redirect from Google)
-    if (token && (provider || window.location.search.includes('provider=google'))) {
-      localStorage.setItem('token', token);
-      window.location.hash = '';
-      window.location.href = '/'; // Redirect to home page
-    }
+    const validateAndSaveToken = async () => {
+      const params = new URLSearchParams(window.location.hash.replace('#', ''));
+      const token = params.get('access_token');
+      const provider = params.get('provider_token');
+      
+      // Only process if it's a Google sign-in
+      if (token && (provider || window.location.search.includes('provider=google'))) {
+        try {
+          // Validate the token with our backend
+          const response = await axios.post(`${API_BASE_URL}/auth/validate-google-token`, {
+            token,
+            provider_token: provider
+          });
+
+          if (response.data.success) {
+            // Save the validated token from our backend
+            localStorage.setItem('token', response.data.token);
+            window.location.hash = '';
+            window.location.href = '/';
+          } else {
+            setError('Failed to validate Google sign-in');
+          }
+        } catch (error) {
+          console.error('Google sign-in validation error:', error);
+          setError('Failed to validate Google sign-in');
+        }
+      }
+    };
+
+    validateAndSaveToken();
   }, []);
 
   const handleSubmit = async (e) => {

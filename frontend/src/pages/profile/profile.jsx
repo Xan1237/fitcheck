@@ -4,6 +4,7 @@ import './profile.scss';
 import axios from 'axios';
 import { getAuth } from "firebase/auth";
 import ImageCropper from '../../components/ImageCropper/ImageCropper';
+import { use } from 'react';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -12,6 +13,8 @@ const ProfilePictureUpload = ({ onUploadSuccess }) => {
   const [uploading, setUploading] = useState(false);
   const [tempImage, setTempImage] = useState(null);
   const [showCropper, setShowCropper] = useState(false);
+
+
 
   const handleFileChange = async (e) => {
     const file = e.target.files[0];

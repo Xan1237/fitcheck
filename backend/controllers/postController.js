@@ -274,17 +274,10 @@ async function addPostLike(req, res) {
 async function getPostById(req, res) {
   try {
     const { postId } = req.params;
-    const userId = req.user?.id;
-    console.log("Fetching post with ID:", postId, "Type:", typeof postId);
+    const userId = req.user?.id; // Will be undefined for unauthenticated users
     
-    // First, try to fetch post without joins to debug
-    const { data: rawPost, error: rawError } = await supabase
-      .from('posts')
-      .select('postId')
-      .eq('postId', postId);
+    console.log("Fetching post with ID:", postId, "User ID:", userId || 'unauthenticated');
     
-    console.log("Raw query result:", rawPost, "Error:", rawError);
-
     const { data, error } = await supabase
       .from('posts')
       .select(`
@@ -323,15 +316,19 @@ async function getPostById(req, res) {
       null;
 
     const total_likes = Array.isArray(post.postLikes) ? post.postLikes.length : 0;
-    const is_liked = post.postLikes?.some(like => like.user_uuid === userId) || false;
-
+    
+    // Only include is_liked if the user is authenticated
     const formatted = {
       ...post,
       total_likes,
-      is_liked,
       profile_picture_url: avatar,
       profilePictureUrl: avatar
     };
+
+    // Add is_liked only for authenticated users
+    if (userId) {
+      formatted.is_liked = post.postLikes?.some(like => like.user_uuid === userId) || false;
+    }
 
     return res.status(200).json(formatted);
   } catch (e) {

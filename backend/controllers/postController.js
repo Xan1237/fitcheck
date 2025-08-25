@@ -93,7 +93,9 @@ async function recordViewedPost(userId, postId) {
       if (error) {
         console.error('Error recording viewed post:', error);
       }
+      return false;
     }
+    return true;
   } catch (error) {
     console.error('Error in recordViewedPost:', error);
   }
@@ -147,7 +149,18 @@ async function getPosts(req, res) {
     }
 
     // Normalize avatar and count likes
-    const formatted = (data || []).map(p => {
+    const formatted = [];
+    for (const p of (data || [])) {
+      // Check if this post was already viewed by the user
+      const seen = userId ? await recordViewedPost(userId, p.postId) : false;
+      console.log("Recorded view for post:", p.postId, "Result:", seen); // Debug log
+
+      // Skip this post if it was already viewed (seen = true)
+      if (seen) {
+        console.log("Skipping already viewed post:", p.postId);
+        continue;
+      }
+
       const avatar =
         p?.author?.profile_picture_url ||
         p?.author_profile?.profile_picture_url ||
@@ -162,19 +175,14 @@ async function getPosts(req, res) {
         return like.user_uuid === userId;
       }) || false;
 
-      // Record that this user viewed this post
-      if (userId && p.postId) {
-        recordViewedPost(userId, p.postId);
-      }
-
-      return {
+      formatted.push({
         ...p,
         total_likes,
         is_liked,
         profile_picture_url: avatar,
         profilePictureUrl: avatar
-      };
-    });
+      });
+    }
 
     return res.status(200).json({
       posts: formatted,

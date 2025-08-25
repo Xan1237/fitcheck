@@ -48,6 +48,9 @@ const Feed = () => {
   const [loading, setLoading] = useState(true);
   const [commentInputs, setCommentInputs] = useState({}); // { [postId]: string }
   const [comments, setComments] = useState({}); // { [postId]: [comments] }
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [loadingComments, setLoadingComments] = useState({}); // { [postId]: bool }
   const [expandedPosts, setExpandedPosts] = useState({}); // { [postId]: true/false }
   const [openComments, setOpenComments] = useState({}); // { [postId]: true/false }
@@ -87,20 +90,29 @@ const Feed = () => {
 
 
   // Function to fetch posts from API using axios
-  const getPosts = async () => {
-    setLoading(true);
+  const fetchPosts = async (pageNum = 1, isLoadingMore = false) => {
     try {
-      // Replace with your actual API endpoint
+      if (!isLoadingMore) {
+        setLoading(true);
+      }
       const token = localStorage.getItem('token');
-      const response = await axios.get(`${API_BASE_URL}/api/getPosts`, {
-        headers: { Authorization: `Bearer ${token}` }
+      const response = await axios.get(`${API_BASE_URL}/api/posts`, {
+        headers: { Authorization: `Bearer ${token}` },
+        params: {
+          page: pageNum,
+          limit: 10
+        }
       });
       
       // Transform each API post to the required format
-      const transformedPosts = response.data.map(transformPostData);
+      const transformedPosts = response.data.posts.map(transformPostData);
       
-      // Set posts to only API data
-      setPosts(transformedPosts);
+      // Update posts based on whether we're loading more or refreshing
+      setPosts(prev => isLoadingMore ? [...prev, ...transformedPosts] : transformedPosts);
+      
+      // Update pagination state
+      setHasMore(response.data.pagination.hasMore);
+      setPage(response.data.pagination.page);
     } catch (error) {
       console.error('Error fetching posts:', error);
       // Show empty state if API fails
@@ -170,9 +182,62 @@ const Feed = () => {
     setCopySuccess(false);
   };
 
+  // Function to fetch posts
+  const getPosts = async (pageNum = 1, isLoadingMore = false) => {
+    try {
+      if (!isLoadingMore) {
+        setLoading(true);
+      }
+      const token = localStorage.getItem('token');
+      const response = await axios.get(`${API_BASE_URL}/api/posts`, {
+        headers: { Authorization: `Bearer ${token}` },
+        params: {
+          page: pageNum,
+          limit: 10
+        }
+      });
+      
+      // Transform each API post to the required format
+      const transformedPosts = response.data.posts.map(transformPostData);
+      
+      // Update posts based on whether we're loading more or refreshing
+      setPosts(prev => isLoadingMore ? [...prev, ...transformedPosts] : transformedPosts);
+      
+      // Update pagination state
+      setHasMore(response.data.pagination.hasMore);
+      setPage(response.data.pagination.page);
+    } catch (error) {
+      console.error('Error fetching posts:', error);
+      if (!isLoadingMore) {
+        setPosts([]);
+      }
+    } finally {
+      setLoading(false);
+      setLoadingMore(false);
+    }
+  };
+
+  // Function to load more posts
+  const loadMore = () => {
+    if (loadingMore || !hasMore) return;
+    setLoadingMore(true);
+    fetchPosts(page + 1, true);
+  };
+
+  // Handle scroll events for infinite loading
+  const handleScroll = () => {
+    const scrollTop = Math.max(window.pageYOffset, document.documentElement.scrollTop, document.body.scrollTop);
+    const scrollHeight = Math.max(document.documentElement.scrollHeight, document.body.scrollHeight);
+    const clientHeight = document.documentElement.clientHeight;
+
+    if (scrollHeight - scrollTop <= clientHeight + 100) { // Load more when within 100px of bottom
+      loadMore();
+    }
+  };
+
   useEffect(() => {
-    // Get posts from API
-    getPosts();
+    // Get initial posts
+    fetchPosts();
     
     // Fetch user data
     const token = localStorage.getItem('token');
@@ -185,6 +250,19 @@ const Feed = () => {
       });
     }
   }, []);
+
+  useEffect(() => {
+    // Add scroll event listener
+    const throttledScrollHandler = (e) => {
+      // Use requestAnimationFrame to throttle scroll events
+      if (!loadingMore) {
+        window.requestAnimationFrame(() => handleScroll());
+      }
+    };
+
+    window.addEventListener('scroll', throttledScrollHandler);
+    return () => window.removeEventListener('scroll', throttledScrollHandler);
+  }, [loadingMore, page, hasMore]); // Add dependencies for scroll handler
 
   // Extract and save token from hash if present (for Google sign-in)
   useEffect(() => {
@@ -258,7 +336,7 @@ const Feed = () => {
           </Link>
         </div>
       </div>
-      {loading ? (
+      {loading && !posts.length ? (
         <div className="loading-indicator">Loading posts...</div>
       ) : posts.length > 0 ? (
         <div className="posts-feed">
@@ -493,6 +571,12 @@ const Feed = () => {
               </div>
             );
           })}
+          {loadingMore && (
+            <div className="loading-more">Loading more posts...</div>
+          )}
+          {!hasMore && posts.length > 0 && (
+            <div className="no-more-posts">No more posts to load</div>
+          )}
         </div>
       ) : (
         <div className="empty-state">
@@ -502,6 +586,22 @@ const Feed = () => {
       <div className="footer">
         <Footer />
       </div>
+
+      <style>
+        {`
+          .loading-more {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+          }
+          .no-more-posts {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-style: italic;
+          }
+        `}
+      </style>
     </div>
   );
 };

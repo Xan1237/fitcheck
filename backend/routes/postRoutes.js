@@ -4,7 +4,7 @@ import {getNumberPR, getNumberPosts, updateUserBio, getUserBio, isFollowing} fro
 import { verifyAuth } from "../middlewares/auth_verify.js";
 const router = express.Router();
 
-router.get("/api/getPosts",verifyAuth, getPosts);
+router.get("/api/posts", verifyAuth, getPosts);
 router.post("/api/isFollowing", verifyAuth, isFollowing);
 router.get("/api/addPostLike/:postId", verifyAuth, addPostLike);
 router.get("/api/post/:postId", verifyAuth, getPostById);

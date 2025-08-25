@@ -9,8 +9,18 @@ import { supabase } from '../config/supabaseApp.js'
 async function getPosts(req, res) {
   try {
     const userId = req.user?.id;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = (page - 1) * limit;
+    
     console.log("Current user ID:", userId); // Debug log
 
+    // Get total count of posts
+    const { count } = await supabase
+      .from('posts')
+      .select('*', { count: 'exact', head: true });
+
+    // Get paginated posts
     const { data, error } = await supabase
       .from('posts')
       .select(`
@@ -31,7 +41,8 @@ async function getPosts(req, res) {
         ),
         postLikes:postLikes(*)
       `)
-      .order('created_at', { ascending: false });
+      .order('created_at', { ascending: false })
+      .range(offset, offset + limit - 1);
 
     if (error) {
       return res.status(400).json({ message: error.message });
@@ -62,7 +73,15 @@ async function getPosts(req, res) {
       };
     });
 
-    return res.status(200).json(formatted);
+    return res.status(200).json({
+      posts: formatted,
+      pagination: {
+        page,
+        limit,
+        total: count,
+        hasMore: offset + limit < count
+      }
+    });
   } catch (e) {
     return res.status(500).json({ message: e.message });
   }

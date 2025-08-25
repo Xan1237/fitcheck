@@ -2,12 +2,27 @@ import React, { useState, useEffect, memo, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { Search, MoreVertical, Send, ArrowLeft, User, Phone, Video, Info, Smile } from 'lucide-react';
 import { joinChat, sendMessage, subscribeToMessages, initializeSocket, disconnectSocket } from '../../services/websocket';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import './styles.scss';
 import Header from '../../components/header';
 
 const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+function formatMessageTime(dateString) {
+  const createdAt = new Date(dateString);
+  const now = new Date();
+  const diffMs = now - createdAt;
+  const diffSeconds = Math.floor(diffMs / 1000);
+  const diffMinutes = Math.floor(diffSeconds / 60);
+  const diffHours = Math.floor(diffMinutes / 60);
+  const diffDays = Math.floor(diffHours / 24);
+
+  if (diffSeconds < 60) return `${diffSeconds}s`;
+  if (diffMinutes < 60) return `${diffMinutes}m`;
+  if (diffHours < 24) return `${diffHours}h`;
+  return `${diffDays}d`;
+}
 
 const Messages = () => {
   const [activeChat, setActiveChat] = useState(null);
@@ -306,14 +321,12 @@ const Messages = () => {
           <div className="chat-user-info">
             {renderAvatar(conversation.user)}
             <div className="user-details">
-              <h2>{conversation.user.name}</h2>
-              <span className="last-active">{conversation.user.lastActive}</span>
+              <h2>
+                <Link to={`/profile/${conversation.user.name}`}>
+                  {conversation.user.name}
+                </Link>
+              </h2>
             </div>
-          </div>
-          <div className="chat-actions">
-            <button className="action-button" title="More Options">
-              <MoreVertical size={20} />
-            </button>
           </div>
         </div>
 
@@ -323,39 +336,27 @@ const Messages = () => {
               key={message.id || `${message.created_at}-${index}`}
               className={`message-bubble ${message.ownerUUID == userName ? 'me' : 'them'}`}
             >
+              <div className="sender-row">
+                {message.ownerUUID === userName ? (
+                  <span className="sender-name">You</span>
+                ) : (
+                  <span className="sender-name">
+                    <Link to={`/profile/${message.ownerUUID}`}>
+                      {message.ownerUUID}
+                    </Link>
+                  </span>
+                )}
+                <span className="timestamp">
+                  {formatMessageTime(message.created_at)}
+                </span>
+              </div>
               <p>{message.text || message.message}</p>
-              {message.ownerUUID !== userName && (
-                <span className="sender-name">{message.ownerUUID}</span>
-              )}
-              <span className="timestamp">
-                {new Date(message.created_at).toLocaleTimeString()}
-              </span>
-              {message.ownerUUID === userName && (
-                <div className="message-status">
-                  <span className="status-dot"></span>
-                </div>
-              )}
             </div>
           ))}
-          
-          {isTyping && (
-            <div className="typing-indicator">
-              <span>Someone is typing</span>
-              <div className="dots">
-                <div className="dot"></div>
-                <div className="dot"></div>
-                <div className="dot"></div>
-              </div>
-            </div>
-          )}
-          
           <div ref={messagesEndRef} />
         </div>
 
         <form className="message-input-container" onSubmit={handleSendMessage}>
-          <button type="button" className="emoji-button" title="Add emoji">
-            <Smile size={24} />
-          </button>
           <input
             type="text"
             placeholder="Type a message..."
@@ -396,7 +397,6 @@ const Messages = () => {
 
   return (
     <div className="messages-container">
-      <Header />
       <div className={`conversations-list ${mobileView === 'chat' ? 'hidden' : ''}`}>
         
         

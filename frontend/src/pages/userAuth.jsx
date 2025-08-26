@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import './SignIn.scss';
 import { FaDumbbell } from "react-icons/fa";
 import axios from 'axios';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-const REDIRECT_URL = '/'; // Use current domain for redirect
 
 const AuthPage = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [username, setUsername] = useState('');
@@ -125,7 +127,9 @@ const AuthPage = () => {
           localStorage.setItem('expiresAt', expiresAt.toISOString());
         }
         
-        window.location.href = "/"; // <-- Change to home page
+        // Redirect to the intended page or default to home
+        const { from } = location.state || { from: '/' };
+        navigate(from, { replace: true });
       } else {
         throw new Error(response.data.message || 'Login failed');
       }

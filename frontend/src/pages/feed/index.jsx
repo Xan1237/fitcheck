@@ -46,6 +46,19 @@ const Feed = () => {
   const [posts, setPosts] = useState([]);
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  // Check authentication on component mount
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      // Redirect to login page if not authenticated
+      navigate('/login', { 
+        replace: true, 
+        state: { from: '/' } // Store the intended destination
+      });
+      return;
+    }
+  }, [navigate]);
   const [commentInputs, setCommentInputs] = useState({}); // { [postId]: string }
   const [comments, setComments] = useState({}); // { [postId]: [comments] }
   const [page, setPage] = useState(1);

@@ -132,6 +132,7 @@ async function getPosts(req, res) {
         ),
         postLikes:postLikes(count)
       `, { count: 'exact' })
+      .order('total_comments', { ascending: false })
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1);
 

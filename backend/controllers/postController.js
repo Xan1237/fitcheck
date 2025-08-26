@@ -2,6 +2,106 @@
 import { supabase } from '../config/supabaseApp.js'
 
 /**
+ * Gets view analytics for posts
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+async function getPostViewAnalytics(req, res) {
+  try {
+    const { postId } = req.params;
+    const userId = req.user?.id;
+    
+    if (!userId) {
+      return res.status(401).json({ message: 'Authentication required' });
+    }
+    
+    let query = supabase
+      .from('viewed_posts')
+      .select(`
+        post_id,
+        viewed_at,
+        user_id
+      `)
+      .order('viewed_at', { ascending: false });
+    
+    // If postId is provided, filter by that post
+    if (postId) {
+      query = query.eq('post_id', postId);
+    }
+    
+    const { data, error } = await query;
+    
+    if (error) {
+      return res.status(400).json({ message: error.message });
+    }
+    
+    // Group by post_id for analytics
+    const analytics = {};
+    data.forEach(view => {
+      if (!analytics[view.post_id]) {
+        analytics[view.post_id] = {
+          post_id: view.post_id,
+          total_views: 0,
+          unique_viewers: new Set(),
+          recent_views: []
+        };
+      }
+      
+      analytics[view.post_id].total_views++;
+      analytics[view.post_id].unique_viewers.add(view.user_id);
+      analytics[view.post_id].recent_views.push({
+        user_id: view.user_id,
+        viewed_at: view.viewed_at
+      });
+    });
+    
+    // Convert Set to count for unique viewers
+    Object.keys(analytics).forEach(postId => {
+      analytics[postId].unique_viewers = analytics[postId].unique_viewers.size;
+      // Keep only the 10 most recent views
+      analytics[postId].recent_views = analytics[postId].recent_views.slice(0, 10);
+    });
+    
+    return res.status(200).json(analytics);
+  } catch (error) {
+    console.error('Error getting post view analytics:', error);
+    return res.status(500).json({ message: error.message });
+  }
+}
+
+// Helper function to record a post view
+async function recordViewedPost(userId, postId) {
+  console.log(userId + " " + postId)
+  try {
+    // Check if this view already exists
+    const { data: existingView } = await supabase
+      .from('posts_viewed')
+      .select('uuid')
+      .eq('uuid', userId)
+      .eq('postId', postId)
+      .single();
+    
+    // Only insert if this is a new view
+    if (!existingView) {
+      const { error } = await supabase
+        .from('posts_viewed')
+        .insert({
+          uuid: userId,
+          postId: postId,
+        });
+      
+      if (error) {
+        console.error('Error recording viewed post:', error);
+      }
+      return false;
+    }
+    return true;
+  } catch (error) {
+    console.error('Error in recordViewedPost:', error);
+  }
+}
+
+/**
  * Fetches all posts for a given username.
  * Expects username in req.params.
  * Returns all posts from the 'posts' table.
@@ -49,7 +149,18 @@ async function getPosts(req, res) {
     }
 
     // Normalize avatar and count likes
-    const formatted = (data || []).map(p => {
+    const formatted = [];
+    for (const p of (data || [])) {
+      // Check if this post was already viewed by the user
+      const seen = userId ? await recordViewedPost(userId, p.postId) : false;
+      console.log("Recorded view for post:", p.postId, "Result:", seen); // Debug log
+
+      // Skip this post if it was already viewed (seen = true)
+      if (seen) {
+        console.log("Skipping already viewed post:", p.postId);
+        continue;
+      }
+
       const avatar =
         p?.author?.profile_picture_url ||
         p?.author_profile?.profile_picture_url ||
@@ -64,14 +175,14 @@ async function getPosts(req, res) {
         return like.user_uuid === userId;
       }) || false;
 
-      return {
+      formatted.push({
         ...p,
         total_likes,
         is_liked,
         profile_picture_url: avatar,
         profilePictureUrl: avatar
-      };
-    });
+      });
+    }
 
     return res.status(200).json({
       posts: formatted,
@@ -328,6 +439,9 @@ async function getPostById(req, res) {
     // Add is_liked only for authenticated users
     if (userId) {
       formatted.is_liked = post.postLikes?.some(like => like.user_uuid === userId) || false;
+      
+      // Record that this user viewed this post
+      recordViewedPost(userId, postId);
     }
 
     return res.status(200).json(formatted);
@@ -385,4 +499,4 @@ async function deletePost(req, res) {
 }
 
 // Export controller functions for use in routes
-export { getPosts, addPostComment, getPostComments, addPostLike, getPostById, deletePost }
+export { getPosts, addPostComment, getPostComments, addPostLike, getPostById, deletePost, getPostViewAnalytics }

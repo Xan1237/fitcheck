@@ -188,7 +188,7 @@ async function getFollowing(req, res) {
         .select(`
             senderUserId,
             targetUserId,
-            following:users!follows_senderUserId_fkey (
+            following:users!follows_targetUserId_fkey (
                 username,
                 profile_picture_url
             )

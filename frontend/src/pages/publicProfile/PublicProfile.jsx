@@ -99,9 +99,9 @@ const UserProfile = () => {
   };
 
   const [userData, setUserData] = useState({
-    name: 'Alex Johnson',
-    username: '@alexfit',
-    bio: 'Fitness enthusiast | Personal Trainer | Nutrition Coach',
+    name: '',
+    username: '',
+    bio: '',
     profilePicture: null,
     stats: { workoutsCompleted: '-', personalBests: '-', followers: '-', following: '-' },
     gymStats: []

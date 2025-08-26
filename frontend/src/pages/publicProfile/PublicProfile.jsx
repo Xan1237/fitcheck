@@ -558,7 +558,6 @@ const UserProfile = () => {
 
           <div className="identity">
             <h1 id="userName" className="display">{userData.name}</h1>
-            <p className="username">@{userData.username}</p>
             <p className="bio">{userData.bio}</p>
 
             <div className="actions">

@@ -146,4 +146,60 @@ async function getChatMessages(req, res) {
     }
 }
 
-export { newChat, newMessage, getUserChats, getChatMessages };
+// Mobile compatibility function - chatId comes from URL params
+async function getChatMessagesById(req, res) {
+    const { chatId } = req.params;
+    try {
+        const { data, error } = await supabase
+            .from('messages')
+            .select('*')
+            .eq('chat_id', chatId)
+            .order('created_at', { ascending: true });
+        if (error) {
+            return res.status(400).json({
+                success: false,
+                error: error.message
+            });
+        }   
+        res.status(200).json(data); // Mobile expects direct array, not wrapped in success object
+    } catch (err) {
+        res.status(500).json({
+            success: false,
+            error: "Failed to retrieve chat messages"
+        });
+    }
+}
+
+// Mobile compatibility function - returns direct array without success wrapper
+async function getUserChatsForMobile(req, res) {
+    const userId = req.user.id;
+
+    try {
+        const { data, error } = await supabase
+            .from('chats')
+            .select('*')
+            .or(`uuid1.eq.${userId},uuid2.eq.${userId}`);
+
+        if (error) {
+            return res.status(400).json({ error: error.message });
+        }
+
+        // Transform data for mobile compatibility
+        for(let i = 0; i < data.length; i++) {
+            let obj = data[i];
+            if (obj.uuid1 === userId) {
+                obj.uuid2 = await uuidToUsername(obj.uuid2);
+                obj.uuid1 = "You";
+            } else {
+                obj.uuid1 = await uuidToUsername(obj.uuid1);
+                obj.uuid2 = "You";
+            }
+        }
+
+        res.status(200).json(data); // Mobile expects direct array, not wrapped in success object
+    } catch (err) {
+        res.status(500).json({ error: "Failed to retrieve user chats" });
+    }
+}
+
+export { newChat, newMessage, getUserChats, getChatMessages, getChatMessagesById, getUserChatsForMobile };

@@ -652,6 +652,110 @@ async function getUnviewedPosts(req, res) {
   }
 }
 
+// Mobile-compatible version of getPosts that returns data in the format mobile app expects
+async function getPostsForMobile(req, res) {
+  try {
+    const userId = req.user?.id;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = (page - 1) * limit;
+    
+    console.log(`Mobile feed request - User: ${userId}, Page: ${page}, Limit: ${limit}`);
+
+    // Get posts with all needed data
+    const { data: posts, error } = await supabase
+      .from('posts')
+      .select(`
+        postId,
+        created_at,
+        title,
+        description,
+        image_url,
+        tags,
+        username,
+        total_comments,
+        uuid,
+        author:users!posts_uuid_fkey(
+          username,
+          profile_picture_url
+        ),
+        author_profile:public_profiles!posts_username_fkey(
+          profile_picture_url
+        ),
+        postLikes:postLikes(count)
+      `)
+      .order('total_comments', { ascending: false })
+      .order('created_at', { ascending: false })
+      .range(offset, offset + limit - 1);
+
+    if (error) {
+      console.error('Error fetching posts for mobile:', error);
+      return res.status(400).json({ error: error.message });
+    }
+
+    // Get like details for current user (if authenticated)
+    let userLikes = [];
+    if (userId && posts && posts.length > 0) {
+      const postIds = posts.map(p => p.postId);
+      const { data: likes } = await supabase
+        .from('postLikes')
+        .select('post_uuid')
+        .eq('user_uuid', userId)
+        .in('post_uuid', postIds);
+      
+      userLikes = likes?.map(like => like.post_uuid) || [];
+    }
+
+    // Transform data to mobile format
+    const mobilePosts = posts.map(post => {
+      const profile_picture_url = 
+        post.author?.profile_picture_url || 
+        post.author_profile?.profile_picture_url || 
+        null;
+
+      const is_liked = userLikes.includes(post.postId);
+      const total_likes = post.postLikes?.[0]?.count || 0;
+
+      return {
+        id: post.postId,                    // Mobile expects 'id'
+        PostID: post.postId,                // Legacy support
+        Username: post.username,            // Mobile expects 'Username'
+        PostText: post.description,         // Mobile expects 'PostText'
+        content: post.description,          // Alternative field
+        ImageURL: post.image_url,           // Mobile expects 'ImageURL'
+        Time: post.created_at,              // Mobile expects 'Time'
+        created_at: post.created_at,        // Alternative field
+        Likes: total_likes,                 // Mobile expects 'Likes'
+        Comments: post.total_comments || 0, // Mobile expects 'Comments'
+        userAvatar: profile_picture_url,    // Mobile expects 'userAvatar'
+        title: post.title,
+        tags: post.tags,
+        is_liked,
+        total_likes,
+        total_comments: post.total_comments || 0
+      };
+    });
+
+    // Record views asynchronously
+    if (userId && mobilePosts.length > 0) {
+      mobilePosts.forEach(post => {
+        recordViewedPost(userId, post.id).catch(err => 
+          console.error('Background view recording failed:', err)
+        );
+      });
+    }
+
+    console.log(`Mobile feed response - Returning ${mobilePosts.length} posts`);
+    return res.status(200).json(mobilePosts); // Return direct array for mobile
+
+  } catch (error) {
+    console.error('Mobile feed algorithm error:', error);
+    return res.status(500).json({ 
+      error: 'Internal server error'
+    });
+  }
+}
+
 // Export controller functions for use in routes
 export { 
   getPosts, 
@@ -661,5 +765,6 @@ export {
   addPostLike, 
   getPostById, 
   deletePost, 
-  getPostViewAnalytics 
+  getPostViewAnalytics,
+  getPostsForMobile
 }

@@ -10,6 +10,8 @@ import {
   deletePersonalRecord,
   createPost,
   getAllUsers,
+  getUserPosts,
+  getUserStats,
 } from "../controllers/userController.js"; // Updated import
 import { setUsername } from "../controllers/setUsernameController.js";
 
@@ -45,6 +47,10 @@ router.post("/api/createPost", verifyAuth, createPost);
 router.post("/api/post/:postId/comment", verifyAuth, addPostComment);
 router.get("/api/post/:postId/comments", getPostComments);
 router.get("/api/getAllUsers", getAllUsers);
-
+// Mobile compatibility routes
+router.get("/api/users", getAllUsers); // Mobile expects /api/users instead of /api/getAllUsers
+router.post("/api/posts", verifyAuth, createPost); // Mobile expects /api/posts instead of /api/createPost
+router.get("/api/user/posts", verifyAuth, getUserPosts); // Mobile expects /api/user/posts
+router.get("/api/user/stats", verifyAuth, getUserStats); // Mobile expects /api/user/stats
 
 export default router;

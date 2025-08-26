@@ -672,6 +672,87 @@ const getAllUsers = async (req, res) => {
     return res.status(500).json({ success: false, error: err.message });
   }
 };
+// Mobile-specific function to get user posts
+const getUserPosts = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    
+    const { data, error } = await supabase
+      .from('posts')
+      .select(`
+        *,
+        users (username, profile_picture_url)
+      `)
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      return res.status(400).json({ success: false, error: error.message });
+    }
+
+    res.status(200).json(data || []);
+  } catch (err) {
+    console.error('Error fetching user posts:', err);
+    res.status(500).json({ success: false, error: "Failed to fetch user posts" });
+  }
+};
+
+// Mobile-specific function to get user stats
+const getUserStats = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    
+    // Get post count
+    const { count: postCount, error: postError } = await supabase
+      .from('posts')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', userId);
+
+    if (postError) {
+      console.error('Error fetching post count:', postError);
+    }
+
+    // Get PR count
+    const { count: prCount, error: prError } = await supabase
+      .from('pr')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', userId);
+
+    if (prError) {
+      console.error('Error fetching PR count:', prError);
+    }
+
+    // Get follower count
+    const { count: followerCount, error: followerError } = await supabase
+      .from('followers')
+      .select('*', { count: 'exact', head: true })
+      .eq('target_user_id', userId);
+
+    if (followerError) {
+      console.error('Error fetching follower count:', followerError);
+    }
+
+    // Get following count
+    const { count: followingCount, error: followingError } = await supabase
+      .from('followers')
+      .select('*', { count: 'exact', head: true })
+      .eq('follower_user_id', userId);
+
+    if (followingError) {
+      console.error('Error fetching following count:', followingError);
+    }
+
+    res.status(200).json({
+      posts: postCount || 0,
+      personalRecords: prCount || 0,
+      followers: followerCount || 0,
+      following: followingCount || 0
+    });
+  } catch (err) {
+    console.error('Error fetching user stats:', err);
+    res.status(500).json({ success: false, error: "Failed to fetch user stats" });
+  }
+};
 
 // Export middleware and controllers for use in routes
 export {// New middleware for authentication
@@ -684,5 +765,7 @@ export {// New middleware for authentication
   deletePersonalRecord,
   uploadProfilePicture,
   createPost,
-  getAllUsers
+  getAllUsers,
+  getUserPosts,
+  getUserStats
 };

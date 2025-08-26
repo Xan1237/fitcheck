@@ -237,7 +237,49 @@ const updateGymTags = async (gymId) => {
       return res.status(500).json({ error: "Internal server error" });
     }
   }
+
+  // Mobile-specific function to get gym by ID
+  async function getGymById(req, res) {
+    const { gymId } = req.params;
+    try {
+      const { data, error } = await supabase
+        .from('gyms')
+        .select('*')
+        .eq('id', gymId)
+        .single();
+
+      if (error) {
+        return res.status(400).json({ error: error.message });
+      }
+
+      if (!data) {
+        return res.status(404).json({ error: "Gym not found" });
+      }
+
+      return res.status(200).json(data);
+    } catch (error) {
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  }
+
+  // Mobile-specific function to get nearby gyms (currently returns all gyms)
+  async function getNearbyGyms(req, res) {
+    try {
+      const { data, error } = await supabase
+        .from('gyms')
+        .select('*')
+        .limit(50); // Limit to 50 gyms for performance
+
+      if (error) {
+        return res.status(400).json({ error: error.message });
+      }
+
+      return res.status(200).json({ gyms: data || [] });
+    } catch (error) {
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  }
   
 
 // Export controller functions for use in routes
-export { updateGymTags, addUserGym, getUserGyms, getGymsByProvince, removeUserGym, getPeopleByGymFrequented };
+export { updateGymTags, addUserGym, getUserGyms, getGymsByProvince, removeUserGym, getPeopleByGymFrequented, getGymById, getNearbyGyms };

@@ -16,7 +16,7 @@ const api = axios.create({
 api.interceptors.request.use(
   async (config) => {
     try {
-      const token = await AsyncStorage.getItem('authToken');
+      const token = await AsyncStorage.getItem('token'); // Changed from 'authToken' to 'token' for consistency
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       }
@@ -36,7 +36,7 @@ api.interceptors.response.use(
   async (error) => {
     if (error.response?.status === 401) {
       // Handle unauthorized access
-      await AsyncStorage.removeItem('authToken');
+      await AsyncStorage.removeItem('token'); // Changed from 'authToken' to 'token' for consistency
       await AsyncStorage.removeItem('userData');
     }
     return Promise.reject(error);

@@ -211,6 +211,61 @@ async function getFollowing(req, res) {
     });
 }
 
+// Mobile-compatible follow function that accepts userId instead of targetUserName
+async function followUser(req, res) {
+    const { userId } = req.body; // Mobile sends userId instead of targetUserName
+    const senderUserName = req.user.id;
+
+    // Validate input
+    if (!senderUserName || !userId) {
+        return res.status(400).json({ error: 'Sender and target user IDs are required' });
+    }
+
+    try {
+        // Check if already following
+        const { data, error } = await supabase
+            .from('follows')
+            .select('*')
+            .eq('senderUserId', senderUserName)
+            .eq('targetUserId', userId);
+
+        if (error) {
+            return res.status(400).json({ error: error.message });
+        }
+
+        if (data.length > 0) {
+            // Already following, so unfollow
+            const { error: deleteError } = await supabase
+                .from('follows')
+                .delete()
+                .eq('senderUserId', senderUserName)
+                .eq('targetUserId', userId);
+
+            if (deleteError) {
+                return res.status(400).json({ error: deleteError.message });
+            }
+
+            return res.status(200).json({ message: 'Unfollowed successfully', following: false });
+        } else {
+            // Not following, so follow
+            const { error: insertError } = await supabase
+                .from('follows')
+                .insert({
+                    senderUserId: senderUserName,
+                    targetUserId: userId
+                });
+
+            if (insertError) {
+                return res.status(400).json({ error: insertError.message });
+            }
+
+            return res.status(200).json({ message: 'Followed successfully', following: true });
+        }
+    } catch (error) {
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+}
+
 // Export controller functions for use in routes
 export {
     newFollower,
@@ -218,5 +273,6 @@ export {
     getFollowingCount,
     unfollowUser,
     getFollowers,
-    getFollowing
+    getFollowing,
+    followUser
 }

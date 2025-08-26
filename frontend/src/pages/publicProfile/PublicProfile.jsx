@@ -532,6 +532,7 @@ const UserProfile = () => {
             <div
               className="avatar-container"
               data-clickable={isOwnProfile ? "true" : "false"}
+              onClick={() => isOwnProfile && profilePictureInputRef.current?.click()}
             >
               {userData.profilePicture ? (
                 <img
@@ -844,7 +845,6 @@ const UserProfile = () => {
                     onChange={e => setEditingPR(prev => ({ ...prev, newExercise: e.target.value }))}
                     placeholder="Bench Press"
                   />
-                  <small className="subtle">Leave unchanged to keep the same name.</small>
                 </label>
                 <label className="field">
                   <span>Weight (lbs)</span>

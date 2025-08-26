@@ -622,7 +622,6 @@
         @media (min-width: 768px) {
           padding: 24px 32px 0 32px;
           gap: 16px;
-          background: linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
           border-top: 1px solid #333;
           border-radius: 0;
         }
@@ -686,7 +685,6 @@
               background: rgba(255, 255, 255, 0.08);
               border-color: #ff6b35;
               box-shadow: 0 0 0 4px rgba(255, 107, 53, 0.1);
-              transform: scale(1.02);
             }
           }
 
@@ -1077,6 +1075,7 @@ input:focus, button:focus {
 .messages-container {
   scrollbar-width: none;      // Firefox
   -ms-overflow-style: none;   // IE 10+
+  height: 100vh;
 }
 .chat-messages::-webkit-scrollbar,
 .messages-container::-webkit-scrollbar {
@@ -1100,4 +1099,5 @@ input:focus, button:focus {
 .message-bubble .sender-row .sender-name a:hover {
   text-decoration: underline;
 }
+
 

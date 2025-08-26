@@ -71,40 +71,35 @@ async function getPostViewAnalytics(req, res) {
 
 // Helper function to record a post view
 async function recordViewedPost(userId, postId) {
-  console.log(userId + " " + postId)
+  if (!userId || !postId) return false;
+  
   try {
-    // Check if this view already exists
-    const { data: existingView } = await supabase
-      .from('posts_viewed')
-      .select('uuid')
-      .eq('uuid', userId)
-      .eq('postId', postId)
-      .single();
+    // Use the correct table and column names from the schema
+    const { error } = await supabase
+      .from('viewed_posts')
+      .upsert({
+        user_id: userId,
+        post_id: postId,
+        viewed_at: new Date().toISOString()
+      }, {
+        onConflict: 'user_id,post_id' // Don't create duplicates
+      });
     
-    // Only insert if this is a new view
-    if (!existingView) {
-      const { error } = await supabase
-        .from('posts_viewed')
-        .insert({
-          uuid: userId,
-          postId: postId,
-        });
-      
-      if (error) {
-        console.error('Error recording viewed post:', error);
-      }
+    if (error) {
+      console.error('Error recording viewed post:', error);
       return false;
     }
+    
     return true;
   } catch (error) {
     console.error('Error in recordViewedPost:', error);
+    return false;
   }
 }
 
 /**
- * Fetches all posts for a given username.
- * Expects username in req.params.
- * Returns all posts from the 'posts' table.
+ * COMPLETELY REWRITTEN FEED ALGORITHM
+ * Simple, reliable feed that just works
  */
 async function getPosts(req, res) {
   try {
@@ -113,15 +108,10 @@ async function getPosts(req, res) {
     const limit = parseInt(req.query.limit) || 10;
     const offset = (page - 1) * limit;
     
-    console.log("Current user ID:", userId); // Debug log
+    console.log(`Feed request - User: ${userId}, Page: ${page}, Limit: ${limit}`);
 
-    // Get total count of posts
-    const { count } = await supabase
-      .from('posts')
-      .select('*', { count: 'exact', head: true });
-
-    // Get paginated posts
-    const { data, error } = await supabase
+    // STEP 1: Get posts with all needed data in one query
+    const { data: posts, error, count } = await supabase
       .from('posts')
       .select(`
         postId,
@@ -132,6 +122,7 @@ async function getPosts(req, res) {
         tags,
         username,
         total_comments,
+        uuid,
         author:users!posts_uuid_fkey(
           username,
           profile_picture_url
@@ -139,62 +130,93 @@ async function getPosts(req, res) {
         author_profile:public_profiles!posts_username_fkey(
           profile_picture_url
         ),
-        postLikes:postLikes(*)
-      `)
+        postLikes:postLikes(count)
+      `, { count: 'exact' })
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1);
 
     if (error) {
+      console.error('Error fetching posts:', error);
       return res.status(400).json({ message: error.message });
     }
 
-    // Normalize avatar and count likes
-    const formatted = [];
-    for (const p of (data || [])) {
-      // Check if this post was already viewed by the user
-      const seen = userId ? await recordViewedPost(userId, p.postId) : false;
-      console.log("Recorded view for post:", p.postId, "Result:", seen); // Debug log
+    // STEP 2: Get like details for current user (if authenticated)
+    let userLikes = [];
+    if (userId && posts && posts.length > 0) {
+      const postIds = posts.map(p => p.postId);
+      const { data: likes } = await supabase
+        .from('postLikes')
+        .select('post_uuid')
+        .eq('user_uuid', userId)
+        .in('post_uuid', postIds);
+      
+      userLikes = likes?.map(like => like.post_uuid) || [];
+    }
 
-      // Skip this post if it was already viewed (seen = true)
-      if (seen) {
-        console.log("Skipping already viewed post:", p.postId);
-        continue;
-      }
-
-      const avatar =
-        p?.author?.profile_picture_url ||
-        p?.author_profile?.profile_picture_url ||
+    // STEP 3: Format the response
+    const formattedPosts = posts.map(post => {
+      // Get profile picture from either source
+      const profile_picture_url = 
+        post.author?.profile_picture_url || 
+        post.author_profile?.profile_picture_url || 
         null;
 
-      console.log("Post likes for post:", p.postId, p.postLikes); // Debug log
-      
-      // Count likes and check if current user liked the post
-      const total_likes = Array.isArray(p.postLikes) ? p.postLikes.length : 0;
-      const is_liked = p.postLikes?.some(like => {
-        console.log("Comparing:", like.user_uuid, userId); // Debug log
-        return like.user_uuid === userId;
-      }) || false;
+      // Check if current user liked this post
+      const is_liked = userLikes.includes(post.postId);
 
-      formatted.push({
-        ...p,
+      // Get like count
+      const total_likes = post.postLikes?.[0]?.count || 0;
+
+      return {
+        postId: post.postId,
+        created_at: post.created_at,
+        title: post.title,
+        description: post.description,
+        image_url: post.image_url,
+        tags: post.tags,
+        username: post.username,
+        total_comments: post.total_comments || 0,
         total_likes,
         is_liked,
-        profile_picture_url: avatar,
-        profilePictureUrl: avatar
+        profile_picture_url,
+        profilePictureUrl: profile_picture_url // Legacy compatibility
+      };
+    });
+
+    // STEP 4: Record views asynchronously (don't wait for it)
+    if (userId && formattedPosts.length > 0) {
+      // Record views in background - don't await to avoid slowing down response
+      formattedPosts.forEach(post => {
+        recordViewedPost(userId, post.postId).catch(err => 
+          console.error('Background view recording failed:', err)
+        );
       });
     }
 
-    return res.status(200).json({
-      posts: formatted,
+    // STEP 5: Return the response
+    const response = {
+      success: true,
+      posts: formattedPosts,
       pagination: {
         page,
         limit,
-        total: count,
-        hasMore: offset + limit < count
+        total: count || 0,
+        totalPages: Math.ceil((count || 0) / limit),
+        hasMore: offset + limit < (count || 0),
+        showing: formattedPosts.length
       }
+    };
+
+    console.log(`Feed response - Returning ${formattedPosts.length} posts`);
+    return res.status(200).json(response);
+
+  } catch (error) {
+    console.error('Feed algorithm error:', error);
+    return res.status(500).json({ 
+      success: false,
+      message: 'Internal server error',
+      error: error.message 
     });
-  } catch (e) {
-    return res.status(500).json({ message: e.message });
   }
 }
 
@@ -498,5 +520,145 @@ async function deletePost(req, res) {
   }
 }
 
+/**
+ * Get posts that the user hasn't viewed yet
+ * This is a separate endpoint for the "fresh content" feed
+ */
+async function getUnviewedPosts(req, res) {
+  try {
+    const userId = req.user?.id;
+    
+    if (!userId) {
+      return res.status(401).json({ 
+        success: false,
+        message: 'Authentication required to get unviewed posts' 
+      });
+    }
+
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = (page - 1) * limit;
+    
+    console.log(`Unviewed posts request - User: ${userId}, Page: ${page}, Limit: ${limit}`);
+
+    // Get posts that user hasn't viewed
+    const { data: posts, error, count } = await supabase
+      .from('posts')
+      .select(`
+        postId,
+        created_at,
+        title,
+        description,
+        image_url,
+        tags,
+        username,
+        total_comments,
+        uuid,
+        author:users!posts_uuid_fkey(
+          username,
+          profile_picture_url
+        ),
+        author_profile:public_profiles!posts_username_fkey(
+          profile_picture_url
+        ),
+        postLikes:postLikes(count)
+      `, { count: 'exact' })
+      .not('postId', 'in', `(
+        SELECT post_id FROM viewed_posts WHERE user_id = '${userId}'
+      )`)
+      .order('created_at', { ascending: false })
+      .range(offset, offset + limit - 1);
+
+    if (error) {
+      console.error('Error fetching unviewed posts:', error);
+      return res.status(400).json({ 
+        success: false,
+        message: error.message 
+      });
+    }
+
+    // Get user's likes for these posts
+    let userLikes = [];
+    if (posts && posts.length > 0) {
+      const postIds = posts.map(p => p.postId);
+      const { data: likes } = await supabase
+        .from('postLikes')
+        .select('post_uuid')
+        .eq('user_uuid', userId)
+        .in('post_uuid', postIds);
+      
+      userLikes = likes?.map(like => like.post_uuid) || [];
+    }
+
+    // Format the response
+    const formattedPosts = posts.map(post => {
+      const profile_picture_url = 
+        post.author?.profile_picture_url || 
+        post.author_profile?.profile_picture_url || 
+        null;
+
+      const is_liked = userLikes.includes(post.postId);
+      const total_likes = post.postLikes?.[0]?.count || 0;
+
+      return {
+        postId: post.postId,
+        created_at: post.created_at,
+        title: post.title,
+        description: post.description,
+        image_url: post.image_url,
+        tags: post.tags,
+        username: post.username,
+        total_comments: post.total_comments || 0,
+        total_likes,
+        is_liked,
+        profile_picture_url,
+        profilePictureUrl: profile_picture_url
+      };
+    });
+
+    // Record views for these posts
+    if (formattedPosts.length > 0) {
+      formattedPosts.forEach(post => {
+        recordViewedPost(userId, post.postId).catch(err => 
+          console.error('Background view recording failed:', err)
+        );
+      });
+    }
+
+    const response = {
+      success: true,
+      posts: formattedPosts,
+      pagination: {
+        page,
+        limit,
+        total: count || 0,
+        totalPages: Math.ceil((count || 0) / limit),
+        hasMore: offset + limit < (count || 0),
+        showing: formattedPosts.length
+      }
+    };
+
+    console.log(`Unviewed posts response - Returning ${formattedPosts.length} posts`);
+    return res.status(200).json(response);
+
+  } catch (error) {
+    console.error('Unviewed posts error:', error);
+    return res.status(500).json({ 
+      success: false,
+      message: 'Internal server error',
+      error: error.message 
+    });
+  }
+}
+
 // Export controller functions for use in routes
-export { getPosts, addPostComment, getPostComments, addPostLike, getPostById, deletePost, getPostViewAnalytics }
+export { 
+  getPosts, 
+  getUnviewedPosts,
+  addPostComment, 
+  getPostComments, 
+  addPostLike, 
+  getPostById, 
+  deletePost, 
+  getPostViewAnalytics 
+}

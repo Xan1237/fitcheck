@@ -87,6 +87,7 @@ body { background: $bg !important; color: $text; }
 .profile-hero .avatar-container .avatar-overlay {
   position: absolute;
   inset: 0;
+  height: 97px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -95,6 +96,10 @@ body { background: $bg !important; color: $text; }
   pointer-events: none;
   border-radius: 50%;
   background: rgba(0,0,0,0);
+
+  @media screen and (max-width: 880px) {
+    height: 80px;
+  }
 }
 .profile-hero .avatar-container[data-clickable="true"]:hover .avatar-overlay {
   opacity: 1;

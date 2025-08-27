@@ -38,6 +38,10 @@ const AuthPage = () => {
           if (response.data.success) {
             // Save the validated token from our backend
             localStorage.setItem('token', response.data.token);
+            
+            // Dispatch custom event to notify other components about auth state change
+            window.dispatchEvent(new Event('authStateChanged'));
+            
             window.location.hash = '';
             window.location.href = '/';
           } else {
@@ -127,6 +131,9 @@ const AuthPage = () => {
           localStorage.setItem('expiresAt', expiresAt.toISOString());
         }
         
+        // Dispatch custom event to notify other components about auth state change
+        window.dispatchEvent(new Event('authStateChanged'));
+        
         // Redirect to the intended page or default to home
         const { from } = location.state || { from: '/' };
         navigate(from, { replace: true });
@@ -163,6 +170,9 @@ const AuthPage = () => {
     console.log('Access token from hash:', accessToken);
     if (accessToken) {
       localStorage.setItem('token', accessToken);
+      
+      // Dispatch custom event to notify other components about auth state change
+      window.dispatchEvent(new Event('authStateChanged'));
     }
   };
 

@@ -6,6 +6,7 @@ import axios from 'axios';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const REDIRECT_URL = '/'; 
 
 const AuthPage = () => {
   const navigate = useNavigate();

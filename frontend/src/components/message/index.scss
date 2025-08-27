@@ -17,6 +17,9 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 12px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
 
   .username {
     font-weight: 600;
@@ -81,4 +84,3 @@
     border-radius: 5px;
     font-size: 12px;
   }
-  

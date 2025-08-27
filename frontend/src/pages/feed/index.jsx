@@ -416,7 +416,7 @@ const Feed = () => {
                         {post.user.verified && <span className="verified-badge">✓</span>}
                       </div>
                       <div className="user-meta">
-                        @{post.user.username} <br/> {post.timestamp}
+                        {post.timestamp}
                       </div>
                     </div>
                   </div>

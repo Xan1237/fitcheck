@@ -284,9 +284,13 @@ const Feed = () => {
     const provider = params.get('provider_token');
     // Only save token if Google sign-in (provider_token present or redirect from Google)
     if (token && (provider || window.location.search.includes('provider=google'))) {
+      localStorage.setItem('token', token);
+      
+      // Dispatch custom event to notify other components about auth state change
+      window.dispatchEvent(new Event('authStateChanged'));
+      
       window.location.hash = '';
       window.location.href = "/"; // Redirect to feed page
-       localStorage.setItem('token', token);
     }
   }, []);
 

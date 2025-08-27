@@ -14,13 +14,32 @@ const Header = () => {
   
   // Check auth status and fetch username
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    const isTokenValid = !!token;
-    setIsLoggedIn(isTokenValid);
+    const checkAuthStatus = () => {
+      const token = localStorage.getItem('token');
+      const isTokenValid = !!token;
+      setIsLoggedIn(isTokenValid);
+      
+      if (isTokenValid) {
+        fetchUsername();
+      } else {
+        setUserName('');
+      }
+    };
+
+    // Check auth status on mount
+    checkAuthStatus();
+
+    // Listen for storage changes (when localStorage is updated)
+    window.addEventListener('storage', checkAuthStatus);
     
-    if (isTokenValid) {
-      fetchUsername();
-    }
+    // Listen for custom auth events (for same-tab changes)
+    window.addEventListener('authStateChanged', checkAuthStatus);
+
+    // Cleanup listeners
+    return () => {
+      window.removeEventListener('storage', checkAuthStatus);
+      window.removeEventListener('authStateChanged', checkAuthStatus);
+    };
   }, []);
 
   // Control body scroll when menu is open
@@ -38,8 +57,12 @@ const Header = () => {
 
   const handleLogout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('username'); // Also remove username if stored
     setIsLoggedIn(false);
     setUserName("");
+    
+    // Dispatch custom event to notify other components
+    window.dispatchEvent(new Event('authStateChanged'));
   };
 
   const fetchUsername = async () => {

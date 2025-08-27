@@ -98,7 +98,7 @@ const EditBio = () => {
       {/* Header */}
       <div className="edit-bio-header">
         <button onClick={handleBack} className="back-button">
-          <ArrowLeft size={24} />
+          <ArrowLeft size={80} />
         </button>
         <h1>Edit Bio</h1>
         <button 

@@ -570,14 +570,12 @@ const UserProfile = () => {
       {/* Settings Icon - Only show on own profile */}
       {isOwnProfile && (
         <div className="profile-settings-container" style={{ color: "#ffffff" }} ref={settingsDropdownRef}>
-          <button 
+          <button
             className="profile-settings-icon"
             onClick={() => setShowSettingsDropdown(!showSettingsDropdown)}
-            style={{ color: '#ffffff' }} // Inline style to ensure visibility
           >
-            <Settings size={80} color="#ffffff" />
+            <Settings className="settings-gear" />
           </button>
-          
           {showSettingsDropdown && (
             <div className="profile-settings-dropdown">
               <button 

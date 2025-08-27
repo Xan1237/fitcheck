@@ -398,3 +398,168 @@ body { background: $bg !important; color: $text; }
     height: 40px;
   }
 }
+
+.profile-settings-container {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 100;
+
+  .profile-settings-icon {
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    
+
+    &:hover svg {
+      transform: rotate(90deg);
+      color: #ff5722; // accent hover color
+    }
+  }
+
+  .profile-settings-dropdown {
+    margin-top: 0.5rem;
+    background: #1e1e1e;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    padding: 0.5rem 0;
+    min-width: 140px;
+
+    .settings-option {
+      width: 100%;
+      background: none;
+      border: none;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      font-size: 0.9rem;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.1);
+      }
+
+      &.logout-option {
+        color: #ff5722;
+      }
+    }
+  }
+}
+
+
+.profile-settings-container {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 100;
+}
+
+/* Make the click target generous */
+.profile-settings-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;   /* click area */
+  height: 56px;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+/* Hard-set the gear size and beat any global svg rules */
+.profile-settings-icon .settings-gear {
+  width: 48px !important;
+  height: 48px !important;
+  color: #fff;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.profile-settings-icon:hover .settings-gear {
+  transform: rotate(90deg);
+}
+
+
+/* Container stays positioned */
+.profile-settings-container {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 100;
+}
+
+/* Button itself is invisible – no background or border */
+.profile-settings-icon {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Gear itself – make it big */
+.profile-settings-icon .settings-gear {
+  width: 64px !important;   /* adjust for size */
+  height: 64px !important;
+  color: #fff;
+  transition: transform 0.3s ease, color 0.3s ease;
+}
+
+/* Hover: only the gear animates, no button highlight */
+.profile-settings-icon:hover .settings-gear {
+  transform: rotate(90deg);
+  color: #ff5722;   /* or keep white if you don’t want a hover color */
+}
+
+
+/* Settings gear container */
+.profile-settings-container {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 100;
+
+  /* Hide by default */
+  display: none;
+}
+
+/* Show only on small screens */
+@media (max-width: 768px) {
+  .profile-settings-container {
+    display: block;
+  }
+}
+
+/* Invisible button, only gear shows */
+.profile-settings-icon {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Gear size + style */
+.profile-settings-icon .settings-gear {
+  width: 40px !important;   /* a bit smaller than before */
+  height: 40px !important;
+  color: #fff;
+  transition: transform 0.3s ease;
+}
+
+/* Hover effect only rotates the gear */
+.profile-settings-icon:hover .settings-gear {
+  transform: rotate(90deg);
+}

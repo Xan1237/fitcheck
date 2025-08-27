@@ -26,6 +26,12 @@
     width: 100%;
     background: #23272f;
     border-bottom: 1px solid #232323;
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
+    max-height: 520px; // or use calc(100vh - header height) for full page
+    overflow-y: auto;
+    padding: 0;
+    margin: 0 0 16px 0;
     
     @media (min-width: 768px) {
       border-right: 1px solid #333;
@@ -193,7 +199,12 @@
       transition: all 0.2s ease;
       border-bottom: 1px solid #232323;
       position: relative;
-      
+      background: #23272f;
+      border-radius: 12px;
+      margin: 8px 12px;
+      box-shadow: 0 2px 8px rgba(255, 107, 53, 0.04);
+      border: 1px solid transparent;
+
       @media (min-width: 768px) {
         padding: 20px 24px;
         gap: 16px;
@@ -208,11 +219,11 @@
         }
       }
       
-      &:hover {
+      &:hover, &.active {
         background: #2a2d35;
+        box-shadow: 0 4px 16px rgba(255, 107, 53, 0.08);
+        border-color: #ff6b35;
       }
-      
-      
 
       .avatar-img {
         width: 48px;

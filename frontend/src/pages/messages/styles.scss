@@ -352,8 +352,9 @@
         background: #23272f;
         border-bottom: 1px solid #232323;
         flex-shrink: 0;
-        position: relative;
-        
+        position: sticky;
+        top: 0;
+
         @media (min-width: 768px) {
           padding: 24px 32px;
           background: linear-gradient(90deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);

@@ -287,3 +287,114 @@ body { background: $bg !important; color: $text; }
   width: 150%;
   margin-top: -15px;
 }
+
+/* ===== PROFILE SETTINGS ===== */
+.profile-settings-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+}
+
+.profile-settings-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999; // Very high z-index to ensure visibility
+}
+
+.profile-settings-icon {
+  background: #000000; // Black background
+  border: 1px solid #333333;
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #ffffff !important;
+  z-index: 10000; // Even higher z-index
+  position: relative;
+  
+  svg {
+    color: #ffffff !important; // White cog icon
+    fill: none !important;
+    stroke: #ffffff !important;
+  }
+  
+  &:hover {
+    background: #222222; // Slightly lighter black on hover
+    color: #ffffff;
+    border-color: #555555;
+    
+    svg {
+      color: #ffffff !important; // Keep white on hover
+      stroke: #ffffff !important;
+    }
+  }
+}
+
+.profile-settings-dropdown {
+  position: absolute;
+  top: 52px;
+  right: 0;
+  background: $panel;
+  border: 1px solid $border;
+  border-radius: 8px;
+  box-shadow: $shadow;
+  min-width: 160px;
+  overflow: hidden;
+  animation: slideIn 0.2s ease;
+}
+
+.settings-option {
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: $text;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  font-size: 14px;
+  
+  &:hover {
+    background: lighten($panel, 5%);
+  }
+  
+  &.logout-option {
+    color: #ff4757;
+    
+    &:hover {
+      background: rgba(255, 71, 87, 0.1);
+    }
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+  .profile-settings-container {
+    top: 15px;
+    right: 15px;
+  }
+  
+  .profile-settings-icon {
+    width: 40px;
+    height: 40px;
+  }
+}

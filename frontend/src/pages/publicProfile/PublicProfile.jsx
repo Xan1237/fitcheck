@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
-import { User, Plus, PencilLine, UserPlus, MapPin, X, MessageCircle} from 'lucide-react';
+import { User, Plus, PencilLine, UserPlus, MapPin, X, MessageCircle, Settings, LogOut } from 'lucide-react';
 import Header from '../../components/header';
 import GymSearch from '../../components/GymSearch/GymSearch';
 import ImageCropper from '../../components/ImageCropper/ImageCropper';
@@ -129,6 +129,8 @@ const UserProfile = () => {
 
   const [showEditPRModal, setShowEditPRModal] = useState(false);
   const [editingPR, setEditingPR] = useState(null);
+  const [showSettingsDropdown, setShowSettingsDropdown] = useState(false);
+  const settingsDropdownRef = useRef(null);
 
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -270,6 +272,32 @@ const UserProfile = () => {
   useEffect(() => {
     setActiveTab(getTabFromQuery(location.search));
   }, [location.search]);
+
+  // Handle clicks outside settings dropdown
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (settingsDropdownRef.current && !settingsDropdownRef.current.contains(event.target)) {
+        setShowSettingsDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('username');
+    localStorage.removeItem('expiresAt');
+    
+    // Dispatch custom event to notify other components about auth state change
+    window.dispatchEvent(new Event('authStateChanged'));
+    
+    // Redirect to home page
+    navigate('/');
+  };
 
   const handleSavePR = async () => {
     try {
@@ -538,6 +566,31 @@ const UserProfile = () => {
   return (
     <div className="profile-page">
       <Header />
+      
+      {/* Settings Icon - Only show on own profile */}
+      {isOwnProfile && (
+        <div className="profile-settings-container" style={{ color: "#ffffff" }} ref={settingsDropdownRef}>
+          <button 
+            className="profile-settings-icon"
+            onClick={() => setShowSettingsDropdown(!showSettingsDropdown)}
+            style={{ color: '#ffffff' }} // Inline style to ensure visibility
+          >
+            <Settings size={80} color="#ffffff" />
+          </button>
+          
+          {showSettingsDropdown && (
+            <div className="profile-settings-dropdown">
+              <button 
+                className="settings-option logout-option"
+                onClick={handleLogout}
+              >
+                <LogOut size={16} />
+                <span>Logout</span>
+              </button>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Hero */}
       <section className="profile-hero no-gradient">

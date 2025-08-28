@@ -1,16 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
 import './SignIn.scss';
 import { FaDumbbell } from "react-icons/fa";
 import axios from 'axios';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-const REDIRECT_URL = '/'; 
+const REDIRECT_URL = '/'; // Use current domain for redirect
 
 const AuthPage = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [username, setUsername] = useState('');
@@ -39,10 +36,6 @@ const AuthPage = () => {
           if (response.data.success) {
             // Save the validated token from our backend
             localStorage.setItem('token', response.data.token);
-            
-            // Dispatch custom event to notify other components about auth state change
-            window.dispatchEvent(new Event('authStateChanged'));
-            
             window.location.hash = '';
             window.location.href = '/';
           } else {
@@ -132,12 +125,7 @@ const AuthPage = () => {
           localStorage.setItem('expiresAt', expiresAt.toISOString());
         }
         
-        // Dispatch custom event to notify other components about auth state change
-        window.dispatchEvent(new Event('authStateChanged'));
-        
-        // Redirect to the intended page or default to home
-        const { from } = location.state || { from: '/' };
-        navigate(from, { replace: true });
+        window.location.href = "/"; // <-- Change to home page
       } else {
         throw new Error(response.data.message || 'Login failed');
       }
@@ -171,9 +159,6 @@ const AuthPage = () => {
     console.log('Access token from hash:', accessToken);
     if (accessToken) {
       localStorage.setItem('token', accessToken);
-      
-      // Dispatch custom event to notify other components about auth state change
-      window.dispatchEvent(new Event('authStateChanged'));
     }
   };
 

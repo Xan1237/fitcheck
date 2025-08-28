@@ -46,19 +46,6 @@ const Feed = () => {
   const [posts, setPosts] = useState([]);
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
-
-  // Check authentication on component mount
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      // Redirect to login page if not authenticated
-      navigate('/login', { 
-        replace: true, 
-        state: { from: '/' } // Store the intended destination
-      });
-      return;
-    }
-  }, [navigate]);
   const [commentInputs, setCommentInputs] = useState({}); // { [postId]: string }
   const [comments, setComments] = useState({}); // { [postId]: [comments] }
   const [page, setPage] = useState(1);
@@ -284,13 +271,9 @@ const Feed = () => {
     const provider = params.get('provider_token');
     // Only save token if Google sign-in (provider_token present or redirect from Google)
     if (token && (provider || window.location.search.includes('provider=google'))) {
-      localStorage.setItem('token', token);
-      
-      // Dispatch custom event to notify other components about auth state change
-      window.dispatchEvent(new Event('authStateChanged'));
-      
       window.location.hash = '';
       window.location.href = "/"; // Redirect to feed page
+       localStorage.setItem('token', token);
     }
   }, []);
 
@@ -420,7 +403,7 @@ const Feed = () => {
                         {post.user.verified && <span className="verified-badge">✓</span>}
                       </div>
                       <div className="user-meta">
-                        {post.timestamp}
+                        @{post.user.username} <br/> {post.timestamp}
                       </div>
                     </div>
                   </div>

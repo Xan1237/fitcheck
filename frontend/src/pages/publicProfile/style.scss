@@ -240,7 +240,19 @@ body { background: $bg !important; color: $text; }
 }
 
 /* modal */
-.modal { position: fixed; inset: 0; display: grid; place-items: center; background: rgba(0,0,0,0.55); padding: 18px; z-index: 50; }
+.modal { 
+  position: fixed; 
+  inset: 0; 
+  display: grid; 
+  place-items: center; 
+  background: rgba(0,0,0,0.55); 
+  padding: 18px; 
+  z-index: 50; 
+
+  align-items: flex-start !important;
+  justify-items: center;
+  padding-top: 32px !important;
+}
 .modal-box { 
   width: 100%; 
   max-width: 540px; 
@@ -260,7 +272,7 @@ body { background: $bg !important; color: $text; }
 .field { display: grid; gap: 6px; }
 .field span { font-size: .9rem; color: $muted; }
 .field input, .field textarea { width: 100%; background: #0f0f0f; color: $text; border: 1px solid $border; border-radius: 10px; padding: 10px; }
-.preview { width: 100%; height: 220px; object-fit: cover; border-radius: 10px; border: 1px solid $border; margin-top: 8px; }
+.preview { width: 100%; height: 80px; max-width: 120px; object-fit: cover; border-radius: 10px; border: 1px solid $border; margin-top: 8px; display: block; margin-left: auto; margin-right: auto; }
 
 /* remove gym button */
 .remove-gym-btn {
@@ -577,4 +589,14 @@ body { background: $bg !important; color: $text; }
 /* Hover effect only rotates the gear */
 .profile-settings-icon:hover .settings-gear {
   transform: rotate(90deg);
+}
+
+/* modal z-index fix */
+.modal { z-index: 9999 !important; }
+.modal-box { z-index: 10000 !important; }
+
+@media (max-width: 600px) {
+  .modal-box {
+    padding-bottom: 300px !important;
+  }
 }

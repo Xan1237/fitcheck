@@ -241,7 +241,17 @@ body { background: $bg !important; color: $text; }
 
 /* modal */
 .modal { position: fixed; inset: 0; display: grid; place-items: center; background: rgba(0,0,0,0.55); padding: 18px; z-index: 50; }
-.modal-box { width: 100%; max-width: 540px; background: $panel; border: 1px solid $border; border-radius: 16px; box-shadow: $shadow; overflow: hidden; }
+.modal-box { 
+  width: 100%; 
+  max-width: 540px; 
+  background: $panel; 
+  border: 1px solid $border; 
+  border-radius: 16px; 
+  box-shadow: $shadow; 
+  overflow: hidden; 
+  max-height: 90vh;
+  overflow-y: auto;
+}
 .modal-head { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; border-bottom: 1px solid $border; }
 .modal-head h3 { color: $text; }
 .modal-body { padding: 14px; }

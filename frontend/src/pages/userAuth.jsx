@@ -213,22 +213,6 @@ const AuthPage = () => {
           )}
 
           <form onSubmit={handleSubmit} className="signin-form">
-            <button 
-              type="button" 
-              className="social-signin-button prominent-google-btn"
-              onClick={handleGoogleAuth}
-              style={{
-                background: '#fff',
-                color: '#222',
-                border: '2px solid #ff6b00',
-                fontWeight: 700,
-                fontSize: '18px',
-                marginBottom: '24px',
-                boxShadow: '0 2px 8px rgba(255,107,0,0.08)'
-              }}
-            >
-              Continue with Google
-            </button>
             <div className="form-group">
               <label htmlFor="email">Email address</label>
               <input
@@ -291,6 +275,18 @@ const AuthPage = () => {
               disabled={loading}
             >
               {loading ? 'Processing...' : isSignUp ? 'Sign Up' : 'Sign In'}
+            </button>
+
+            <div className="signin-divider">
+              <span>OR</span>
+            </div>
+            <button 
+              type="button" 
+              className="social-signin-button"
+              onClick={handleGoogleAuth}
+            >
+              <i className="icon-google"></i>
+              Continue with Google
             </button>
 
             <div className="auth-toggle-link">

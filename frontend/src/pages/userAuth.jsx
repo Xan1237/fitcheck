@@ -227,7 +227,6 @@ const AuthPage = () => {
                 boxShadow: '0 2px 8px rgba(255,107,0,0.08)'
               }}
             >
-              <i className="icon-google" style={{ fontSize: '22px', marginRight: '12px', color: '#ff6b00' }}></i>
               Continue with Google
             </button>
             <div className="form-group">

@@ -327,3 +327,16 @@ body {
     }
   }
 }
+
+.prominent-google-btn {
+  font-size: 9px;
+}
+
+.signin-header h2,
+.signin-header h1,
+.signin-header p {
+  font-size: 14px !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

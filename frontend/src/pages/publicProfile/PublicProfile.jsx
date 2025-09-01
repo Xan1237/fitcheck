@@ -783,6 +783,7 @@ const UserProfile = () => {
                 {userGyms.map(gym => (
                   <article key={gym.id} role="listitem" className="card gym-card" onClick={() => handleGymClick(gym.id)} style={{ position: 'relative' }}>
                     {/* Remove button */}
+                    {isOwnProfile && (
                     <button
                       className="remove-gym-btn"
                       aria-label="Remove gym"
@@ -804,6 +805,7 @@ const UserProfile = () => {
                     >
                       ×
                     </button>
+                    )}
                     <div className="gym-title">{gym.name}</div>
                     <div className="gym-sub"><MapPin size={14} /> {gym.address}</div>
                   </article>

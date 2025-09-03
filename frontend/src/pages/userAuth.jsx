@@ -158,7 +158,7 @@ const AuthPage = () => {
   // Supabase docs: https://supabase.com/docs/guides/auth/social-login/auth-google
   const handleGoogleAuth = () => {
     if (isLinkedInBrowser) {
-      setError('Google authentication does not work in the LinkedIn browser. Please open this page in Chrome, Safari, or another browser to sign in with Google.');
+      setError('Google authentication does not work in the LinkedIn browser. Please open this page in Chrome, Safari, or another browser to sign in with Google at https://www.fitcheck.fitness');
       return;
     }
     if (!SUPABASE_URL || SUPABASE_URL === 'undefined') {

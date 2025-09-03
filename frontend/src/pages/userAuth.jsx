@@ -157,6 +157,10 @@ const AuthPage = () => {
 
   // Supabase docs: https://supabase.com/docs/guides/auth/social-login/auth-google
   const handleGoogleAuth = () => {
+    if (isLinkedInBrowser) {
+      setError('Google authentication does not work in the LinkedIn browser. Please open this page in Chrome, Safari, or another browser to sign in with Google.');
+      return;
+    }
     if (!SUPABASE_URL || SUPABASE_URL === 'undefined') {
       setError('Google sign-in is not configured. Please contact support.');
       return;
@@ -173,11 +177,6 @@ const AuthPage = () => {
 
   return (
     <div className="signin-container">
-      {isLinkedInBrowser && (
-        <div style={{background:'#ffe0e0',color:'#a00',padding:'12px',borderRadius:'8px',marginBottom:'16px',textAlign:'center',fontWeight:'bold'}}>
-          Warning: Google authentication does not work in the LinkedIn browser. Please open this page in Chrome, Safari, or another browser to sign in with Google.
-        </div>
-      )}
       <div className="signin-card">
         <div className="signin-left">
           <div className="logo-container">

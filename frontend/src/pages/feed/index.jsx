@@ -325,6 +325,13 @@ const Feed = () => {
     }));
   };
 
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      navigate('/login');
+    }
+  }, []);
+
   return (
     <div className="feed-page">
       <Header />

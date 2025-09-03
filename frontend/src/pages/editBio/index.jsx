@@ -19,34 +19,7 @@ const EditBio = () => {
   }, []);
 
   const fetchCurrentBio = async () => {
-    setIsLoading(true);
-    try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        setMessage({ type: 'error', text: 'Authentication required' });
-        return;
-      }
 
-      const response = await axios.get(`${API_BASE_URL}/api/getUserBio`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (response.data.success) {
-        setBio(response.data.bio || '');
-        setOriginalBio(response.data.bio || '');
-        setCharCount((response.data.bio || '').length);
-      }
-    } catch (error) {
-      console.error('Error fetching bio:', error);
-      setMessage({ 
-        type: 'error', 
-        text: error.response?.data?.error || 'Failed to load current bio' 
-      });
-    } finally {
-      setIsLoading(false);
-    }
   };
 
   const handleBioChange = (e) => {
@@ -125,7 +98,7 @@ const EditBio = () => {
       {/* Header */}
       <div className="edit-bio-header">
         <button onClick={handleBack} className="back-button">
-          <ArrowLeft size={24} />
+          <ArrowLeft size={80} />
         </button>
         <h1>Edit Bio</h1>
         <button 

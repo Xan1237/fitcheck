@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
-import { User, Plus, PencilLine, UserPlus, MapPin, X, MessageCircle} from 'lucide-react';
+import { User, Plus, PencilLine, UserPlus, MapPin, X, MessageCircle, Settings, LogOut } from 'lucide-react';
 import Header from '../../components/header';
 import GymSearch from '../../components/GymSearch/GymSearch';
 import ImageCropper from '../../components/ImageCropper/ImageCropper';
@@ -99,9 +99,9 @@ const UserProfile = () => {
   };
 
   const [userData, setUserData] = useState({
-    name: 'Alex Johnson',
-    username: '@alexfit',
-    bio: 'Fitness enthusiast | Personal Trainer | Nutrition Coach',
+    name: '',
+    username: '',
+    bio: '',
     profilePicture: null,
     stats: { workoutsCompleted: '-', personalBests: '-', followers: '-', following: '-' },
     gymStats: []
@@ -129,6 +129,8 @@ const UserProfile = () => {
 
   const [showEditPRModal, setShowEditPRModal] = useState(false);
   const [editingPR, setEditingPR] = useState(null);
+  const [showSettingsDropdown, setShowSettingsDropdown] = useState(false);
+  const settingsDropdownRef = useRef(null);
 
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -271,14 +273,50 @@ const UserProfile = () => {
     setActiveTab(getTabFromQuery(location.search));
   }, [location.search]);
 
+  // Handle clicks outside settings dropdown
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (settingsDropdownRef.current && !settingsDropdownRef.current.contains(event.target)) {
+        setShowSettingsDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('username');
+    localStorage.removeItem('expiresAt');
+    
+    // Dispatch custom event to notify other components about auth state change
+    window.dispatchEvent(new Event('authStateChanged'));
+    
+    // Redirect to home page
+    navigate('/');
+  };
+
   const handleSavePR = async () => {
     try {
       const token = localStorage.getItem('token');
-      await axios.post(`${API_BASE_URL}/api/addPersonalRecord`, { newPR }, { headers: { Authorization: `Bearer ${token}` } });
+      await axios.post(`${API_BASE_URL}/api/addPersonalRecord`, {
+        newPR: {
+          exercise: newPR.exercise.trim(),
+          weight: Number(newPR.weight),
+          reps: Number(newPR.reps)
+        } 
+      }, { headers: { Authorization: `Bearer ${token}` } });
       setUserData(prev => ({
         ...prev,
         stats: { ...prev.stats, personalBests: Number(prev.stats.personalBests) + 1 },
-        gymStats: [...prev.gymStats, { exercise: newPR.exercise, weight: `${newPR.weight} lbs`, reps: newPR.reps }]
+        gymStats: [...prev.gymStats, {
+          exercise: newPR.exercise.trim(),
+          weight: `${Number(newPR.weight)} lbs`,
+          reps: Number(newPR.reps)
+        }]
       }));
       setShowAddPRModal(false);
       setNewPR({ exercise: '', weight: '', reps: '' });
@@ -289,12 +327,18 @@ const UserProfile = () => {
     try {
       const token = localStorage.getItem('token');
       // Allow changing the exercise name too (optional)
+      const originalWeight = Number(String(editingPR.weight).toString());
+      const originalReps   = Number(String(editingPR.reps).toString());
       const payload = {
-        exerciseName: editingPR.exercise,
+        exerciseName: editingPR.exercise,      // original exercise
+        weight: originalWeight,                // original weight
+        reps: originalReps,                    // original reps
+        // optional new values:
         newExerciseName: editingPR.newExercise ?? undefined,
-        weight: editingPR.weight ? Number(editingPR.weight) : undefined,
-        reps: editingPR.reps ? Number(editingPR.reps) : undefined
+        newWeight: (editingPR.newWeight != null) ? Number(editingPR.newWeight) : undefined,
+        newReps:   (editingPR.newReps != null)   ? Number(editingPR.newReps)   : undefined,
       };
+
 
       await axios.put(`${API_BASE_URL}/api/pr`, payload, {
         headers: { Authorization: `Bearer ${token}` }
@@ -304,14 +348,15 @@ const UserProfile = () => {
       setUserData(prev => {
         const next = { ...prev };
         next.gymStats = prev.gymStats.map(item => {
-          if (item.exercise !== editingPR.exercise) return item;
-          return {
-            exercise: editingPR.newExercise || editingPR.exercise,
-            weight: (editingPR.weight ?? item.weight).toString().includes('lbs')
-              ? `${editingPR.weight} lbs`
-              : `${editingPR.weight ?? Number(String(item.weight).replace(/[^0-9.]/g,''))} lbs`,
-            reps: editingPR.reps ?? item.reps
-          };
+          if (item.exercise !== editingPR.exercise
+              || Number(String(item.weight).replace(/[^0-9.]/g,'')) !== originalWeight
+              || Number(item.reps) !== originalReps) return item;
+
+          const newW = editingPR.newWeight != null ? Number(editingPR.newWeight) : originalWeight;
+          const newR = editingPR.newReps   != null ? Number(editingPR.newReps)   : originalReps;
+          const newE = editingPR.newExercise ?? editingPR.exercise;
+
+          return { exercise: newE, weight: `${newW} lbs`, reps: newR };
         });
         return next;
       });
@@ -324,12 +369,14 @@ const UserProfile = () => {
     }
   };
 
-  const handleDeletePR = async (exerciseName) => {
+  const handleDeletePR = async (exerciseName, weight, reps) => {
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`${API_BASE_URL}/api/pr/${encodeURIComponent(exerciseName)}`, {
-        headers: { Authorization: `Bearer ${token}` }
+      await axios.delete(`${API_BASE_URL}/api/pr`, {
+        headers: { Authorization: `Bearer ${token}` },
+        data: { exerciseName, weight: Number(weight), reps: Number(reps) }
       });
+
 
       // Update UI state
       setUserData(prev => ({
@@ -338,7 +385,11 @@ const UserProfile = () => {
           ...prev.stats,
           personalBests: Math.max(0, Number(prev.stats.personalBests) - 1)
         },
-        gymStats: prev.gymStats.filter(item => item.exercise !== exerciseName)
+        gymStats: prev.gymStats.filter(item =>
+          !(item.exercise === exerciseName &&
+            Number(String(item.weight).replace(/[^0-9.]/g,'')) === Number(weight) &&
+            Number(item.reps) === Number(reps))
+        )
       }));
     } catch (e) {
       console.error('Error deleting PR:', e);
@@ -515,6 +566,29 @@ const UserProfile = () => {
   return (
     <div className="profile-page">
       <Header />
+      
+      {/* Settings Icon - Only show on own profile */}
+      {isOwnProfile && (
+        <div className="profile-settings-container" style={{ color: "#ffffff" }} ref={settingsDropdownRef}>
+          <button
+            className="profile-settings-icon"
+            onClick={() => setShowSettingsDropdown(!showSettingsDropdown)}
+          >
+            <Settings className="settings-gear" />
+          </button>
+          {showSettingsDropdown && (
+            <div className="profile-settings-dropdown">
+              <button 
+                className="settings-option logout-option"
+                onClick={handleLogout}
+              >
+                <LogOut size={16} />
+                <span>Logout</span>
+              </button>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Hero */}
       <section className="profile-hero no-gradient">
@@ -532,6 +606,7 @@ const UserProfile = () => {
             <div
               className="avatar-container"
               data-clickable={isOwnProfile ? "true" : "false"}
+              onClick={() => isOwnProfile && profilePictureInputRef.current?.click()}
             >
               {userData.profilePicture ? (
                 <img
@@ -558,7 +633,6 @@ const UserProfile = () => {
 
           <div className="identity">
             <h1 id="userName" className="display">{userData.name}</h1>
-            <p className="username">@{userData.username}</p>
             <p className="bio">{userData.bio}</p>
 
             <div className="actions">
@@ -657,9 +731,14 @@ const UserProfile = () => {
                         <button
                           className="btn subtle"
                           onClick={() => {
-                            // parse weight like "225 lbs" -> 225
-                            const w = typeof stat.weight === 'string' ? Number(String(stat.weight).replace(/[^0-9.]/g, '')) : stat.weight;
-                            setEditingPR({ exercise: stat.exercise, weight: w || 0, reps: Number(stat.reps) || 1 });
+                            const w = typeof stat.weight === 'string'
+                              ? Number(String(stat.weight).replace(/[^0-9.]/g, ''))
+                              : Number(stat.weight);
+                            setEditingPR({
+                              exercise: stat.exercise,
+                              weight: w || 0,
+                              reps: Number(stat.reps) || 1
+                            });
                             setShowEditPRModal(true);
                           }}
                         >
@@ -667,7 +746,11 @@ const UserProfile = () => {
                         </button>
                         <button
                           className="btn subtle"
-                          onClick={() => handleDeletePR(stat.exercise)}
+                          onClick={() => handleDeletePR(
+                            stat.exercise,
+                            Number(String(stat.weight).replace(/[^0-9.]/g,'')),
+                            Number(stat.reps)
+                          )}
                         >
                           Delete
                         </button>
@@ -700,6 +783,7 @@ const UserProfile = () => {
                 {userGyms.map(gym => (
                   <article key={gym.id} role="listitem" className="card gym-card" onClick={() => handleGymClick(gym.id)} style={{ position: 'relative' }}>
                     {/* Remove button */}
+                    {isOwnProfile && (
                     <button
                       className="remove-gym-btn"
                       aria-label="Remove gym"
@@ -721,6 +805,7 @@ const UserProfile = () => {
                     >
                       ×
                     </button>
+                    )}
                     <div className="gym-title">{gym.name}</div>
                     <div className="gym-sub"><MapPin size={14} /> {gym.address}</div>
                   </article>
@@ -845,14 +930,13 @@ const UserProfile = () => {
                     onChange={e => setEditingPR(prev => ({ ...prev, newExercise: e.target.value }))}
                     placeholder="Bench Press"
                   />
-                  <small className="subtle">Leave unchanged to keep the same name.</small>
                 </label>
                 <label className="field">
                   <span>Weight (lbs)</span>
                   <input
                     type="number"
-                    value={editingPR.weight}
-                    onChange={e => setEditingPR(prev => ({ ...prev, weight: e.target.value }))}
+                    value={editingPR.newWeight ?? editingPR.weight}
+                    onChange={e => setEditingPR(prev => ({ ...prev, newWeight: e.target.value }))}
                     placeholder="225"
                     min={1}
                   />
@@ -861,8 +945,8 @@ const UserProfile = () => {
                   <span>Reps</span>
                   <input
                     type="number"
-                    value={editingPR.reps}
-                    onChange={e => setEditingPR(prev => ({ ...prev, reps: e.target.value }))}
+                    value={editingPR.newReps ?? editingPR.reps}
+                    onChange={e => setEditingPR(prev => ({ ...prev, newReps: e.target.value }))}
                     placeholder="5"
                     min={1}
                   />

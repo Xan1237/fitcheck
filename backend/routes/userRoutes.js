@@ -41,6 +41,7 @@ router.post("/api/set-username", verifyAuth, setUsername);
 router.get("/api/checkProfileOwnership/:username", verifyAuth, checkProfileOwnership);
 router.post("/api/addPersonalRecord", verifyAuth, addPersonalRecord);
 router.put("/api/pr", verifyAuth, updatePersonalRecord);
+router.delete("/api/pr", verifyAuth, deletePersonalRecord); 
 router.delete("/api/pr/:exerciseName", verifyAuth, deletePersonalRecord);
 router.post("/api/uploadProfilePicture", verifyAuth, uploadProfilePicture);
 router.post("/api/createPost", verifyAuth, createPost);

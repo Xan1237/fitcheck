@@ -58,10 +58,16 @@ const MessagesScreen = ({ navigation }) => {
       }
     } catch (error) {
       console.error('Error fetching chats:', error);
-      // Don't show alert for now, just log
     } finally {
       setLoading(false);
     }
+  };
+
+  // Helper to get chat partner name from chat object
+  const getChatName = (chat) => {
+    if (chat.uuid1 && chat.uuid1.trim().toLowerCase() === "you") return chat.uuid2;
+    if (chat.uuid2 && chat.uuid2.trim().toLowerCase() === "you") return chat.uuid1;
+    return 'Unknown Chat';
   };
 
   const onRefresh = async () => {
@@ -72,97 +78,35 @@ const MessagesScreen = ({ navigation }) => {
 
   const handleChatPress = (chat) => {
     navigation.navigate('ChatDetail', { 
-      chatId: chat.id, 
-      participants: chat.participants,
+      chatId: chat.chat_id, 
+      participants: [chat], // pass as array for detail screen logic
       chatName: getChatName(chat)
     });
   };
 
-  const getChatName = (chat) => {
-    if (chat.participants && chat.participants.length === 2) {
-      // Direct message - show other participant's name
-      const currentUser = 'currentUserId'; // You'd get this from auth context
-      const otherParticipant = chat.participants.find(p => p.id !== currentUser);
-      return otherParticipant?.username || 'Unknown User';
-    } else if (chat.participants) {
-      // Group chat
-      return chat.name || `Group (${chat.participants.length})`;
-    }
-    return 'Unknown Chat';
-  };
-
-  const formatTime = (timestamp) => {
-    if (!timestamp) return '';
-    const date = new Date(timestamp);
-    const now = new Date();
-    const diffInHours = (now - date) / (1000 * 60 * 60);
-
-    if (diffInHours < 24) {
-      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    } else if (diffInHours < 48) {
-      return 'Yesterday';
-    } else {
-      return date.toLocaleDateString();
-    }
-  };
-
   const renderChatItem = ({ item }) => {
     const chatName = getChatName(item);
-    const lastMessage = item.lastMessage;
     const isUnread = item.unreadCount > 0;
 
     return (
       <TouchableOpacity
-        style={[styles.chatItem, isUnread && styles.unreadChat]}
+        style={styles.chatItem}
         onPress={() => handleChatPress(item)}
       >
         <View style={styles.avatarContainer}>
-          {item.participants && item.participants.length === 2 ? (
-            // Direct message avatar
-            <Image
-              source={{
-                uri: item.participants.find(p => p.id !== 'currentUserId')?.avatar ||
-                     'https://via.placeholder.com/50'
-              }}
-              style={styles.avatar}
-            />
-          ) : (
-            // Group chat avatar
-            <View style={styles.groupAvatar}>
-              <MaterialIcons name="group" size={24} color="#666" />
-            </View>
-          )}
-          
-          {item.isOnline && (
-            <View style={styles.onlineIndicator} />
-          )}
+          <View style={styles.groupAvatar}>
+            <MaterialIcons name="person" size={24} color="#666" />
+          </View>
         </View>
 
         <View style={styles.chatContent}>
           <View style={styles.chatHeader}>
-            <Text style={[styles.chatName, isUnread && styles.unreadText]}>
-              {chatName}
-            </Text>
-            <Text style={styles.timestamp}>
-              {lastMessage && formatTime(lastMessage.timestamp)}
-            </Text>
+            <Text style={styles.chatName}>{chatName}</Text>
+            {/* No timestamp in this format */}
           </View>
 
           <View style={styles.messagePreview}>
-            <Text
-              style={[styles.lastMessage, isUnread && styles.unreadText]}
-              numberOfLines={1}
-            >
-              {lastMessage?.content || 'No messages yet'}
-            </Text>
-            
-            {isUnread && (
-              <View style={styles.unreadBadge}>
-                <Text style={styles.unreadCount}>
-                  {item.unreadCount > 99 ? '99+' : item.unreadCount}
-                </Text>
-              </View>
-            )}
+            <Text style={styles.lastMessage}>No messages yet</Text>
           </View>
         </View>
       </TouchableOpacity>
@@ -389,6 +333,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     paddingHorizontal: 40,
   },
-});
 
+});
 export default MessagesScreen;

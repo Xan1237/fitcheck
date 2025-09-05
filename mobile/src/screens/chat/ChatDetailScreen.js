@@ -176,6 +176,19 @@ const ChatDetailScreen = ({ route, navigation }) => {
     );
   };
 
+  // Helper to get chat partner name from chat response
+  const getChatPartnerName = () => {
+    if (!participants) return chatName;
+    // participants is an array of chat objects, not user objects
+    const chat = participants.find(c => c.chat_id === chatId);
+    if (!chat) return chatName;
+    // If uuid1 is "You", partner is uuid2; if uuid2 is "You", partner is uuid1
+    if (chat.uuid1 && chat.uuid1.trim().toLowerCase() === "you") return chat.uuid2;
+    if (chat.uuid2 && chat.uuid2.trim().toLowerCase() === "you") return chat.uuid1;
+    // fallback
+    return chatName;
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
@@ -185,12 +198,7 @@ const ChatDetailScreen = ({ route, navigation }) => {
         </TouchableOpacity>
         
         <View style={styles.headerInfo}>
-          <Text style={styles.headerTitle}>{chatName}</Text>
-          {participants && participants.length === 2 && (
-            <Text style={styles.headerSubtitle}>
-              {participants.find(p => p.id !== currentUser?.id)?.isOnline ? 'Online' : 'Offline'}
-            </Text>
-          )}
+          <Text style={styles.headerTitle}>{getChatPartnerName()}</Text>
         </View>
         
         <TouchableOpacity>
@@ -407,3 +415,4 @@ const styles = StyleSheet.create({
 });
 
 export default ChatDetailScreen;
+

@@ -16,6 +16,15 @@ const AuthPage = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [confirmationMessage, setConfirmationMessage] = useState('');
+  const [isLinkedInBrowser, setIsLinkedInBrowser] = useState(false);
+
+  useEffect(() => {
+    // Detect LinkedIn in-app browser
+    const ua = window.navigator.userAgent.toLowerCase();
+    if (ua.includes('linkedin')) {
+      setIsLinkedInBrowser(true);
+    }
+  }, []);
 
   // Extract and validate token from hash if present (for Google sign-in)
   useEffect(() => {
@@ -148,6 +157,10 @@ const AuthPage = () => {
 
   // Supabase docs: https://supabase.com/docs/guides/auth/social-login/auth-google
   const handleGoogleAuth = () => {
+    if (isLinkedInBrowser) {
+      setError('Google authentication does not work in the LinkedIn browser. Please open this page in Chrome, Safari, or another browser to sign in with Google at https://www.fitcheck.fitness');
+      return;
+    }
     if (!SUPABASE_URL || SUPABASE_URL === 'undefined') {
       setError('Google sign-in is not configured. Please contact support.');
       return;

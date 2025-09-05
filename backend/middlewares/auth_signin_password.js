@@ -32,7 +32,6 @@ export const signInUser = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      uid: user.id,
       email: user.email,
       token: session.access_token,   // JWT for client to use
       expires_at: session.expires_at  // timestamp when it expires

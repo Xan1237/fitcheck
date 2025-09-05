@@ -34,8 +34,7 @@ const ProfileScreen = ({ navigation }) => {
   const [editedBio, setEditedBio] = useState('');
   const [stats, setStats] = useState({
     totalPosts: 0,
-    totalLikes: 0,
-    totalComments: 0,
+    personalRecords: 0,
   });
 
   useEffect(() => {
@@ -50,15 +49,34 @@ const ProfileScreen = ({ navigation }) => {
       const token = await AsyncStorage.getItem('token');
       if (!token) return;
 
-      const response = await axios.get(`${API_BASE_URL}/api/profile`, {
+      const username = await AsyncStorage.getItem('username');
+      if (!username) return;
+
+      const response = await axios.get(`${API_BASE_URL}/api/GetUserData/?userName=${encodeURIComponent(username)}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
-      if (response.data) {
-        setProfile(response.data);
-        setEditedBio(response.data.bio || '');
-        setFollowers(response.data.followers || 0);
-        setFollowing(response.data.following || 0);
+      if (response.data && response.data.success && response.data.user) {
+        const userData = response.data.user;
+        setProfile({
+          username: userData.username,
+          firstName: userData.firstName,
+          lastName: userData.lastName,
+          gender: userData.gender,
+          bio: userData.bio,
+          location: userData.location,
+          gymExperience: userData.gymExperience,
+          preferredGymType: userData.preferredGymType,
+          trainingFrequency: userData.trainingFrequency,
+          profileImage: userData.profilePictureUrl,
+          pr: userData.pr || [],
+        });
+        setEditedBio(userData.bio || '');
+        // Followers/following not present in response, set to 0 or handle as needed
+        setFollowers(0);
+        setFollowing(0);
+        // Posts from user data
+        setPosts(userData.posts || []);
       }
     } catch (error) {
       console.error('Error fetching profile:', error);
@@ -94,7 +112,12 @@ const ProfileScreen = ({ navigation }) => {
       });
 
       if (response.data) {
-        setStats(response.data);
+        setStats({
+          totalPosts: response.data.posts || 0,
+          personalRecords: response.data.personalRecords || 0,
+        });
+        setFollowers(response.data.followers || 0);
+        setFollowing(response.data.following || 0);
       }
     } catch (error) {
       console.error('Error fetching user stats:', error);
@@ -310,16 +333,16 @@ const ProfileScreen = ({ navigation }) => {
             <Text style={styles.statLabel}>Posts</Text>
           </View>
           <View style={styles.statItem}>
+            <Text style={styles.statValue}>{stats.personalRecords}</Text>
+            <Text style={styles.statLabel}>PRs</Text>
+          </View>
+          <View style={styles.statItem}>
             <Text style={styles.statValue}>{followers}</Text>
             <Text style={styles.statLabel}>Followers</Text>
           </View>
           <View style={styles.statItem}>
             <Text style={styles.statValue}>{following}</Text>
             <Text style={styles.statLabel}>Following</Text>
-          </View>
-          <View style={styles.statItem}>
-            <Text style={styles.statValue}>{stats.totalLikes}</Text>
-            <Text style={styles.statLabel}>Likes</Text>
           </View>
         </View>
 

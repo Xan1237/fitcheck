@@ -105,7 +105,21 @@ const AuthScreen = ({ navigation }) => {
 
       if (response.data.success) {
         await AsyncStorage.setItem('token', response.data.token);
-        
+
+        // Get username and save to AsyncStorage
+        const usernameRes = await axios.post(
+          `${API_BASE_URL}/api/getUserName`,
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${response.data.token}`,
+            },
+          }
+        );
+        if (usernameRes.data.success && usernameRes.data.username) {
+          await AsyncStorage.setItem('username', usernameRes.data.username);
+        }
+
         // Set expiration if rememberMe is checked (7 days)
         if (rememberMe) {
           const expiresAt = new Date();

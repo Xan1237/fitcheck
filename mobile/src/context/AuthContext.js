@@ -63,15 +63,31 @@ export const AuthProvider = ({ children }) => {
         password 
       });
 
-      if (response.data.success) {
-        const { token, user } = response.data;
-        
-        await AsyncStorage.setItem('token', token);
-        if (user) {
-          await AsyncStorage.setItem('userData', JSON.stringify(user));
-          setUser(user);
+      if (response.data.success && response.data.token) {
+        const { token, user: baseUser } = response.data;
+
+        // Immediately call getUserName after receiving token
+        let user = baseUser || {};
+        let username = '';
+        const usernameRes = await axios.post(
+          `${API_BASE_URL}/api/getUserName`,
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        if (usernameRes.data.success) {
+          user.username = usernameRes.data.username;
+          username = usernameRes.data.username;
         }
-        
+
+        await AsyncStorage.setItem('token', token);
+        await AsyncStorage.setItem('username', username || '');
+        await AsyncStorage.setItem('userData', JSON.stringify(user));
+        setUser(user);
+
         setIsAuthenticated(true);
         return { success: true };
       } else {
@@ -141,3 +157,4 @@ export const AuthProvider = ({ children }) => {
     </AuthContext.Provider>
   );
 };
+

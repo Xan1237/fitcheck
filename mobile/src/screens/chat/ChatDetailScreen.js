@@ -27,12 +27,8 @@ const ChatDetailScreen = ({ route, navigation }) => {
   const flatListRef = useRef(null);
 
   useEffect(() => {
-    fetchMessages();
-    getCurrentUser();
-    
-    // Set up polling for new messages (in a real app, you'd use WebSockets)
-    const interval = setInterval(fetchMessages, 3000);
-    return () => clearInterval(interval);
+    getCurrentUser(); // Only get user once on mount
+    fetchMessages();  // Only fetch messages once on mount
   }, []);
 
   const getCurrentUser = async () => {
@@ -57,7 +53,8 @@ const ChatDetailScreen = ({ route, navigation }) => {
       });
 
       if (response.data) {
-        setMessages(response.data.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp)));
+        // Sort by created_at ascending
+        setMessages(response.data.sort((a, b) => new Date(a.created_at) - new Date(b.created_at)));
       }
     } catch (error) {
       console.error('Error fetching messages:', error);
@@ -75,17 +72,16 @@ const ChatDetailScreen = ({ route, navigation }) => {
       }
 
       const messageData = {
-        chatId,
-        content: newMessage.trim(),
-        timestamp: new Date().toISOString(),
+        chat_id: chatId,
+        text: newMessage.trim(),
+        created_at: new Date().toISOString(),
+        ownerUsername: currentUser?.username,
       };
 
       // Optimistically add message to UI
       const tempMessage = {
         ...messageData,
-        id: Date.now().toString(),
-        senderId: currentUser?.id,
-        senderName: currentUser?.username,
+        uuid: Date.now().toString(),
         isTemp: true,
       };
       
@@ -98,13 +94,12 @@ const ChatDetailScreen = ({ route, navigation }) => {
 
       if (response.status === 200) {
         // Remove temp message and add real one
-        setMessages(prev => prev.filter(msg => msg.id !== tempMessage.id));
+        setMessages(prev => prev.filter(msg => msg.uuid !== tempMessage.uuid));
         fetchMessages();
       }
     } catch (error) {
       console.error('Error sending message:', error);
       Alert.alert('Error', 'Failed to send message');
-      // Remove failed message
       setMessages(prev => prev.filter(msg => !msg.isTemp));
     }
   };
@@ -130,16 +125,17 @@ const ChatDetailScreen = ({ route, navigation }) => {
   };
 
   const renderMessage = ({ item, index }) => {
-    const isCurrentUser = item.senderId === currentUser?.id;
+    // Use ownerUsername for sender name, and compare to currentUser?.username
+    const isCurrentUser = item.ownerUsername === currentUser?.username;
     const previousMessage = index > 0 ? messages[index - 1] : null;
     const showDateSeparator = !previousMessage || 
-      formatDate(item.timestamp) !== formatDate(previousMessage.timestamp);
+      formatDate(item.created_at) !== formatDate(previousMessage.created_at);
 
     return (
       <View>
         {showDateSeparator && (
           <View style={styles.dateSeparator}>
-            <Text style={styles.dateText}>{formatDate(item.timestamp)}</Text>
+            <Text style={styles.dateText}>{formatDate(item.created_at)}</Text>
           </View>
         )}
         
@@ -147,8 +143,8 @@ const ChatDetailScreen = ({ route, navigation }) => {
           styles.messageContainer,
           isCurrentUser ? styles.currentUserMessage : styles.otherUserMessage
         ]}>
-          {!isCurrentUser && participants?.length > 2 && (
-            <Text style={styles.senderName}>{item.senderName}</Text>
+          {!isCurrentUser && (
+            <Text style={styles.senderName}>{item.ownerUsername}</Text>
           )}
           
           <View style={[
@@ -160,7 +156,7 @@ const ChatDetailScreen = ({ route, navigation }) => {
               styles.messageText,
               isCurrentUser ? styles.currentUserText : styles.otherUserText
             ]}>
-              {item.content}
+              {item.text}
             </Text>
           </View>
           
@@ -168,7 +164,7 @@ const ChatDetailScreen = ({ route, navigation }) => {
             styles.timeText,
             isCurrentUser ? styles.currentUserTime : styles.otherUserTime
           ]}>
-            {formatTime(item.timestamp)}
+            {formatTime(item.created_at)}
             {item.isTemp && ' ⏳'}
           </Text>
         </View>
@@ -210,7 +206,7 @@ const ChatDetailScreen = ({ route, navigation }) => {
       <FlatList
         ref={flatListRef}
         data={messages}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item.uuid}
         renderItem={renderMessage}
         style={styles.messagesList}
         onContentSizeChange={() => flatListRef.current?.scrollToEnd()}
@@ -413,6 +409,7 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
 });
+
 
 export default ChatDetailScreen;
 

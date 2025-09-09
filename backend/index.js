@@ -29,6 +29,7 @@ const corsOptions = {
     'http://localhost:3000',    // React development server
     'http://localhost:5173',    // Vite development server
     'https://fitcheck.fitness', // Your web production domain
+    'https://www.fitcheck.fitness' // Your web production domain with www
   ]
 };
 

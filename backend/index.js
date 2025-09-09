@@ -27,13 +27,17 @@ initializeSocket(server);
 const corsOptions = {
   origin: [
     'http://localhost:3000',    // React development server
-    'http://localhost:5173',    // Vite development serverin
-    'https://fitcheck.fitness',   // Your production frontend domain
-    'https://www.fitcheck.fitness' // Your production frontend domain (www)
+    'http://localhost:5173',    // Vite development server
+    'https://fitcheck.fitness', // Your web production domain
   ]
 };
 
-fitcheck.fitness.pp.use(commentRouter);
+// Middleware
+app.use(cors(corsOptions));
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+
+app.use(commentRouter);
 app.use(profileRouter);
 app.use(postRouter); // Ensure this is after profileRouter if it depends on user data
 app.use(gymRouter);
